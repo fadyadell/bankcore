@@ -1,0 +1,26 @@
+{
+  "name": "@bankcore/account-service",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": { "start": "node dist/main.js" },
+  "nx": {
+    "name": "account-service",
+    "targets": {
+      "build": {
+        "executor": "@nx/js:tsc",
+        "outputs": ["{options.outputPath}"],
+        "options": {
+          "outputPath": "apps/account-service/dist",
+          "main": "apps/account-service/src/main.ts",
+          "tsConfig": "apps/account-service/tsconfig.app.json",
+          "assets": []
+        }
+      },
+      "serve": {
+        "executor": "@nx/js:node",
+        "options": { "buildTarget": "account-service:build" }
+      }
+    }
+  },
+  "dependencies": { "tslib": "^2.3.0" }
+}

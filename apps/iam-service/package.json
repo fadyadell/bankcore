@@ -1,0 +1,32 @@
+{
+  "name": "@bankcore/iam-service",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node dist/main.js"
+  },
+  "nx": {
+    "name": "iam-service",
+    "targets": {
+      "build": {
+        "executor": "@nx/js:tsc",
+        "outputs": ["{options.outputPath}"],
+        "options": {
+          "outputPath": "apps/iam-service/dist",
+          "main": "apps/iam-service/src/main.ts",
+          "tsConfig": "apps/iam-service/tsconfig.app.json",
+          "assets": []
+        }
+      },
+      "serve": {
+        "executor": "@nx/js:node",
+        "options": {
+          "buildTarget": "iam-service:build"
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  }
+}

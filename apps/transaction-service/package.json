@@ -1,0 +1,26 @@
+{
+  "name": "@bankcore/transaction-service",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": { "start": "node dist/main.js" },
+  "nx": {
+    "name": "transaction-service",
+    "targets": {
+      "build": {
+        "executor": "@nx/js:tsc",
+        "outputs": ["{options.outputPath}"],
+        "options": {
+          "outputPath": "apps/transaction-service/dist",
+          "main": "apps/transaction-service/src/main.ts",
+          "tsConfig": "apps/transaction-service/tsconfig.app.json",
+          "assets": []
+        }
+      },
+      "serve": {
+        "executor": "@nx/js:node",
+        "options": { "buildTarget": "transaction-service:build" }
+      }
+    }
+  },
+  "dependencies": { "tslib": "^2.3.0" }
+}
