@@ -5,6 +5,33 @@
   "references": [
     {
       "path": "./libs/common"
+    },
+    {
+      "path": "./apps/notification-service"
+    },
+    {
+      "path": "./apps/transaction-service"
+    },
+    {
+      "path": "./apps/account-service"
+    },
+    {
+      "path": "./libs/prisma-client"
+    },
+    {
+      "path": "./apps/api-gateway"
+    },
+    {
+      "path": "./apps/iam-service"
+    },
+    {
+      "path": "./libs/messaging"
+    },
+    {
+      "path": "./libs/cache"
+    },
+    {
+      "path": "./libs/auth"
     }
   ],
   "compilerOptions": {}

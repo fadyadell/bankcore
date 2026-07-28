@@ -16,6 +16,19 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src/**/*.ts"],
-  "references": [],
+  "references": [
+    {
+      "path": "../../libs/messaging/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/cache/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/prisma-client/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/common/tsconfig.lib.json"
+    }
+  ],
   "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts"]
 }
