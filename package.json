@@ -1,5 +1,5 @@
 {
-  "name": "@org/source",
+  "name": "bankcore",
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {},
@@ -17,6 +17,7 @@
     "typescript": "~6.0.3"
   },
   "workspaces": [
-    "packages/*"
+    "apps/*",
+    "libs/*"
   ]
 }
