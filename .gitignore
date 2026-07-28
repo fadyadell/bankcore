@@ -55,3 +55,26 @@ Thumbs.db
 .nx/polygraph
 .nx/self-healing
 .nx/migrate-runs
+test-output
+
+# Prisma
+libs/prisma-client/src/generated
+
+# Docker
+docker/postgres/data
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# AI tool configs
+.agents/
+.claude/
+.codex/
+.cursor/
+.gemini/
+.opencode/
+AGENTS.md
+CLAUDE.md
+opencode.json

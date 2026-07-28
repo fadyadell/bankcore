@@ -1,0 +1,213 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── IAM Domain ──────────────────────────────────────────
+
+model User {
+  id            String    @id @default(uuid()) @db.Uuid
+  keycloakId    String    @unique @map("keycloak_id")
+  email         String    @unique
+  firstName     String    @map("first_name")
+  lastName      String    @map("last_name")
+  phone         String?
+  dateOfBirth   DateTime? @map("date_of_birth")
+  nationalId    String?   @unique @map("national_id")
+  kycStatus     KycStatus @default(PENDING) @map("kyc_status")
+  status        UserStatus @default(ACTIVE)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  accounts      Account[]
+  auditLogs     AuditLog[]
+
+  @@map("users")
+}
+
+enum KycStatus {
+  PENDING
+  SUBMITTED
+  VERIFIED
+  REJECTED
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  DEACTIVATED
+}
+
+// ─── Account Domain ──────────────────────────────────────
+
+model Account {
+  id            String        @id @default(uuid()) @db.Uuid
+  accountNumber String        @unique @map("account_number")
+  userId        String        @map("user_id") @db.Uuid
+  type          AccountType
+  currency      String        @default("USD") @db.VarChar(3)
+  balance       Decimal       @default(0) @db.Decimal(18, 2)
+  availableBalance Decimal    @default(0) @map("available_balance") @db.Decimal(18, 2)
+  status        AccountStatus @default(ACTIVE)
+  interestRate  Decimal?      @map("interest_rate") @db.Decimal(5, 4)
+  overdraftLimit Decimal?     @map("overdraft_limit") @db.Decimal(18, 2)
+  openedAt      DateTime      @default(now()) @map("opened_at")
+  closedAt      DateTime?     @map("closed_at")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  user          User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  debitTransactions  Transaction[] @relation("DebitAccount")
+  creditTransactions Transaction[] @relation("CreditAccount")
+  ledgerEntries LedgerEntry[]
+
+  @@index([userId])
+  @@index([status])
+  @@map("accounts")
+}
+
+enum AccountType {
+  SAVINGS
+  CURRENT
+  FIXED_DEPOSIT
+  LOAN
+}
+
+enum AccountStatus {
+  ACTIVE
+  FROZEN
+  DORMANT
+  CLOSED
+}
+
+// ─── Transaction Domain ──────────────────────────────────
+
+model Transaction {
+  id              String            @id @default(uuid()) @db.Uuid
+  referenceNumber String            @unique @map("reference_number")
+  idempotencyKey  String?           @unique @map("idempotency_key")
+  type            TransactionType
+  status          TransactionStatus @default(PENDING)
+  amount          Decimal           @db.Decimal(18, 2)
+  currency        String            @default("USD") @db.VarChar(3)
+  description     String?
+  debitAccountId  String?           @map("debit_account_id") @db.Uuid
+  creditAccountId String?           @map("credit_account_id") @db.Uuid
+  metadata        Json?
+  failureReason   String?           @map("failure_reason")
+  processedAt     DateTime?         @map("processed_at")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+
+  debitAccount    Account?          @relation("DebitAccount", fields: [debitAccountId], references: [id])
+  creditAccount   Account?          @relation("CreditAccount", fields: [creditAccountId], references: [id])
+  ledgerEntries   LedgerEntry[]
+
+  @@index([debitAccountId])
+  @@index([creditAccountId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("transactions")
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  TRANSFER
+  FEE
+  INTEREST
+  REVERSAL
+}
+
+enum TransactionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REVERSED
+}
+
+// ─── Double-Entry Ledger ─────────────────────────────────
+
+model LedgerEntry {
+  id            String      @id @default(uuid()) @db.Uuid
+  transactionId String      @map("transaction_id") @db.Uuid
+  accountId     String      @map("account_id") @db.Uuid
+  entryType     EntryType   @map("entry_type")
+  amount        Decimal     @db.Decimal(18, 2)
+  balanceAfter  Decimal     @map("balance_after") @db.Decimal(18, 2)
+  createdAt     DateTime    @default(now()) @map("created_at")
+
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  account       Account     @relation(fields: [accountId], references: [id])
+
+  @@index([transactionId])
+  @@index([accountId])
+  @@map("ledger_entries")
+}
+
+enum EntryType {
+  DEBIT
+  CREDIT
+}
+
+// ─── Audit Log ───────────────────────────────────────────
+
+model AuditLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String?  @map("user_id") @db.Uuid
+  action      String
+  resource    String
+  resourceId  String?  @map("resource_id")
+  oldValue    Json?    @map("old_value")
+  newValue    Json?    @map("new_value")
+  ipAddress   String?  @map("ip_address")
+  userAgent   String?  @map("user_agent")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user        User?    @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([resource, resourceId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ─── Notification Domain ─────────────────────────────────
+
+model Notification {
+  id          String             @id @default(uuid()) @db.Uuid
+  userId      String             @map("user_id") @db.Uuid
+  channel     NotificationChannel
+  type        String
+  subject     String?
+  body        String
+  status      NotificationStatus @default(PENDING)
+  metadata    Json?
+  sentAt      DateTime?          @map("sent_at")
+  failedAt    DateTime?          @map("failed_at")
+  failureReason String?          @map("failure_reason")
+  createdAt   DateTime           @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+  PUSH
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+}
