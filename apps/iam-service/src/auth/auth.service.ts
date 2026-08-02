@@ -1,14 +1,14 @@
-import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
-import { KeycloakAdminService } from '../keycloak/keycloak-admin.service.js';
-import { AuditService } from '../audit/audit.service.js';
+import { Injectable } from '@nestjs/common';
+import { LoginUseCase } from '../application/use-cases/auth/login.use-case.js';
+import { RefreshTokenUseCase } from '../application/use-cases/auth/refresh-token.use-case.js';
+import { LogoutUseCase } from '../application/use-cases/auth/logout.use-case.js';
 
 @Injectable()
 export class AuthService {
-  private readonly logger = new Logger(AuthService.name);
-
   constructor(
-    private readonly keycloak: KeycloakAdminService,
-    private readonly audit: AuditService,
+    private readonly loginUseCase: LoginUseCase,
+    private readonly refreshTokenUseCase: RefreshTokenUseCase,
+    private readonly logoutUseCase: LogoutUseCase,
   ) {}
 
   async login(username: string, password: string): Promise<{
@@ -17,32 +17,7 @@ export class AuthService {
     expiresIn: number;
     tokenType: string;
   }> {
-    try {
-      const tokenResponse = await this.keycloak.login(username, password);
-
-      await this.audit.log({
-        action: 'LOGIN',
-        resource: 'auth',
-        resourceId: username,
-      });
-
-      return {
-        accessToken: tokenResponse.access_token,
-        refreshToken: tokenResponse.refresh_token,
-        expiresIn: tokenResponse.expires_in,
-        tokenType: tokenResponse.token_type,
-      };
-    } catch (error) {
-      this.logger.warn(`Login failed for user: ${username}`);
-
-      await this.audit.log({
-        action: 'LOGIN_FAILED',
-        resource: 'auth',
-        resourceId: username,
-      });
-
-      throw new UnauthorizedException('Invalid credentials');
-    }
+    return this.loginUseCase.execute(username, password);
   }
 
   async refresh(refreshToken: string): Promise<{
@@ -50,24 +25,10 @@ export class AuthService {
     refreshToken: string;
     expiresIn: number;
   }> {
-    try {
-      const tokenResponse = await this.keycloak.refreshToken(refreshToken);
-      return {
-        accessToken: tokenResponse.access_token,
-        refreshToken: tokenResponse.refresh_token,
-        expiresIn: tokenResponse.expires_in,
-      };
-    } catch {
-      throw new UnauthorizedException('Invalid or expired refresh token');
-    }
+    return this.refreshTokenUseCase.execute(refreshToken);
   }
 
   async logout(refreshToken: string): Promise<void> {
-    await this.keycloak.logout(refreshToken);
-
-    await this.audit.log({
-      action: 'LOGOUT',
-      resource: 'auth',
-    });
+    return this.logoutUseCase.execute(refreshToken);
   }
 }

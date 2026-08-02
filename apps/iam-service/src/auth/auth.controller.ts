@@ -6,6 +6,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { AuthService } from './auth.service.js';
+import { LoginDto, RefreshDto, LogoutDto } from './dto/index.js';
 
 @Controller('auth')
 export class AuthController {
@@ -14,7 +15,7 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(
-    @Body() body: { username: string; password: string },
+    @Body() body: LoginDto,
   ): Promise<{
     accessToken: string;
     refreshToken: string;
@@ -27,7 +28,7 @@ export class AuthController {
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   async refresh(
-    @Body() body: { refreshToken: string },
+    @Body() body: RefreshDto,
   ): Promise<{
     accessToken: string;
     refreshToken: string;
@@ -39,7 +40,7 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   async logout(
-    @Body() body: { refreshToken: string },
+    @Body() body: LogoutDto,
   ): Promise<void> {
     return this.authService.logout(body.refreshToken);
   }

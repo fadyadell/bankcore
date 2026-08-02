@@ -14,13 +14,23 @@
     "test:all": "npx nx run-many -t test",
     "prisma:generate": "npx prisma generate --schema=libs/prisma-client/prisma/schema.prisma",
     "prisma:migrate": "npx prisma migrate dev --schema=libs/prisma-client/prisma/schema.prisma",
+    "prisma:migrate:deploy": "npx prisma migrate deploy --schema=libs/prisma-client/prisma/schema.prisma",
+    "prisma:migrate:reset": "npx prisma migrate reset --schema=libs/prisma-client/prisma/schema.prisma --force",
     "prisma:studio": "npx prisma studio --schema=libs/prisma-client/prisma/schema.prisma",
+    "prisma:seed": "npx prisma db seed --schema=libs/prisma-client/prisma/schema.prisma",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
-    "docker:reset": "docker compose down -v && docker compose up -d"
+    "docker:reset": "docker compose down -v && docker compose up -d",
+    "prepare": "husky",
+    "format": "npx nx format:write",
+    "format:check": "npx nx format:check",
+    "lint-staged": "lint-staged",
+    "health:check": "bash scripts/healthcheck.sh"
   },
   "private": true,
   "devDependencies": {
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
     "@eslint/js": "^9.8.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.0",
@@ -38,6 +48,8 @@
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^10.0.0",
     "jest": "~30.3.0",
+      "husky": "^9.1.7",
+      "lint-staged": "^16.1.6",
     "jest-environment-node": "~30.3.0",
     "jest-util": "~30.3.0",
     "jsonc-eslint-parser": "^2.1.0",
@@ -74,9 +86,20 @@
     "@types/passport-jwt": "^4.0.1",
     "amqplib": "^0.10.5",
     "@types/amqplib": "^0.10.5",
+    "next": "^15.5.2",
     "reflect-metadata": "^0.2.2",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
     "rxjs": "^7.8.2",
     "uuid": "^11.1.0"
+  },
+  "prisma": {
+    "seed": "node libs/prisma-client/prisma/seed.mjs"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,json,md,yml,yaml}": [
+      "prettier --write"
+    ]
   },
   "nx": {
     "includedScripts": [],

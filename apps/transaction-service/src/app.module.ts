@@ -3,14 +3,20 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PrismaModule } from '@bankcore/prisma-client';
 import { KafkaModule } from '@bankcore/messaging';
 import { RabbitMQModule } from '@bankcore/messaging';
-import { CommonModule } from '@bankcore/common';
+import { CommonModule, bankcoreConfiguration, validateEnvironment } from '@bankcore/common';
 import { TransactionsController } from './transactions/transactions.controller.js';
 import { TransactionsService } from './transactions/transactions.service.js';
 import { LedgerService } from './ledger/ledger.service.js';
+import { HealthController } from './health/health.controller.js';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [bankcoreConfiguration],
+      validate: validateEnvironment,
+      envFilePath: ['.env.local', '.env'],
+    }),
     PrismaModule.forRoot(),
     KafkaModule.forRootAsync({
       inject: [ConfigService],
@@ -32,7 +38,7 @@ import { LedgerService } from './ledger/ledger.service.js';
     }),
     CommonModule,
   ],
-  controllers: [TransactionsController],
+  controllers: [HealthController, TransactionsController],
   providers: [TransactionsService, LedgerService],
 })
 export class AppModule {}

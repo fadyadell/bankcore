@@ -20,7 +20,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - bankcore-net
+      - bankcore-network
 
   redis:
     image: redis:7-alpine
@@ -37,7 +37,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - bankcore-net
+      - bankcore-network
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.0
@@ -66,7 +66,7 @@ services:
       retries: 10
       start_period: 60s
     networks:
-      - bankcore-net
+      - bankcore-network
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.7.0
@@ -80,7 +80,7 @@ services:
     volumes:
       - zookeeper_data:/var/lib/zookeeper/data
     networks:
-      - bankcore-net
+      - bankcore-network
 
   kafka:
     image: confluentinc/cp-kafka:7.7.0
@@ -97,7 +97,8 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_started
     volumes:
       - kafka_data:/var/lib/kafka/data
     healthcheck:
@@ -107,7 +108,7 @@ services:
       retries: 10
       start_period: 30s
     networks:
-      - bankcore-net
+      - bankcore-network
 
   rabbitmq:
     image: rabbitmq:4-management-alpine
@@ -127,7 +128,46 @@ services:
       timeout: 10s
       retries: 5
     networks:
-      - bankcore-net
+      - bankcore-network
+
+  flowable:
+    image: flowable/flowable-rest:latest
+    container_name: bankcore-flowable
+    restart: unless-stopped
+    ports:
+      - '${FLOWABLE_PORT:-8081}:8080'
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-bankcore}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-bankcore}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-bankcore_secret}
+      FLOWABLE_REST_APP_ADMIN_USER_ID: ${KEYCLOAK_ADMIN:-admin}
+      FLOWABLE_REST_APP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'wget --spider -q http://localhost:8080/flowable-rest/service/management/health || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+    networks:
+      - bankcore-network
+
+  gorules:
+    image: ghcr.io/gorules/zen:latest
+    container_name: bankcore-gorules
+    restart: unless-stopped
+    ports:
+      - '${GORULES_PORT:-8181}:8080'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget --spider -q http://localhost:8080/health || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    networks:
+      - bankcore-network
 
 volumes:
   postgres_data:
@@ -137,5 +177,6 @@ volumes:
   rabbitmq_data:
 
 networks:
-  bankcore-net:
+  bankcore-network:
+    name: bankcore-network
     driver: bridge

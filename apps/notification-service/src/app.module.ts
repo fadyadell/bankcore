@@ -2,16 +2,22 @@ import { Module, type OnModuleInit } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PrismaModule } from '@bankcore/prisma-client';
 import { RabbitMQModule } from '@bankcore/messaging';
-import { CommonModule } from '@bankcore/common';
+import { CommonModule, bankcoreConfiguration, validateEnvironment } from '@bankcore/common';
 import { NotificationsService } from './notifications/notifications.service.js';
 import { NotificationsController } from './notifications/notifications.controller.js';
 import { NotificationConsumer } from './notifications/notification.consumer.js';
 import { EmailService } from './channels/email.service.js';
 import { SmsService } from './channels/sms.service.js';
+import { HealthController } from './health/health.controller.js';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [bankcoreConfiguration],
+      validate: validateEnvironment,
+      envFilePath: ['.env.local', '.env'],
+    }),
     PrismaModule.forRoot(),
     RabbitMQModule.forRootAsync({
       inject: [ConfigService],
@@ -26,7 +32,7 @@ import { SmsService } from './channels/sms.service.js';
     }),
     CommonModule,
   ],
-  controllers: [NotificationsController],
+  controllers: [HealthController, NotificationsController],
   providers: [
     NotificationsService,
     NotificationConsumer,
