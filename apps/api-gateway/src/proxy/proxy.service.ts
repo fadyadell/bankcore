@@ -15,7 +15,7 @@ export class ProxyService {
   private readonly logger = new Logger(ProxyService.name);
   private readonly serviceUrls: Record<string, string>;
 
-  constructor(private readonly config: ConfigService) {
+  constructor(config: ConfigService) {
     this.serviceUrls = {
       iam: `http://localhost:${config.get<number>('IAM_SERVICE_PORT', 3001)}`,
       account: `http://localhost:${config.get<number>('ACCOUNT_SERVICE_PORT', 3002)}`,

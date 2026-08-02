@@ -78,3 +78,5 @@ docker/postgres/data
 AGENTS.md
 CLAUDE.md
 opencode.json
+
+vite.config.*.timestamp*

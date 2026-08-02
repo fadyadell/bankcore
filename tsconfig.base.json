@@ -26,11 +26,11 @@
       "*"
     ],
     "paths": {
-      "@bankcore/common": ["libs/common/src/index.ts"],
-      "@bankcore/prisma-client": ["libs/prisma-client/src/index.ts"],
-      "@bankcore/auth": ["libs/auth/src/index.ts"],
-      "@bankcore/messaging": ["libs/messaging/src/index.ts"],
-      "@bankcore/cache": ["libs/cache/src/index.ts"]
+      "@bankcore/common": ["./libs/common/src/index.ts"],
+      "@bankcore/prisma-client": ["./libs/prisma-client/src/index.ts"],
+      "@bankcore/auth": ["./libs/auth/src/index.ts"],
+      "@bankcore/messaging": ["./libs/messaging/src/index.ts"],
+      "@bankcore/cache": ["./libs/cache/src/index.ts"]
     }
   }
 }

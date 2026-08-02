@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Employee Portal Dashboard | BankCore</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Geist:wght@600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-tertiary-fixed": "#131b2e",
+                      "primary": "#004ac6",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "on-error": "#ffffff",
+                      "secondary": "#4648d4",
+                      "on-primary-fixed": "#00174b",
+                      "tertiary-container": "#656d84",
+                      "tertiary-fixed-dim": "#bec6e0",
+                      "on-primary": "#ffffff",
+                      "primary-fixed": "#dbe1ff",
+                      "tertiary": "#4d556b",
+                      "background": "#f8f9ff",
+                      "chart-2": "#8B5CF6",
+                      "error-container": "#ffdad6",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "chart-4": "#F97316",
+                      "on-secondary-container": "#fffbff",
+                      "outline-variant": "#c3c6d7",
+                      "on-secondary-fixed": "#07006c",
+                      "error": "#ba1a1a",
+                      "surface-variant": "#d3e4fe",
+                      "success-emerald": "#10B981",
+                      "secondary-fixed": "#e1e0ff",
+                      "slate-100": "#F1F5F9",
+                      "on-tertiary-container": "#eef0ff",
+                      "surface-container-highest": "#d3e4fe",
+                      "chart-1": "#3B82F6",
+                      "on-secondary": "#ffffff",
+                      "chart-3": "#EC4899",
+                      "warning-amber": "#F59E0B",
+                      "slate-900": "#0F172A",
+                      "slate-50": "#F8FAFC",
+                      "surface-container": "#e5eeff",
+                      "surface-dim": "#cbdbf5",
+                      "surface-container-lowest": "#ffffff",
+                      "outline": "#737686",
+                      "on-tertiary": "#ffffff",
+                      "secondary-fixed-dim": "#c0c1ff",
+                      "inverse-primary": "#b4c5ff",
+                      "on-primary-container": "#eeefff",
+                      "slate-800": "#1E293B",
+                      "surface-tint": "#0053db",
+                      "chart-5": "#10B981",
+                      "on-surface": "#0b1c30",
+                      "inverse-surface": "#213145",
+                      "on-error-container": "#93000a",
+                      "error-rose": "#E11D48",
+                      "on-tertiary-fixed-variant": "#3f465c",
+                      "surface": "#f8f9ff",
+                      "surface-bright": "#f8f9ff",
+                      "on-background": "#0b1c30",
+                      "surface-container-high": "#dce9ff",
+                      "primary-container": "#2563eb",
+                      "on-secondary-fixed-variant": "#2f2ebe",
+                      "on-surface-variant": "#434655",
+                      "tertiary-fixed": "#dae2fd",
+                      "surface-container-low": "#eff4ff",
+                      "secondary-container": "#6063ee"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "lg": "24px",
+                      "xl": "32px",
+                      "2xl": "48px",
+                      "margin-desktop": "40px",
+                      "md": "16px",
+                      "margin-mobile": "16px",
+                      "unit": "8px",
+                      "sm": "8px",
+                      "gutter": "24px",
+                      "xs": "4px"
+              },
+              "fontFamily": {
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "mono-data": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-md": [
+                              "Geist"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "title-lg": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Geist"
+                      ],
+                      "headline-lg": [
+                              "Geist"
+                      ],
+                      "title-md": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Geist"
+                      ]
+              },
+              "fontSize": {
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "mono-data": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "title-lg": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "title-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="bg-slate-50 text-on-surface font-body-md text-body-md h-full flex overflow-hidden">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-surface-container-lowest border-b border-outline-variant">
+<div class="flex justify-between items-center w-full px-margin-desktop h-16 max-w-[1280px] mx-auto">
+<div class="flex items-center gap-md">
+<span class="text-title-lg font-title-lg font-bold text-primary">BankCore</span>
+</div>
+<nav class="hidden md:flex gap-lg h-full items-center">
+<a class="text-on-surface-variant hover:bg-surface-container transition-colors h-full flex items-center px-sm" href="#">
+<span class="text-label-md font-label-md">Customer</span>
+</a>
+<a class="text-primary border-b-2 border-secondary font-bold opacity-80 transition-all duration-100 h-full flex items-center px-sm" href="#">
+<span class="text-label-md font-label-md">Employee</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container transition-colors h-full flex items-center px-sm" href="#">
+<span class="text-label-md font-label-md">Admin</span>
+</a>
+</nav>
+<div class="flex items-center gap-sm">
+<!-- Search Bar Placeholder -->
+<div class="relative hidden lg:block mr-md">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline" style="font-size: 20px;">search</span>
+<input class="pl-xl pr-sm py-unit rounded-DEFAULT border border-outline-variant bg-surface-container-lowest text-body-sm font-body-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none w-64" placeholder="Customer Lookup..." type="text"/>
+</div>
+<button class="p-unit text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-unit text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="apps">apps</span>
+</button>
+<img alt="User profile with role indicator" class="w-8 h-8 rounded-full ml-sm object-cover border border-outline-variant" data-alt="A highly detailed close-up of a professional corporate headshot of a banking employee in a modern light-filled office. The image should feature a neat, smart-casual appearance, representing high-stakes fintech environment reliability. Soft, natural lighting with a subtle light blue corporate backdrop. Minimalist and clean aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1ecjcX1ir2rRr00C1-LeeIpS3gKAkengw-_RsEn2cGKexFan4DTot5opc-zdJ1wWleR1vYpnD9M5RCvf8DGncYzerwDp8ThBLKO4PacvPFs-czLeLI09aSddBe35Bh1lyXYrXcNcyoVB7fuXwNEv_9lMNjkkyc-UdqYafH0Uh3JU6WNL12fh0QI33bcFZpXtUZ4_KN0imza4s3yIC7SMeh4Iz0VjOEpGAJ320zTpFa54TkrqANGXjmg"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col bg-surface-container-low border-r border-outline-variant h-full w-64 pt-24 pb-lg px-md gap-sm fixed left-0 z-40">
+<div class="mb-lg px-unit">
+<h2 class="text-title-md font-title-md text-primary">Active Portal</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Enterprise Banking</p>
+</div>
+<nav class="flex-1 flex flex-col gap-xs">
+<a class="flex items-center gap-md px-md py-sm bg-secondary-container text-on-secondary-container font-bold rounded-lg scale-[0.98] transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-weight="fill" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="text-label-md font-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">account_balance</span>
+<span class="text-label-md font-label-md">Accounts</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="text-label-md font-label-md">Transactions</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-label-md font-label-md">Reports</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-label-md font-label-md">Settings</span>
+</a>
+</nav>
+<div class="flex flex-col gap-xs mt-auto pt-md border-t border-outline-variant">
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="text-label-md font-label-md">Help Support</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="text-label-md font-label-md">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 ml-0 md:ml-64 pt-16 h-full overflow-y-auto">
+<div class="max-w-[1600px] mx-auto p-gutter lg:p-xl space-y-gutter">
+<!-- Header Section -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
+<div>
+<h1 class="text-headline-lg font-headline-lg text-on-surface">Operational Overview</h1>
+<p class="text-body-md font-body-md text-on-surface-variant mt-xs">Real-time task queue and manual review status.</p>
+</div>
+<div class="flex gap-sm">
+<button class="px-md py-unit bg-surface-container border border-outline-variant rounded-DEFAULT text-label-md font-label-md text-on-surface hover:bg-surface-container-high transition-colors flex items-center gap-xs">
+<span class="material-symbols-outlined" style="font-size: 16px;">filter_list</span>
+                        Filter Queue
+                    </button>
+<button class="px-md py-unit bg-primary rounded-DEFAULT text-label-md font-label-md text-on-primary hover:bg-on-primary-fixed-variant transition-colors flex items-center gap-xs shadow-sm">
+<span class="material-symbols-outlined" style="font-size: 16px;">refresh</span>
+                        Refresh Data
+                    </button>
+</div>
+</div>
+<!-- Metrics Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<!-- KYC Review Metric -->
+<div class="bg-surface-container-lowest p-md rounded-lg border border-slate-200 shadow-[0_1px_3px_rgba(0,0,0,0.1)] flex flex-col justify-between h-32 hover:shadow-[0_4px_6px_rgba(0,0,0,0.07)] transition-shadow">
+<div class="flex justify-between items-start">
+<span class="text-label-md font-label-md text-on-surface-variant">Pending KYC Review</span>
+<span class="material-symbols-outlined text-chart-4" style="font-size: 20px;">recent_actors</span>
+</div>
+<div>
+<div class="text-headline-lg font-headline-lg text-on-surface">42</div>
+<div class="text-body-sm font-body-sm text-error-rose flex items-center gap-xs mt-1">
+<span class="material-symbols-outlined" style="font-size: 14px;">trending_up</span>
+<span>+12 from yesterday</span>
+</div>
+</div>
+</div>
+<!-- Transaction Alerts Metric -->
+<div class="bg-surface-container-lowest p-md rounded-lg border border-slate-200 shadow-[0_1px_3px_rgba(0,0,0,0.1)] flex flex-col justify-between h-32 hover:shadow-[0_4px_6px_rgba(0,0,0,0.07)] transition-shadow">
+<div class="flex justify-between items-start">
+<span class="text-label-md font-label-md text-on-surface-variant">Txn Alerts (Manual)</span>
+<span class="material-symbols-outlined text-error-rose" style="font-size: 20px;">warning</span>
+</div>
+<div>
+<div class="text-headline-lg font-headline-lg text-on-surface">18</div>
+<div class="text-body-sm font-body-sm text-success-emerald flex items-center gap-xs mt-1">
+<span class="material-symbols-outlined" style="font-size: 14px;">trending_down</span>
+<span>-3 from yesterday</span>
+</div>
+</div>
+</div>
+<!-- Loan Approval Metric -->
+<div class="bg-surface-container-lowest p-md rounded-lg border border-slate-200 shadow-[0_1px_3px_rgba(0,0,0,0.1)] flex flex-col justify-between h-32 hover:shadow-[0_4px_6px_rgba(0,0,0,0.07)] transition-shadow">
+<div class="flex justify-between items-start">
+<span class="text-label-md font-label-md text-on-surface-variant">Loan Approvals</span>
+<span class="material-symbols-outlined text-chart-1" style="font-size: 20px;">real_estate_agent</span>
+</div>
+<div>
+<div class="text-headline-lg font-headline-lg text-on-surface">156</div>
+<div class="text-body-sm font-body-sm text-on-surface-variant mt-1">
+<span>SLA: 94% within 24h</span>
+</div>
+</div>
+</div>
+<!-- Customer Support Metric -->
+<div class="bg-surface-container-lowest p-md rounded-lg border border-slate-200 shadow-[0_1px_3px_rgba(0,0,0,0.1)] flex flex-col justify-between h-32 hover:shadow-[0_4px_6px_rgba(0,0,0,0.07)] transition-shadow">
+<div class="flex justify-between items-start">
+<span class="text-label-md font-label-md text-on-surface-variant">Active Escalations</span>
+<span class="material-symbols-outlined text-chart-2" style="font-size: 20px;">support_agent</span>
+</div>
+<div>
+<div class="text-headline-lg font-headline-lg text-on-surface">7</div>
+<div class="text-body-sm font-body-sm text-warning-amber mt-1">
+<span>3 approaching breach</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Main High-Density Data Grid Area -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!-- Left Column (Wider for Table) -->
+<div class="lg:col-span-2 space-y-gutter">
+<!-- KYC Review Table -->
+<div class="bg-surface-container-lowest rounded-lg border border-slate-200 shadow-[0_1px_3px_rgba(0,0,0,0.1)] overflow-hidden flex flex-col">
+<div class="p-md border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+<h3 class="text-title-md font-title-md text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant" style="font-size: 20px;">recent_actors</span>
+                                Priority KYC Queue
+                            </h3>
+<button class="text-primary hover:text-on-primary-fixed-variant text-label-md font-label-md">View All</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-slate-100 text-label-md font-label-md text-on-surface-variant">
+<tr>
+<th class="px-md py-sm border-b border-slate-200 font-medium">Customer ID</th>
+<th class="px-md py-sm border-b border-slate-200 font-medium">Risk Score</th>
+<th class="px-md py-sm border-b border-slate-200 font-medium">Submitted</th>
+<th class="px-md py-sm border-b border-slate-200 font-medium">Status</th>
+<th class="px-md py-sm border-b border-slate-200 font-medium text-right">Action</th>
+</tr>
+</thead>
+<tbody class="text-body-sm font-body-sm text-on-surface">
+<tr class="hover:bg-slate-50 border-b border-slate-200">
+<td class="px-md py-unit font-mono-data">CUS-89231</td>
+<td class="px-md py-unit text-error-rose font-medium">92 (High)</td>
+<td class="px-md py-unit text-on-surface-variant">10m ago</td>
+<td class="px-md py-unit"><span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-warning-amber/10 text-warning-amber">Pending Doc</span></td>
+<td class="px-md py-unit text-right"><button class="text-primary hover:underline">Review</button></td>
+</tr>
+<tr class="hover:bg-slate-50 border-b border-slate-200">
+<td class="px-md py-unit font-mono-data">CUS-44102</td>
+<td class="px-md py-unit text-warning-amber font-medium">65 (Med)</td>
+<td class="px-md py-unit text-on-surface-variant">1h ago</td>
+<td class="px-md py-unit"><span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-surface-container-high text-on-surface-variant">In Queue</span></td>
+<td class="px-md py-unit text-right"><button class="text-primary hover:underline">Review</button></td>
+</tr>
+<tr class="hover:bg-slate-50 border-b border-slate-200">
+<td class="px-md py-unit font-mono-data">CUS-11904</td>
+<td class="px-md py-unit text-success-emerald font-medium">12 (Low)</td>
+<td class="px-md py-unit text-on-surface-variant">2h ago</td>
+<td class="px-md py-unit"><span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-surface-container-high text-on-surface-variant">In Queue</span></td>
+<td class="px-md py-unit text-right"><button class="text-primary hover:underline">Review</button></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Right Column (Alerts & Actions) -->
+<div class="space-y-gutter">
+<!-- Transaction Alerts -->
+<div class="bg-surface-container-lowest rounded-lg border border-slate-200 shadow-[0_1px_3px_rgba(0,0,0,0.1)] overflow-hidden flex flex-col h-full">
+<div class="p-md border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+<h3 class="text-title-md font-title-md text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-error-rose" style="font-size: 20px;">warning</span>
+                                Flagged Txns
+                            </h3>
+</div>
+<div class="p-md flex-1 overflow-y-auto space-y-md">
+<!-- Alert Item -->
+<div class="p-sm border border-error-container bg-error-container/20 rounded-DEFAULT">
+<div class="flex justify-between items-start mb-xs">
+<span class="text-label-md font-label-md font-bold text-on-surface">Unusual Transfer Velocity</span>
+<span class="text-[10px] text-on-surface-variant">Just now</span>
+</div>
+<div class="text-body-sm font-body-sm text-on-surface-variant mb-sm">
+                                    Acct: <span class="font-mono-data text-on-surface">ACC-9921</span> initiated 5 outbound wires &gt; $10k in 1hr.
+                                </div>
+<div class="flex gap-sm">
+<button class="px-sm py-xs bg-error-rose text-white text-[11px] font-medium rounded-DEFAULT">Freeze Acct</button>
+<button class="px-sm py-xs border border-outline-variant text-[11px] font-medium rounded-DEFAULT hover:bg-surface-container">Investigate</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script type="module" src="/src/employee.ts"></script>
+</body></html>
