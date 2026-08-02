@@ -25,7 +25,10 @@ model User {
 
   accounts      Account[]
   auditLogs     AuditLog[]
+  notifications Notification[]
+  sagaInstances SagaInstance[]
 
+  @@index([status, kycStatus])
   @@map("users")
 }
 
@@ -64,9 +67,12 @@ model Account {
   debitTransactions  Transaction[] @relation("DebitAccount")
   creditTransactions Transaction[] @relation("CreditAccount")
   ledgerEntries LedgerEntry[]
+  sagaSteps      SagaStep[]
 
   @@index([userId])
   @@index([status])
+  @@index([type, status])
+  @@index([currency])
   @@map("accounts")
 }
 
@@ -106,11 +112,15 @@ model Transaction {
   debitAccount    Account?          @relation("DebitAccount", fields: [debitAccountId], references: [id])
   creditAccount   Account?          @relation("CreditAccount", fields: [creditAccountId], references: [id])
   ledgerEntries   LedgerEntry[]
+  outboxEvents    OutboxEvent[]
+  sagaSteps       SagaStep[]
 
   @@index([debitAccountId])
   @@index([creditAccountId])
   @@index([status])
   @@index([createdAt])
+  @@index([type, status, createdAt])
+  @@index([referenceNumber, createdAt])
   @@map("transactions")
 }
 
@@ -147,6 +157,8 @@ model LedgerEntry {
 
   @@index([transactionId])
   @@index([accountId])
+  @@index([createdAt])
+  @@unique([transactionId, accountId, entryType])
   @@map("ledger_entries")
 }
 
@@ -174,6 +186,7 @@ model AuditLog {
   @@index([userId])
   @@index([resource, resourceId])
   @@index([createdAt])
+  @@index([action, createdAt])
   @@map("audit_logs")
 }
 
@@ -193,10 +206,141 @@ model Notification {
   failureReason String?          @map("failure_reason")
   createdAt   DateTime           @default(now()) @map("created_at")
 
+  user        User               @relation(fields: [userId], references: [id], onDelete: Restrict)
+
   @@index([userId])
   @@index([status])
   @@index([createdAt])
+  @@index([channel, status, createdAt])
   @@map("notifications")
+}
+
+// ─── Integration Patterns ───────────────────────────────
+
+model OutboxEvent {
+  id               String       @id @default(uuid()) @db.Uuid
+  eventId          String       @unique @map("event_id") @db.Uuid
+  aggregateType    String       @map("aggregate_type")
+  aggregateId      String       @map("aggregate_id") @db.Uuid
+  eventType        String       @map("event_type")
+  payload          Json
+  headers          Json?
+  status           OutboxStatus @default(PENDING)
+  transactionId    String?      @map("transaction_id") @db.Uuid
+  occurredAt       DateTime     @default(now()) @map("occurred_at")
+  availableAt      DateTime     @default(now()) @map("available_at")
+  processedAt      DateTime?    @map("processed_at")
+  retryCount       Int          @default(0) @map("retry_count")
+  lastError        String?      @map("last_error")
+  correlationId    String?      @map("correlation_id")
+  causationId      String?      @map("causation_id")
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+
+  transaction      Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+
+  @@index([status, availableAt])
+  @@index([aggregateType, aggregateId])
+  @@index([occurredAt])
+  @@index([correlationId])
+  @@map("outbox_events")
+}
+
+enum OutboxStatus {
+  PENDING
+  PROCESSING
+  PROCESSED
+  FAILED
+  DEAD_LETTER
+}
+
+model InboxMessage {
+  id              String   @id @default(uuid()) @db.Uuid
+  messageId       String   @unique @map("message_id")
+  source          String
+  topic           String
+  partition       Int?
+  offset          String?
+  key             String?
+  payload         Json
+  headers         Json?
+  receivedAt      DateTime @default(now()) @map("received_at")
+  processedAt     DateTime? @map("processed_at")
+  processingError String?  @map("processing_error")
+
+  @@index([source, topic])
+  @@index([receivedAt])
+  @@map("inbox_messages")
+}
+
+model SagaInstance {
+  id              String      @id @default(uuid()) @db.Uuid
+  sagaType        String      @map("saga_type")
+  correlationId   String      @unique @map("correlation_id")
+  initiatorUserId String?     @map("initiator_user_id") @db.Uuid
+  status          SagaStatus  @default(STARTED)
+  context         Json?
+  startedAt       DateTime    @default(now()) @map("started_at")
+  completedAt     DateTime?   @map("completed_at")
+  failedAt        DateTime?   @map("failed_at")
+  failureReason   String?     @map("failure_reason")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  initiatorUser   User?       @relation(fields: [initiatorUserId], references: [id], onDelete: SetNull)
+  steps           SagaStep[]
+
+  @@index([status, startedAt])
+  @@index([sagaType, status])
+  @@map("saga_instances")
+}
+
+enum SagaStatus {
+  STARTED
+  RUNNING
+  COMPLETED
+  COMPENSATING
+  COMPENSATED
+  FAILED
+}
+
+model SagaStep {
+  id                String         @id @default(uuid()) @db.Uuid
+  sagaInstanceId    String         @map("saga_instance_id") @db.Uuid
+  stepName          String         @map("step_name")
+  stepOrder         Int            @map("step_order")
+  status            SagaStepStatus @default(PENDING)
+  transactionId     String?        @map("transaction_id") @db.Uuid
+  accountId         String?        @map("account_id") @db.Uuid
+  requestPayload    Json?          @map("request_payload")
+  responsePayload   Json?          @map("response_payload")
+  compensationPayload Json?        @map("compensation_payload")
+  startedAt         DateTime?      @map("started_at")
+  completedAt       DateTime?      @map("completed_at")
+  failedAt          DateTime?      @map("failed_at")
+  failureReason     String?        @map("failure_reason")
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+
+  sagaInstance      SagaInstance   @relation(fields: [sagaInstanceId], references: [id], onDelete: Cascade)
+  transaction       Transaction?   @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+  account           Account?       @relation(fields: [accountId], references: [id], onDelete: SetNull)
+
+  @@index([sagaInstanceId, stepOrder])
+  @@index([status])
+  @@index([transactionId])
+  @@index([accountId])
+  @@unique([sagaInstanceId, stepOrder])
+  @@map("saga_steps")
+}
+
+enum SagaStepStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  COMPENSATING
+  COMPENSATED
+  FAILED
 }
 
 enum NotificationChannel {

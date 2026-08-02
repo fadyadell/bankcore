@@ -2,7 +2,7 @@ import { Module, type NestModule, type MiddlewareConsumer } from '@nestjs/common
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
-import { CommonModule } from '@bankcore/common';
+import { CommonModule, bankcoreConfiguration, validateEnvironment } from '@bankcore/common';
 import { AuthModule } from '@bankcore/auth';
 import { CacheModule } from '@bankcore/cache';
 import { CorrelationIdMiddleware, RequestLoggingMiddleware } from '@bankcore/common';
@@ -15,7 +15,12 @@ import { ProxyService } from './proxy/proxy.service.js';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [bankcoreConfiguration],
+      validate: validateEnvironment,
+      envFilePath: ['.env.local', '.env'],
+    }),
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
