@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { PrismaModule } from '@bankcore/prisma-client';
+import { PrismaModule } from '@bankcore/database';
 import { CacheModule } from '@bankcore/cache';
 import { KafkaModule } from '@bankcore/messaging';
-import { CommonModule, bankcoreConfiguration, validateEnvironment } from '@bankcore/common';
+import { CommonModule } from '@bankcore/common';
+import { bankcoreConfiguration, validateEnvironment } from '@bankcore/config';
 import { AccountsController } from './accounts/accounts.controller.js';
 import { AccountsService } from './accounts/accounts.service.js';
 import { HealthController } from './health/health.controller.js';

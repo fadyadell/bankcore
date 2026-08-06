@@ -1,11 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '@bankcore/prisma-client';
+import { PrismaService } from '@bankcore/database';
 import type { Notification, NotificationChannel, NotificationStatus } from '@prisma/client';
 
 @Injectable()
 export class NotificationsService {
-  private readonly logger = new Logger(NotificationsService.name);
-
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: {
@@ -23,7 +21,7 @@ export class NotificationsService {
         type: data.type,
         subject: data.subject,
         body: data.body,
-        metadata: data.metadata ?? undefined,
+        metadata: data.metadata ? (data.metadata as any) : undefined,
         status: 'PENDING',
       },
     });

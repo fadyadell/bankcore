@@ -1,13 +1,18 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { PrismaModule } from '@bankcore/prisma-client';
+import { PrismaModule } from '@bankcore/database';
 import { KafkaModule } from '@bankcore/messaging';
 import { RabbitMQModule } from '@bankcore/messaging';
-import { CommonModule, bankcoreConfiguration, validateEnvironment } from '@bankcore/common';
+import { CommonModule } from '@bankcore/common';
+import { bankcoreConfiguration, validateEnvironment } from '@bankcore/config';
 import { TransactionsController } from './transactions/transactions.controller.js';
 import { TransactionsService } from './transactions/transactions.service.js';
 import { LedgerService } from './ledger/ledger.service.js';
 import { HealthController } from './health/health.controller.js';
+import { BeneficiariesController } from './beneficiaries/beneficiaries.controller.js';
+import { BeneficiariesService } from './beneficiaries/beneficiaries.service.js';
+import { PaymentsController } from './payments/payments.controller.js';
+import { PaymentsService } from './payments/payments.service.js';
 
 @Module({
   imports: [
@@ -38,7 +43,7 @@ import { HealthController } from './health/health.controller.js';
     }),
     CommonModule,
   ],
-  controllers: [HealthController, TransactionsController],
-  providers: [TransactionsService, LedgerService],
+  controllers: [HealthController, TransactionsController, BeneficiariesController, PaymentsController],
+  providers: [TransactionsService, LedgerService, BeneficiariesService, PaymentsService],
 })
 export class AppModule {}

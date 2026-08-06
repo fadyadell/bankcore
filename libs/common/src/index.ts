@@ -1,5 +1,4 @@
 export * from './lib/common.module.js';
-export * from './lib/config/index.js';
 export * from './lib/constants/index.js';
 export * from './lib/decorators/index.js';
 export * from './lib/dto/index.js';

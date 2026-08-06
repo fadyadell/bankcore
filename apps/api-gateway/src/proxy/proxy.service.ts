@@ -15,12 +15,13 @@ export class ProxyService {
   private readonly logger = new Logger(ProxyService.name);
   private readonly serviceUrls: Record<string, string>;
 
-  constructor(config: ConfigService) {
+  constructor(private readonly config: ConfigService) {
     this.serviceUrls = {
       iam: `http://localhost:${config.get<number>('IAM_SERVICE_PORT', 3001)}`,
       account: `http://localhost:${config.get<number>('ACCOUNT_SERVICE_PORT', 3002)}`,
       transaction: `http://localhost:${config.get<number>('TRANSACTION_SERVICE_PORT', 3003)}`,
       notification: `http://localhost:${config.get<number>('NOTIFICATION_SERVICE_PORT', 3004)}`,
+      loan: `http://localhost:${config.get<number>('LOAN_SERVICE_PORT', 3005)}`,
     };
   }
 

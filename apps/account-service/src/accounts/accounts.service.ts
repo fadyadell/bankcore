@@ -4,7 +4,7 @@ import {
   BadRequestException,
   Logger,
 } from '@nestjs/common';
-import { PrismaService } from '@bankcore/prisma-client';
+import { PrismaService } from '@bankcore/database';
 import { RedisCacheService } from '@bankcore/cache';
 import { KafkaProducerService } from '@bankcore/messaging';
 import {
@@ -206,5 +206,51 @@ export class AccountsService {
 
     this.logger.log(`Account ${id} status changed: ${previousStatus} -> ${dto.status}`);
     return updated;
+  }
+
+  async updateLimits(id: string, overdraftLimit: number): Promise<Account> {
+    const account = await this.prisma.account.findUnique({ where: { id } });
+    if (!account) {
+      throw new NotFoundException('Account not found');
+    }
+
+    const updated = await this.prisma.account.update({
+      where: { id },
+      data: { overdraftLimit: new Decimal(overdraftLimit) },
+    });
+
+    await this.cache.del(CACHE_KEYS.ACCOUNT_DETAIL(id));
+    return updated;
+  }
+
+  async getHistory(id: string, page = 1, limit = 20) {
+    const account = await this.prisma.account.findUnique({ where: { id } });
+    if (!account) {
+      throw new NotFoundException('Account not found');
+    }
+
+    const [transactions, total] = await Promise.all([
+      this.prisma.transaction.findMany({
+        where: {
+          OR: [
+            { debitAccountId: id },
+            { creditAccountId: id }
+          ]
+        },
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.transaction.count({
+        where: {
+          OR: [
+            { debitAccountId: id },
+            { creditAccountId: id }
+          ]
+        }
+      })
+    ]);
+
+    return { transactions, total };
   }
 }

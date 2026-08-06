@@ -21,7 +21,7 @@ export class AuthProxyController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'User login via Keycloak' })
   async login(
-    @Body() body: { username: string; password: string },
+    @Body() body: { email?: string; username?: string; password: string },
     @Req() req: Request,
   ): Promise<unknown> {
     return this.proxy.forward('iam', {

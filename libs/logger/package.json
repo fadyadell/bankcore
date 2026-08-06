@@ -1,0 +1,13 @@
+{
+  "name": "@bankcore/logger",
+  "version": "1.0.0",
+  "description": "Standardized logger for BankCore",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {
+    "@nestjs/common": "^11.1.28"
+  },
+  "nx": {
+    "name": "logger"
+  }
+}

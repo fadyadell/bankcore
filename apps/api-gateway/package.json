@@ -11,7 +11,9 @@
     "targets": {
       "build": {
         "executor": "@nx/js:tsc",
-        "outputs": ["{options.outputPath}"],
+        "outputs": [
+          "{options.outputPath}"
+        ],
         "options": {
           "outputPath": "apps/api-gateway/dist",
           "main": "apps/api-gateway/src/main.ts",
@@ -22,7 +24,8 @@
       "serve": {
         "executor": "@nx/js:node",
         "options": {
-          "buildTarget": "api-gateway:build"
+          "buildTarget": "api-gateway:build",
+          "inspect": false
         },
         "configurations": {
           "production": {

@@ -53,4 +53,21 @@ export class AccountsController {
   ) {
     return this.accountsService.updateStatus(id, dto);
   }
+
+  @Put(':id/limits')
+  async updateLimits(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body('overdraftLimit') overdraftLimit: number,
+  ) {
+    return this.accountsService.updateLimits(id, overdraftLimit);
+  }
+
+  @Get(':id/history')
+  async getHistory(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query() pagination: PaginationDto,
+  ) {
+    const { transactions, total } = await this.accountsService.getHistory(id, pagination.page, pagination.limit);
+    return buildPaginatedResponse(transactions, total, pagination.page, pagination.limit);
+  }
 }

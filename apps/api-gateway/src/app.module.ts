@@ -2,7 +2,8 @@ import { Module, type NestModule, type MiddlewareConsumer } from '@nestjs/common
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
-import { CommonModule, bankcoreConfiguration, validateEnvironment } from '@bankcore/common';
+import { CommonModule } from '@bankcore/common';
+import { bankcoreConfiguration, validateEnvironment } from '@bankcore/config';
 import { AuthModule } from '@bankcore/auth';
 import { CacheModule } from '@bankcore/cache';
 import { CorrelationIdMiddleware, RequestLoggingMiddleware } from '@bankcore/common';
@@ -11,6 +12,7 @@ import { AuthProxyController } from './proxy/auth-proxy.controller.js';
 import { UsersProxyController } from './proxy/users-proxy.controller.js';
 import { AccountsProxyController } from './proxy/accounts-proxy.controller.js';
 import { TransactionsProxyController } from './proxy/transactions-proxy.controller.js';
+import { LoanProxyController } from './proxy/loan-proxy.controller.js';
 import { ProxyService } from './proxy/proxy.service.js';
 
 @Module({
@@ -59,6 +61,7 @@ import { ProxyService } from './proxy/proxy.service.js';
     UsersProxyController,
     AccountsProxyController,
     TransactionsProxyController,
+    LoanProxyController,
   ],
   providers: [
     {

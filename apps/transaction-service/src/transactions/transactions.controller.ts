@@ -8,7 +8,12 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service.js';
-import { DepositDto, WithdrawalDto, TransferDto } from './dto/transaction.dto.js';
+import {
+  DepositDto,
+  WithdrawalDto,
+  TransferDto,
+  ExternalTransferDto,
+} from './dto/transaction.dto.js';
 import { PaginationDto, buildPaginatedResponse } from '@bankcore/common';
 
 @Controller('transactions')
@@ -48,5 +53,10 @@ export class TransactionsController {
   @Post('transfer')
   async transfer(@Body() dto: TransferDto) {
     return this.transactionsService.transfer(dto);
+  }
+
+  @Post('transfer/external')
+  async externalTransfer(@Body() dto: ExternalTransferDto) {
+    return this.transactionsService.externalTransfer(dto);
   }
 }

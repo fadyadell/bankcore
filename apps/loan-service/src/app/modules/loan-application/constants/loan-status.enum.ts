@@ -1,0 +1,14 @@
+export enum LoanType {
+  MORTGAGE = 'MORTGAGE',
+  PERSONAL = 'PERSONAL',
+  AUTO = 'AUTO',
+  BUSINESS = 'BUSINESS',
+}
+
+export enum LoanStatus {
+  PENDING = 'PENDING',
+  UNDER_REVIEW = 'UNDER_REVIEW',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  DISBURSED = 'DISBURSED',
+}

@@ -7,7 +7,7 @@ CREATE DATABASE bankcore_transactions;
 CREATE DATABASE bankcore_notifications;
 
 -- Grant privileges
-GRANT ALL PRIVILEGES ON DATABASE bankcore_iam TO bankcore;
-GRANT ALL PRIVILEGES ON DATABASE bankcore_accounts TO bankcore;
-GRANT ALL PRIVILEGES ON DATABASE bankcore_transactions TO bankcore;
-GRANT ALL PRIVILEGES ON DATABASE bankcore_notifications TO bankcore;
+GRANT ALL PRIVILEGES ON DATABASE bankcore_iam TO postgres;
+GRANT ALL PRIVILEGES ON DATABASE bankcore_accounts TO postgres;
+GRANT ALL PRIVILEGES ON DATABASE bankcore_transactions TO postgres;
+GRANT ALL PRIVILEGES ON DATABASE bankcore_notifications TO postgres;

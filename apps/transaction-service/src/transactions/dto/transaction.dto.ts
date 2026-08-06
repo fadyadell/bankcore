@@ -71,3 +71,38 @@ export class TransferDto {
   @IsString()
   idempotencyKey?: string;
 }
+
+export class ExternalTransferDto {
+  @IsString()
+  fromAccountId!: string;
+
+  @IsString()
+  toBankName!: string;
+
+  @IsString()
+  toAccountNumber!: string;
+
+  @IsNumber()
+  @Min(0.01)
+  amount!: number;
+
+  @IsOptional()
+  @IsString()
+  currency?: string;
+
+  @IsOptional()
+  @IsString()
+  swiftCode?: string;
+
+  @IsOptional()
+  @IsString()
+  routingNumber?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsString()
+  idempotencyKey?: string;
+}

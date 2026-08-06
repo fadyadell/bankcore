@@ -10,7 +10,9 @@
     "targets": {
       "build": {
         "executor": "@nx/js:tsc",
-        "outputs": ["{options.outputPath}"],
+        "outputs": [
+          "{options.outputPath}"
+        ],
         "options": {
           "outputPath": "apps/iam-service/dist",
           "main": "apps/iam-service/src/main.ts",
@@ -21,7 +23,8 @@
       "serve": {
         "executor": "@nx/js:node",
         "options": {
-          "buildTarget": "iam-service:build"
+          "buildTarget": "iam-service:build",
+          "inspect": false
         }
       }
     }

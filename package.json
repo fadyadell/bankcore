@@ -3,36 +3,31 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "dev": "npm run dev:all",
     "dev:gateway": "npx nx serve api-gateway",
     "dev:iam": "npx nx serve iam-service",
     "dev:accounts": "npx nx serve account-service",
     "dev:transactions": "npx nx serve transaction-service",
     "dev:notifications": "npx nx serve notification-service",
-    "dev:frontend": "npx nx serve frontend",
-    "dev:all": "npx nx run-many -t serve -p api-gateway iam-service account-service transaction-service notification-service frontend",
-    "dev": "npm run dev:all",
+    "dev:all": "npx nx run-many -t serve --parallel=10 -p api-gateway iam-service account-service transaction-service notification-service loan-service web-portal",
     "build:all": "npx nx run-many -t build",
     "lint:all": "npx nx run-many -t lint",
     "test:all": "npx nx run-many -t test",
-    "prisma:generate": "npx prisma generate --schema=libs/prisma-client/prisma/schema.prisma",
-    "prisma:migrate": "npx prisma migrate dev --schema=libs/prisma-client/prisma/schema.prisma",
-    "prisma:migrate:deploy": "npx prisma migrate deploy --schema=libs/prisma-client/prisma/schema.prisma",
-    "prisma:migrate:reset": "npx prisma migrate reset --schema=libs/prisma-client/prisma/schema.prisma --force",
-    "prisma:studio": "npx prisma studio --schema=libs/prisma-client/prisma/schema.prisma",
-    "prisma:seed": "npx prisma db seed --schema=libs/prisma-client/prisma/schema.prisma",
+    "prisma:generate": "npx prisma generate --schema=libs/database/prisma/schema.prisma",
+    "prisma:migrate": "npx prisma migrate dev --schema=libs/database/prisma/schema.prisma",
+    "prisma:migrate:deploy": "npx prisma migrate deploy --schema=libs/database/prisma/schema.prisma",
+    "prisma:migrate:reset": "npx prisma migrate reset --schema=libs/database/prisma/schema.prisma --force",
+    "prisma:studio": "npx prisma studio --schema=libs/database/prisma/schema.prisma",
+    "prisma:seed": "npx prisma db seed --schema=libs/database/prisma/schema.prisma",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "docker:reset": "docker compose down -v && docker compose up -d",
-    "prepare": "husky",
     "format": "npx nx format:write",
     "format:check": "npx nx format:check",
-    "lint-staged": "lint-staged",
     "health:check": "bash scripts/healthcheck.sh"
   },
   "private": true,
   "devDependencies": {
-    "@commitlint/cli": "^19.8.0",
-    "@commitlint/config-conventional": "^19.8.0",
     "@eslint/js": "^9.8.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.0",
@@ -41,8 +36,9 @@
     "@nx/jest": "23.1.0",
     "@nx/js": "23.1.0",
     "@nx/nest": "^23.1.0",
-    "@nx/vite": "^23.1.0",
-    "@nx/web": "^23.1.0",
+    "@nx/node": "23.1.0",
+    "@nx/web": "23.1.0",
+    "@nx/webpack": "23.1.0",
     "@swc-node/register": "1.11.1",
     "@swc/core": "1.15.8",
     "@swc/helpers": "0.5.18",
@@ -52,23 +48,20 @@
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^10.0.0",
     "jest": "~30.3.0",
-      "husky": "^9.1.7",
-      "lint-staged": "^16.1.6",
     "jest-environment-node": "~30.3.0",
     "jest-util": "~30.3.0",
-    "jiti": "2.4.2",
     "jsonc-eslint-parser": "^2.1.0",
     "nx": "23.1.0",
     "prettier": "^3.8.1",
     "prisma": "^6.9.0",
-    "swc-loader": "0.1.15",
     "ts-jest": "^29.4.7",
     "ts-node": "10.9.1",
     "tslib": "^2.3.0",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.58.0",
-    "verdaccio": "^6.3.2",
-    "vite": "^8.0.0"
+    "webpack": "^5.101.3",
+    "webpack-cli": "^7.0.0",
+    "webpack-dev-server": "^5.2.1"
   },
   "workspaces": [
     "apps/*",
@@ -78,6 +71,7 @@
     "@nestjs/common": "^11.1.28",
     "@nestjs/config": "^4.0.0",
     "@nestjs/core": "^11.1.28",
+    "@nestjs/jwt": "^11.0.2",
     "@nestjs/microservices": "^11.1.28",
     "@nestjs/passport": "^11.0.0",
     "@nestjs/platform-express": "^11.1.28",
@@ -87,37 +81,25 @@
     "@types/amqplib": "^0.10.5",
     "@types/passport-jwt": "^4.0.1",
     "amqplib": "^0.10.5",
+    "axios": "^1.6.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "ioredis": "^5.6.0",
     "kafkajs": "^2.2.4",
+    "next": "^15.5.2",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
-    "reflect-metadata": "^0.2.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
     "uuid": "^11.1.0"
   },
   "prisma": {
     "seed": "node libs/prisma-client/prisma/seed.mjs"
   },
-  "lint-staged": {
-    "*.{ts,tsx,js,jsx,json,md,yml,yaml}": [
-      "prettier --write"
-    ]
-  },
   "nx": {
     "includedScripts": [],
-    "targets": {
-      "local-registry": {
-        "executor": "@nx/js:verdaccio",
-        "options": {
-          "port": 4873,
-          "config": ".verdaccio/config.yml",
-          "storage": "tmp/local-registry/storage"
-        }
-      }
-    }
+    "targets": {}
   }
 }

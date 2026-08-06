@@ -1,0 +1,26 @@
+{
+  "name": "@bankcore/config",
+  "version": "1.0.0",
+  "description": "Configuration definitions and validation for BankCore",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "bankcore": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "class-validator": "^0.14.1",
+    "class-transformer": "^0.5.1",
+    "@nestjs/config": "^4.0.0"
+  },
+  "nx": {
+    "name": "config"
+  }
+}

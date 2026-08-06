@@ -1,0 +1,11 @@
+{
+  "name": "@bankcore/workflow",
+  "version": "1.0.0",
+  "description": "Workflow orchestration for BankCore",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {},
+  "nx": {
+    "name": "workflow"
+  }
+}

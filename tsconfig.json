@@ -16,9 +16,6 @@
       "path": "./apps/account-service"
     },
     {
-      "path": "./libs/prisma-client"
-    },
-    {
       "path": "./apps/api-gateway"
     },
     {
@@ -34,7 +31,25 @@
       "path": "./libs/auth"
     },
     {
-      "path": "./apps/frontend"
+      "path": "./apps/web-portal"
+    },
+    {
+      "path": "./libs/database"
+    },
+    {
+      "path": "./libs/config"
+    },
+    {
+      "path": "./apps/workflow-service-e2e"
+    },
+    {
+      "path": "./apps/workflow-service"
+    },
+    {
+      "path": "./apps/loan-service-e2e"
+    },
+    {
+      "path": "./apps/loan-service"
     }
   ],
   "compilerOptions": {}

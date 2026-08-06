@@ -1,0 +1,11 @@
+{
+  "name": "@bankcore/events",
+  "version": "1.0.0",
+  "description": "Domain events and event interfaces for BankCore",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {},
+  "nx": {
+    "name": "events"
+  }
+}

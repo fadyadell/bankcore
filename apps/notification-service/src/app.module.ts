@@ -1,14 +1,17 @@
 import { Module, type OnModuleInit } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { PrismaModule } from '@bankcore/prisma-client';
+import { PrismaModule } from '@bankcore/database';
 import { RabbitMQModule } from '@bankcore/messaging';
-import { CommonModule, bankcoreConfiguration, validateEnvironment } from '@bankcore/common';
+import { CommonModule } from '@bankcore/common';
+import { bankcoreConfiguration, validateEnvironment } from '@bankcore/config';
 import { NotificationsService } from './notifications/notifications.service.js';
 import { NotificationsController } from './notifications/notifications.controller.js';
 import { NotificationConsumer } from './notifications/notification.consumer.js';
 import { EmailService } from './channels/email.service.js';
 import { SmsService } from './channels/sms.service.js';
 import { HealthController } from './health/health.controller.js';
+import { StatementsController } from './statements/statements.controller.js';
+import { StatementsService } from './statements/statements.service.js';
 
 @Module({
   imports: [
@@ -32,12 +35,13 @@ import { HealthController } from './health/health.controller.js';
     }),
     CommonModule,
   ],
-  controllers: [HealthController, NotificationsController],
+  controllers: [HealthController, NotificationsController, StatementsController],
   providers: [
     NotificationsService,
     NotificationConsumer,
     EmailService,
     SmsService,
+    StatementsService,
   ],
 })
 export class AppModule implements OnModuleInit {
