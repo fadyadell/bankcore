@@ -7,11 +7,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '@bankcore/prisma-client';
 import { KafkaProducerService, RabbitMQProducerService } from '@bankcore/messaging';
-import {
-  generateReferenceNumber,
-  KAFKA_TOPICS,
-  ERROR_CODES,
-} from '@bankcore/common';
+import { generateReferenceNumber, KAFKA_TOPICS, ERROR_CODES } from '@bankcore/common';
 import type { Transaction } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 import { randomUUID } from 'crypto';
@@ -258,10 +254,7 @@ export class TransactionsService {
     const where: Record<string, unknown> = {};
 
     if (accountId) {
-      where['OR'] = [
-        { debitAccountId: accountId },
-        { creditAccountId: accountId },
-      ];
+      where['OR'] = [{ debitAccountId: accountId }, { creditAccountId: accountId }];
     }
     if (status) where['status'] = status;
 
@@ -290,6 +283,48 @@ export class TransactionsService {
 
     if (!transaction) throw new NotFoundException('Transaction not found');
     return transaction;
+  }
+
+  async markFinal(id: string): Promise<Transaction> {
+    const transaction = await this.prisma.transaction.findUnique({
+      where: { id },
+    });
+
+    if (!transaction) throw new NotFoundException('Transaction not found');
+
+    if (transaction.status === 'COMPLETED') {
+      return transaction; // Already final
+    }
+
+    if (transaction.status === 'FAILED' || transaction.status === 'REVERSED') {
+      throw new BadRequestException('Cannot finalize a failed or reversed transaction');
+    }
+
+    const updated = await this.prisma.transaction.update({
+      where: { id },
+      data: { status: 'COMPLETED', processedAt: new Date() },
+    });
+
+    await this.publishTransactionCompleted(updated);
+
+    // Notify users
+    if (updated.debitAccountId) {
+      const debitAccount = await this.prisma.account.findUnique({
+        where: { id: updated.debitAccountId },
+      });
+      if (debitAccount)
+        await this.requestNotification(debitAccount.userId, updated, 'transaction_finalized');
+    }
+    if (updated.creditAccountId && updated.creditAccountId !== updated.debitAccountId) {
+      const creditAccount = await this.prisma.account.findUnique({
+        where: { id: updated.creditAccountId },
+      });
+      if (creditAccount)
+        await this.requestNotification(creditAccount.userId, updated, 'transaction_finalized');
+    }
+
+    this.logger.log(`Transaction finalized: ${updated.referenceNumber}`);
+    return updated;
   }
 
   private async publishTransactionCompleted(transaction: Transaction): Promise<void> {

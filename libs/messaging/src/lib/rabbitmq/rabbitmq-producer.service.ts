@@ -11,16 +11,16 @@ import type { RabbitMQModuleOptions } from './rabbitmq.module.js';
 @Injectable()
 export class RabbitMQProducerService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(RabbitMQProducerService.name);
-  private connection!: amqplib.ChannelWrapper | amqplib.Connection;
-  private channel!: amqplib.Channel;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private connection!: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private channel!: any;
 
-  constructor(
-    @Inject('RABBITMQ_MODULE_OPTIONS') private readonly options: RabbitMQModuleOptions,
-  ) {}
+  constructor(@Inject('RABBITMQ_MODULE_OPTIONS') private readonly options: RabbitMQModuleOptions) {}
 
   async onModuleInit(): Promise<void> {
     this.connection = await amqplib.connect(this.options.url);
-    this.channel = await (this.connection as amqplib.Connection).createChannel();
+    this.channel = await this.connection.createChannel();
 
     const exchangeType = this.options.exchangeType || 'topic';
     await this.channel.assertExchange(this.options.exchange, exchangeType, {
@@ -52,11 +52,15 @@ export class RabbitMQProducerService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleDestroy(): Promise<void> {
     await this.channel?.close();
-    await (this.connection as amqplib.Connection)?.close();
+    await this.connection?.close();
     this.logger.log('RabbitMQ producer disconnected');
   }
 
-  async publish(routingKey: string, message: unknown, headers?: Record<string, string>): Promise<void> {
+  async publish(
+    routingKey: string,
+    message: unknown,
+    headers?: Record<string, string>,
+  ): Promise<void> {
     const content = Buffer.from(JSON.stringify(message));
 
     this.channel.publish(this.options.exchange, routingKey, content, {

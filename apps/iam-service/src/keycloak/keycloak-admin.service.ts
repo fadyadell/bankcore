@@ -33,7 +33,7 @@ export class KeycloakAdminService implements OnModuleInit {
   private adminToken: string | null = null;
   private tokenExpiry = 0;
 
-  constructor(private readonly config: ConfigService) {
+  constructor(config: ConfigService) {
     this.baseUrl = config.get<string>('KEYCLOAK_BASE_URL', 'http://localhost:8080');
     this.realm = config.get<string>('KEYCLOAK_REALM', 'bankcore');
     this.clientId = config.get<string>('KEYCLOAK_CLIENT_ID', 'bankcore-api');
@@ -159,7 +159,7 @@ export class KeycloakAdminService implements OnModuleInit {
       throw new Error('No location header in Keycloak create user response');
     }
 
-    return locationHeader.split('/').pop()!;
+    return locationHeader.split('/').pop() || '';
   }
 
   async getUserByEmail(email: string): Promise<KeycloakUserRepresentation | null> {
@@ -175,10 +175,13 @@ export class KeycloakAdminService implements OnModuleInit {
     }
 
     const users = (await response.json()) as KeycloakUserRepresentation[];
-    return users.length > 0 ? users[0]! : null;
+    return users.length > 0 ? users[0] : null;
   }
 
-  async updateUser(keycloakId: string, updates: Partial<KeycloakUserRepresentation>): Promise<void> {
+  async updateUser(
+    keycloakId: string,
+    updates: Partial<KeycloakUserRepresentation>,
+  ): Promise<void> {
     const token = await this.getAdminToken();
     const url = `${this.baseUrl}/admin/realms/${this.realm}/users/${keycloakId}`;
 

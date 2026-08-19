@@ -15,8 +15,9 @@ export enum AccountStatusDto {
 }
 
 export class CreateAccountDto {
+  @IsOptional()
   @IsString()
-  userId!: string;
+  userId?: string;
 
   @IsEnum(AccountTypeDto)
   type!: AccountTypeDto;

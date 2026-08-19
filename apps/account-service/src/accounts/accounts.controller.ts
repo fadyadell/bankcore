@@ -7,12 +7,21 @@ import {
   Body,
   Query,
   ParseUUIDPipe,
+  UseGuards,
+  ForbiddenException,
 } from '@nestjs/common';
 import { AccountsService } from './accounts.service.js';
 import { CreateAccountDto, UpdateAccountStatusDto } from './dto/account.dto.js';
-import { PaginationDto, buildPaginatedResponse } from '@bankcore/common';
+import {
+  PaginationDto,
+  buildPaginatedResponse,
+  CurrentUser,
+  type JwtPayload,
+} from '@bankcore/common';
+import { JwtAuthGuard, RolesGuard } from '@bankcore/auth';
 
 @Controller('accounts')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}
 
@@ -42,15 +51,31 @@ export class AccountsController {
   }
 
   @Post()
-  async create(@Body() dto: CreateAccountDto) {
+  async create(@Body() dto: CreateAccountDto, @CurrentUser() user: JwtPayload) {
+    const isAdmin =
+      user.realm_access?.roles?.includes('admin') ||
+      user.realm_access?.roles?.includes('bank_officer');
+
+    // Look up internal userId if missing or if customer
+    if (!isAdmin || !dto.userId) {
+      const internalUser = await this.accountsService.findUserByKeycloakId(user.sub);
+      if (!internalUser) {
+        throw new ForbiddenException('User record not found in system');
+      }
+
+      // If customer is trying to create account for someone else
+      if (!isAdmin && dto.userId && dto.userId !== internalUser.id) {
+        throw new ForbiddenException('You can only create accounts for yourself');
+      }
+
+      dto.userId = internalUser.id;
+    }
+
     return this.accountsService.create(dto);
   }
 
   @Put(':id/status')
-  async updateStatus(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: UpdateAccountStatusDto,
-  ) {
+  async updateStatus(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateAccountStatusDto) {
     return this.accountsService.updateStatus(id, dto);
   }
 }

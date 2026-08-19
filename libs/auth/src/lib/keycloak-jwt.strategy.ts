@@ -19,9 +19,7 @@ interface KeycloakJwksResponse {
 export class KeycloakJwtStrategy extends PassportStrategy(Strategy, 'keycloak-jwt') {
   private readonly logger = new Logger(KeycloakJwtStrategy.name);
 
-  constructor(
-    @Inject('AUTH_MODULE_OPTIONS') private readonly options: AuthModuleOptions,
-  ) {
+  constructor(@Inject('AUTH_MODULE_OPTIONS') options: AuthModuleOptions) {
     const jwksUri = `${options.keycloakBaseUrl}/realms/${options.keycloakRealm}/protocol/openid-connect/certs`;
 
     super({
@@ -36,7 +34,7 @@ export class KeycloakJwtStrategy extends PassportStrategy(Strategy, 'keycloak-jw
       ) => {
         try {
           const header = JSON.parse(
-            Buffer.from(rawJwtToken.split('.')[0]!, 'base64url').toString(),
+            Buffer.from(rawJwtToken.split('.')[0] ?? '', 'base64url').toString(),
           ) as { kid: string };
 
           const response = await fetch(jwksUri);
@@ -86,12 +84,17 @@ export class KeycloakJwtStrategy extends PassportStrategy(Strategy, 'keycloak-jw
     const nEncoded = Buffer.concat([
       Buffer.from([0x02]),
       nBytes,
-      n[0]! >= 0x80 ? Buffer.concat([Buffer.from([0x00]), n]) : n,
+      (n[0] || 0) >= 0x80 ? Buffer.concat([Buffer.from([0x00]), n]) : n,
     ]);
 
-    if (n[0]! >= 0x80) {
+    if ((n[0] || 0) >= 0x80) {
       const newNBytes = this.encodeDerLength(n.length + 1);
-      const nEncodedPadded = Buffer.concat([Buffer.from([0x02]), newNBytes, Buffer.from([0x00]), n]);
+      const nEncodedPadded = Buffer.concat([
+        Buffer.from([0x02]),
+        newNBytes,
+        Buffer.from([0x00]),
+        n,
+      ]);
       const eEncoded = Buffer.concat([Buffer.from([0x02]), eBytes, e]);
       const sequenceContent = Buffer.concat([nEncodedPadded, eEncoded]);
       const sequence = Buffer.concat([
@@ -108,8 +111,7 @@ export class KeycloakJwtStrategy extends PassportStrategy(Strategy, 'keycloak-jw
       ]);
 
       const algorithmIdentifier = Buffer.from([
-        0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01, 0x05,
-        0x00,
+        0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01, 0x05, 0x00,
       ]);
 
       const outerSequence = Buffer.concat([algorithmIdentifier, bitString]);

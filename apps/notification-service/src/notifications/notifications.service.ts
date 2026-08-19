@@ -1,10 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@bankcore/prisma-client';
 import type { Notification, NotificationChannel, NotificationStatus } from '@prisma/client';
 
 @Injectable()
 export class NotificationsService {
-  private readonly logger = new Logger(NotificationsService.name);
+  // private readonly logger = new Logger(NotificationsService.name);
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -23,7 +23,8 @@ export class NotificationsService {
         type: data.type,
         subject: data.subject,
         body: data.body,
-        metadata: data.metadata ?? undefined,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        metadata: (data.metadata as any) ?? undefined,
         status: 'PENDING',
       },
     });

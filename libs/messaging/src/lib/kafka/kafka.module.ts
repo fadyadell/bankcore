@@ -27,8 +27,10 @@ export class KafkaModule {
   }
 
   static forRootAsync(optionsFactory: {
-    useFactory: (...args: unknown[]) => KafkaModuleOptions | Promise<KafkaModuleOptions>;
-    inject?: unknown[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    useFactory: (...args: any[]) => KafkaModuleOptions | Promise<KafkaModuleOptions>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    inject?: any[];
   }): DynamicModule {
     return {
       module: KafkaModule,

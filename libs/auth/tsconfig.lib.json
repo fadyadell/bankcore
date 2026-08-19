@@ -1,7 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": "./src",
     "outDir": "./dist",
     "tsBuildInfoFile": "./dist/tsconfig.lib.tsbuildinfo",
     "emitDeclarationOnly": false,
@@ -21,10 +20,5 @@
       "path": "../common/tsconfig.lib.json"
     }
   ],
-  "exclude": [
-    "jest.config.ts",
-    "jest.config.cts",
-    "./src/**/*.spec.ts",
-    "./src/**/*.test.ts"
-  ]
+  "exclude": ["jest.config.ts", "jest.config.cts", "./src/**/*.spec.ts", "./src/**/*.test.ts"]
 }

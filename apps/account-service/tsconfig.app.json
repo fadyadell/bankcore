@@ -1,7 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": "./src",
     "outDir": "./dist",
     "tsBuildInfoFile": "./dist/tsconfig.app.tsbuildinfo",
     "emitDeclarationOnly": false,
@@ -25,6 +24,9 @@
     },
     {
       "path": "../../libs/prisma-client/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/auth/tsconfig.lib.json"
     },
     {
       "path": "../../libs/common/tsconfig.lib.json"

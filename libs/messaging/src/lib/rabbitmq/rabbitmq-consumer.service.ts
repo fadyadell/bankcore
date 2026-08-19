@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  Inject,
-  Logger,
-  type OnModuleDestroy,
-} from '@nestjs/common';
+import { Injectable, Inject, Logger, type OnModuleDestroy } from '@nestjs/common';
 import * as amqplib from 'amqplib';
 import type { RabbitMQModuleOptions } from './rabbitmq.module.js';
 
@@ -19,12 +14,12 @@ export interface RabbitMQMessageHandler {
 @Injectable()
 export class RabbitMQConsumerService implements OnModuleDestroy {
   private readonly logger = new Logger(RabbitMQConsumerService.name);
-  private connection!: amqplib.Connection;
-  private channel!: amqplib.Channel;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private connection!: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private channel!: any;
 
-  constructor(
-    @Inject('RABBITMQ_MODULE_OPTIONS') private readonly options: RabbitMQModuleOptions,
-  ) {}
+  constructor(@Inject('RABBITMQ_MODULE_OPTIONS') private readonly options: RabbitMQModuleOptions) {}
 
   async consume(
     queue: string,
@@ -51,7 +46,8 @@ export class RabbitMQConsumerService implements OnModuleDestroy {
       await this.channel.bindQueue(queue, this.options.exchange, routingKey);
     }
 
-    await this.channel.consume(queue, async (msg) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await this.channel.consume(queue, async (msg: any) => {
       if (!msg) return;
 
       try {
@@ -83,9 +79,7 @@ export class RabbitMQConsumerService implements OnModuleDestroy {
       }
     });
 
-    this.logger.log(
-      `Consuming from queue ${queue} with routing keys: ${routingKeys.join(', ')}`,
-    );
+    this.logger.log(`Consuming from queue ${queue} with routing keys: ${routingKeys.join(', ')}`);
   }
 
   async onModuleDestroy(): Promise<void> {

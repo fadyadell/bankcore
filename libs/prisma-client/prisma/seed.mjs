@@ -47,18 +47,28 @@ async function seedUsers() {
     },
   });
 
-  await prisma.user.create({
-    data: {
-      id: ids.users.customer,
-      keycloakId: 'kc-customer-1',
-      email: 'customer1@bankcore.local',
-      firstName: 'Ava',
-      lastName: 'Martinez',
-      phone: '+10000000002',
-      kycStatus: 'VERIFIED',
-      status: 'ACTIVE',
-    },
-  });
+  const customers = [
+    { id: ids.users.customer, kc: 'kc-customer-1', email: 'ahmed@bankcore.local', first: 'Ahmed', last: 'Hassan', phone: '+201000000001' },
+    { id: '11111111-1111-1111-1111-111111111113', kc: 'kc-customer-2', email: 'fady@bankcore.local', first: 'Fady', last: 'Adel', phone: '+201000000002' },
+    { id: '11111111-1111-1111-1111-111111111114', kc: 'kc-customer-3', email: 'sara@bankcore.local', first: 'Sara', last: 'Tarek', phone: '+201000000003' },
+    { id: '11111111-1111-1111-1111-111111111115', kc: 'kc-customer-4', email: 'mona@bankcore.local', first: 'Mona', last: 'Zaki', phone: '+201000000004' },
+    { id: '11111111-1111-1111-1111-111111111116', kc: 'kc-customer-5', email: 'youssef@bankcore.local', first: 'Youssef', last: 'Ali', phone: '+201000000005' },
+  ];
+
+  for (const c of customers) {
+    await prisma.user.create({
+      data: {
+        id: c.id,
+        keycloakId: c.kc,
+        email: c.email,
+        firstName: c.first,
+        lastName: c.last,
+        phone: c.phone,
+        kycStatus: 'VERIFIED',
+        status: 'ACTIVE',
+      },
+    });
+  }
 }
 
 async function seedAccounts() {
@@ -68,56 +78,73 @@ async function seedAccounts() {
       accountNumber: '1000000001',
       userId: ids.users.admin,
       type: 'CURRENT',
-      currency: 'USD',
-      balance: new Prisma.Decimal('1000000.00'),
-      availableBalance: new Prisma.Decimal('1000000.00'),
+      currency: 'EGP',
+      balance: new Prisma.Decimal('10000000.00'),
+      availableBalance: new Prisma.Decimal('10000000.00'),
       status: 'ACTIVE',
     },
   });
 
-  await prisma.account.create({
-    data: {
-      id: ids.accounts.customerSavings,
-      accountNumber: '1000000002',
-      userId: ids.users.customer,
-      type: 'SAVINGS',
-      currency: 'USD',
-      balance: new Prisma.Decimal('5000.00'),
-      availableBalance: new Prisma.Decimal('5000.00'),
-      status: 'ACTIVE',
-    },
-  });
+  const accounts = [
+    { id: ids.accounts.customerSavings, accNum: '1000000002', userId: ids.users.customer, bal: '25430.00' },
+    { id: '22222222-2222-2222-2222-222222222223', accNum: '1000000003', userId: '11111111-1111-1111-1111-111111111113', bal: '8500.00' },
+    { id: '22222222-2222-2222-2222-222222222224', accNum: '1000000004', userId: '11111111-1111-1111-1111-111111111114', bal: '42000.00' },
+    { id: '22222222-2222-2222-2222-222222222225', accNum: '1000000005', userId: '11111111-1111-1111-1111-111111111115', bal: '1500.00' },
+    { id: '22222222-2222-2222-2222-222222222226', accNum: '1000000006', userId: '11111111-1111-1111-1111-111111111116', bal: '112000.00' },
+  ];
+
+  for (const a of accounts) {
+    await prisma.account.create({
+      data: {
+        id: a.id,
+        accountNumber: a.accNum,
+        userId: a.userId,
+        type: 'SAVINGS',
+        currency: 'EGP',
+        balance: new Prisma.Decimal(a.bal),
+        availableBalance: new Prisma.Decimal(a.bal),
+        status: 'ACTIVE',
+      },
+    });
+  }
 }
 
 async function seedTransactionsAndLedger() {
-  await prisma.transaction.create({
-    data: {
-      id: ids.transactions.initialDeposit,
-      referenceNumber: 'TXN-INIT-000001',
-      idempotencyKey: 'seed-txn-init-1',
-      type: 'DEPOSIT',
-      status: 'COMPLETED',
-      amount: new Prisma.Decimal('5000.00'),
-      currency: 'USD',
-      description: 'Initial funded deposit for seeded customer account',
-      creditAccountId: ids.accounts.customerSavings,
-      processedAt: new Date(),
-      metadata: {
-        seeded: true,
-        source: 'phase2-seed',
-      },
-    },
-  });
+  const transactions = [
+    { id: ids.transactions.initialDeposit, ref: 'TXN-INIT-000001', accId: ids.accounts.customerSavings, amt: '25430.00' },
+    { id: '33333333-3333-3333-3333-333333333332', ref: 'TXN-INIT-000002', accId: '22222222-2222-2222-2222-222222222223', amt: '8500.00' },
+    { id: '33333333-3333-3333-3333-333333333333', ref: 'TXN-INIT-000003', accId: '22222222-2222-2222-2222-222222222224', amt: '42000.00' },
+    { id: '33333333-3333-3333-3333-333333333334', ref: 'TXN-INIT-000004', accId: '22222222-2222-2222-2222-222222222225', amt: '1500.00' },
+    { id: '33333333-3333-3333-3333-333333333335', ref: 'TXN-INIT-000005', accId: '22222222-2222-2222-2222-222222222226', amt: '112000.00' },
+  ];
 
-  await prisma.ledgerEntry.create({
-    data: {
-      transactionId: ids.transactions.initialDeposit,
-      accountId: ids.accounts.customerSavings,
-      entryType: 'CREDIT',
-      amount: new Prisma.Decimal('5000.00'),
-      balanceAfter: new Prisma.Decimal('5000.00'),
-    },
-  });
+  for (const t of transactions) {
+    await prisma.transaction.create({
+      data: {
+        id: t.id,
+        referenceNumber: t.ref,
+        idempotencyKey: 'seed-' + t.ref,
+        type: 'DEPOSIT',
+        status: 'COMPLETED',
+        amount: new Prisma.Decimal(t.amt),
+        currency: 'EGP',
+        description: 'Initial funded deposit',
+        creditAccountId: t.accId,
+        processedAt: new Date(),
+        metadata: { seeded: true, source: 'phase2-seed' },
+      },
+    });
+
+    await prisma.ledgerEntry.create({
+      data: {
+        transactionId: t.id,
+        accountId: t.accId,
+        entryType: 'CREDIT',
+        amount: new Prisma.Decimal(t.amt),
+        balanceAfter: new Prisma.Decimal(t.amt),
+      },
+    });
+  }
 }
 
 async function seedAuditAndNotifications() {

@@ -1,18 +1,8 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { PrismaService } from '@bankcore/prisma-client';
 import { RedisCacheService } from '@bankcore/cache';
 import { KafkaProducerService } from '@bankcore/messaging';
-import {
-  generateAccountNumber,
-  KAFKA_TOPICS,
-  CACHE_KEYS,
-  CACHE_TTL,
-} from '@bankcore/common';
+import { generateAccountNumber, KAFKA_TOPICS, CACHE_KEYS, CACHE_TTL } from '@bankcore/common';
 import type { Account, AccountType, AccountStatus } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 import { randomUUID } from 'crypto';
@@ -29,6 +19,10 @@ export class AccountsService {
   ) {}
 
   async create(dto: CreateAccountDto): Promise<Account> {
+    if (!dto.userId) {
+      throw new BadRequestException('userId is required');
+    }
+
     const userExists = await this.prisma.user.findUnique({
       where: { id: dto.userId },
     });
@@ -206,5 +200,12 @@ export class AccountsService {
 
     this.logger.log(`Account ${id} status changed: ${previousStatus} -> ${dto.status}`);
     return updated;
+  }
+
+  async findUserByKeycloakId(keycloakId: string) {
+    return this.prisma.user.findUnique({
+      where: { keycloakId },
+      select: { id: true },
+    });
   }
 }

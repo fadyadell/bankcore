@@ -5,15 +5,10 @@
     "emitDeclarationOnly": true,
     "importHelpers": true,
     "isolatedModules": true,
-    "lib": [
-      "es2022",
-      "dom",
-      "dom.iterable"
-    ],
+    "lib": ["es2022", "dom", "dom.iterable"],
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "baseUrl": ".",
-    "ignoreDeprecations": "6.0",
+
     "noEmitOnError": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
@@ -22,13 +17,8 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022",
-    "customConditions": [
-      "bankcore"
-    ],
+    "customConditions": ["bankcore"],
     "noUncheckedSideEffectImports": false,
-    "types": [
-      "*"
-    ],
     "paths": {
       "@bankcore/common": ["./libs/common/src/index.ts"],
       "@bankcore/prisma-client": ["./libs/prisma-client/src/index.ts"],

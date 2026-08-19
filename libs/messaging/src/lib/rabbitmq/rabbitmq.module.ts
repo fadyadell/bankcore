@@ -31,8 +31,10 @@ export class RabbitMQModule {
   }
 
   static forRootAsync(optionsFactory: {
-    useFactory: (...args: unknown[]) => RabbitMQModuleOptions | Promise<RabbitMQModuleOptions>;
-    inject?: unknown[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    useFactory: (...args: any[]) => RabbitMQModuleOptions | Promise<RabbitMQModuleOptions>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    inject?: any[];
   }): DynamicModule {
     return {
       module: RabbitMQModule,

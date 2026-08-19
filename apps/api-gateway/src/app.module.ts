@@ -12,6 +12,8 @@ import { UsersProxyController } from './proxy/users-proxy.controller.js';
 import { AccountsProxyController } from './proxy/accounts-proxy.controller.js';
 import { TransactionsProxyController } from './proxy/transactions-proxy.controller.js';
 import { ProxyService } from './proxy/proxy.service.js';
+import { AdminController } from './admin/admin.controller.js';
+import { PrismaModule } from '@bankcore/prisma-client';
 
 @Module({
   imports: [
@@ -52,6 +54,7 @@ import { ProxyService } from './proxy/proxy.service.js';
       }),
     }),
     CommonModule,
+    PrismaModule.forRoot(),
   ],
   controllers: [
     HealthController,
@@ -59,6 +62,7 @@ import { ProxyService } from './proxy/proxy.service.js';
     UsersProxyController,
     AccountsProxyController,
     TransactionsProxyController,
+    AdminController,
   ],
   providers: [
     {
@@ -70,8 +74,6 @@ import { ProxyService } from './proxy/proxy.service.js';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
-    consumer
-      .apply(CorrelationIdMiddleware, RequestLoggingMiddleware)
-      .forRoutes('*');
+    consumer.apply(CorrelationIdMiddleware, RequestLoggingMiddleware).forRoutes('*');
   }
 }

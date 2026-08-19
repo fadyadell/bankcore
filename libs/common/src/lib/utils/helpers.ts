@@ -11,7 +11,7 @@ export function generateAccountNumber(): string {
 
 export function generateReferenceNumber(prefix = 'TXN'): string {
   const timestamp = Date.now().toString(36).toUpperCase();
-  const random = randomUUID().split('-')[0]!.toUpperCase();
+  const random = randomUUID().split('-')[0].toUpperCase();
   return `${prefix}-${timestamp}-${random}`;
 }
 

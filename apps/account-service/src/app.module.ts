@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PrismaModule } from '@bankcore/prisma-client';
 import { CacheModule } from '@bankcore/cache';
 import { KafkaModule } from '@bankcore/messaging';
+import { AuthModule } from '@bankcore/auth';
 import { CommonModule, bankcoreConfiguration, validateEnvironment } from '@bankcore/common';
 import { AccountsController } from './accounts/accounts.controller.js';
 import { AccountsService } from './accounts/accounts.service.js';
@@ -33,6 +34,14 @@ import { HealthController } from './health/health.controller.js';
         brokers: [config.get<string>('KAFKA_BROKER', 'localhost:9092')],
         clientId: 'account-service',
         groupId: config.get<string>('KAFKA_GROUP_ID', 'bankcore-consumers'),
+      }),
+    }),
+    AuthModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        keycloakBaseUrl: config.get<string>('KEYCLOAK_BASE_URL', 'http://localhost:8080'),
+        keycloakRealm: config.get<string>('KEYCLOAK_REALM', 'bankcore'),
+        keycloakClientId: config.get<string>('KEYCLOAK_CLIENT_ID', 'bankcore-api'),
       }),
     }),
     CommonModule,

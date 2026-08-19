@@ -1,13 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '@bankcore/prisma-client';
 import type { Prisma } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class LedgerService {
   private readonly logger = new Logger(LedgerService.name);
-
-  constructor(private readonly prisma: PrismaService) {}
 
   async recordDebit(
     transactionId: string,

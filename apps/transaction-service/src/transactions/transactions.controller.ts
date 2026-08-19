@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Param,
-  Body,
-  Query,
-  ParseUUIDPipe,
-} from '@nestjs/common';
+import { Controller, Get, Post, Patch, Param, Body, Query, ParseUUIDPipe } from '@nestjs/common';
 import { TransactionsService } from './transactions.service.js';
 import { DepositDto, WithdrawalDto, TransferDto } from './dto/transaction.dto.js';
 import { PaginationDto, buildPaginatedResponse } from '@bankcore/common';
@@ -48,5 +40,10 @@ export class TransactionsController {
   @Post('transfer')
   async transfer(@Body() dto: TransferDto) {
     return this.transactionsService.transfer(dto);
+  }
+
+  @Patch(':id/final')
+  async markFinal(@Param('id', ParseUUIDPipe) id: string) {
+    return this.transactionsService.markFinal(id);
   }
 }

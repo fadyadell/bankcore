@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { Kafka, type Producer, type ProducerRecord, CompressionTypes } from 'kafkajs';
 import type { KafkaModuleOptions } from './kafka.module.js';
-import type { BaseEvent } from '@bankcore/common';
 
 @Injectable()
 export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
@@ -15,9 +14,7 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
   private producer!: Producer;
   private kafka!: Kafka;
 
-  constructor(
-    @Inject('KAFKA_MODULE_OPTIONS') private readonly options: KafkaModuleOptions,
-  ) {}
+  constructor(@Inject('KAFKA_MODULE_OPTIONS') private readonly options: KafkaModuleOptions) {}
 
   async onModuleInit(): Promise<void> {
     this.kafka = new Kafka({
@@ -43,7 +40,8 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
     this.logger.log('Kafka producer disconnected');
   }
 
-  async publish(topic: string, event: BaseEvent): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async publish(topic: string, event: any): Promise<void> {
     const record: ProducerRecord = {
       topic,
       compression: CompressionTypes.GZIP,
@@ -66,7 +64,8 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
 
   async publishBatch(
     topic: string,
-    events: BaseEvent[],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    events: any[],
   ): Promise<void> {
     const record: ProducerRecord = {
       topic,
