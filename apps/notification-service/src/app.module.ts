@@ -1,49 +1,24 @@
-import { Module, type OnModuleInit } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { PrismaModule } from '@bankcore/prisma-client';
-import { RabbitMQModule } from '@bankcore/messaging';
-import { CommonModule, bankcoreConfiguration, validateEnvironment } from '@bankcore/common';
-import { NotificationsService } from './notifications/notifications.service.js';
-import { NotificationsController } from './notifications/notifications.controller.js';
-import { NotificationConsumer } from './notifications/notification.consumer.js';
-import { EmailService } from './channels/email.service.js';
-import { SmsService } from './channels/sms.service.js';
-import { HealthController } from './health/health.controller.js';
+import { PrismaModule } from '@bankcore/database';
+import { MessagingModule } from '@bankcore/messaging';
+import { NotificationModule } from './notification/notification.module';
+import { AuthModule } from '@bankcore/auth';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      load: [bankcoreConfiguration],
-      validate: validateEnvironment,
-      envFilePath: ['.env.local', '.env'],
-    }),
-    PrismaModule.forRoot(),
-    RabbitMQModule.forRootAsync({
+    ConfigModule.forRoot({ isGlobal: true }),
+    AuthModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        url: `amqp://${config.get<string>('RABBITMQ_USER', 'bankcore')}:${config.get<string>('RABBITMQ_PASSWORD', 'bankcore_rabbit')}@${config.get<string>('RABBITMQ_HOST', 'localhost')}:${config.get<number>('RABBITMQ_PORT', 5672)}`,
-        exchange: 'bankcore.notifications.exchange',
-        queue: 'bankcore.notifications',
-        deadLetterExchange: 'bankcore.notifications.dlq.exchange',
-        deadLetterQueue: 'bankcore.notifications.dlq',
-        prefetchCount: 10,
+        keycloakBaseUrl: config.get('KEYCLOAK_URL') || 'http://localhost:8080',
+        keycloakRealm: config.get('KEYCLOAK_REALM') || 'bankcore',
+        keycloakClientId: config.get('KEYCLOAK_CLIENT_ID') || 'api-gateway',
       }),
     }),
-    CommonModule,
-  ],
-  controllers: [HealthController, NotificationsController],
-  providers: [
-    NotificationsService,
-    NotificationConsumer,
-    EmailService,
-    SmsService,
+    PrismaModule,
+    MessagingModule,
+    NotificationModule,
   ],
 })
-export class AppModule implements OnModuleInit {
-  constructor(private readonly consumer: NotificationConsumer) {}
-
-  async onModuleInit(): Promise<void> {
-    await this.consumer.startConsuming();
-  }
-}
+export class AppModule {}

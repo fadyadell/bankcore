@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:flowable="http://flowable.org/bpmn"
+  typeLanguage="http://www.w3.org/2001/XMLSchema"
+  expressionLanguage="http://www.w3.org/1999/XPath"
+  targetNamespace="http://www.flowable.org/processdef">
+
+  <process id="loanApproval" name="Loan Approval Process" isExecutable="true">
+    
+    <startEvent id="start" />
+    <sequenceFlow id="flow1" sourceRef="start" targetRef="evaluateRisk" />
+
+    <serviceTask id="evaluateRisk" name="Evaluate Loan Risk" flowable:type="http">
+      <extensionElements>
+        <flowable:field name="requestMethod"><flowable:string>POST</flowable:string></flowable:field>
+        <flowable:field name="requestUrl"><flowable:string>http://host.docker.internal:3007/delegates/evaluate-loan-risk</flowable:string></flowable:field>
+        <flowable:field name="requestHeaders"><flowable:string>Content-Type: application/json</flowable:string></flowable:field>
+        <flowable:field name="requestBody"><flowable:expression>{"loanId":"${loanId}"}</flowable:expression></flowable:field>
+        <flowable:field name="saveResponseParameters"><flowable:string>true</flowable:string></flowable:field>
+        <flowable:field name="saveResponseVariableAsJson"><flowable:string>true</flowable:string></flowable:field>
+        <flowable:field name="responseVariableName"><flowable:string>riskResponse</flowable:string></flowable:field>
+      </extensionElements>
+    </serviceTask>
+
+    <sequenceFlow id="flow2" sourceRef="evaluateRisk" targetRef="riskGateway" />
+    <exclusiveGateway id="riskGateway" />
+
+    <sequenceFlow id="flowHigh" sourceRef="riskGateway" targetRef="highRiskReview">
+      <!-- We expect riskResponse.riskTier to be set or we just map it. The delegate might just return { "riskTier": "HIGH" } -->
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${riskResponse.get('riskTier').asText() == 'HIGH'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flowMed" sourceRef="riskGateway" targetRef="standardReview">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${riskResponse.get('riskTier').asText() == 'MEDIUM'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flowLow" sourceRef="riskGateway" targetRef="fastTrackReview">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${riskResponse.get('riskTier').asText() == 'LOW'}]]></conditionExpression>
+    </sequenceFlow>
+
+    <!-- Branches -->
+    <userTask id="highRiskReview" name="High Risk Review" flowable:candidateGroups="EMPLOYEE" flowable:priority="100" />
+    <boundaryEvent id="timerHigh" attachedToRef="highRiskReview" cancelActivity="true">
+      <timerEventDefinition><timeDuration>PT24H</timeDuration></timerEventDefinition>
+    </boundaryEvent>
+    <sequenceFlow id="flowTimerHigh" sourceRef="timerHigh" targetRef="rejectLoanTask" />
+    <sequenceFlow id="flowHighMerge" sourceRef="highRiskReview" targetRef="mergeGateway" />
+
+    <userTask id="standardReview" name="Standard Review" flowable:candidateGroups="EMPLOYEE" flowable:priority="50" />
+    <boundaryEvent id="timerMed" attachedToRef="standardReview" cancelActivity="true">
+      <timerEventDefinition><timeDuration>PT24H</timeDuration></timerEventDefinition>
+    </boundaryEvent>
+    <sequenceFlow id="flowTimerMed" sourceRef="timerMed" targetRef="rejectLoanTask" />
+    <sequenceFlow id="flowMedMerge" sourceRef="standardReview" targetRef="mergeGateway" />
+
+    <userTask id="fastTrackReview" name="Fast Track Review" flowable:candidateGroups="EMPLOYEE" flowable:priority="10" />
+    <boundaryEvent id="timerLow" attachedToRef="fastTrackReview" cancelActivity="true">
+      <timerEventDefinition><timeDuration>PT24H</timeDuration></timerEventDefinition>
+    </boundaryEvent>
+    <sequenceFlow id="flowTimerLow" sourceRef="timerLow" targetRef="rejectLoanTask" />
+    <sequenceFlow id="flowLowMerge" sourceRef="fastTrackReview" targetRef="mergeGateway" />
+
+    <exclusiveGateway id="mergeGateway" />
+    <sequenceFlow id="flow3" sourceRef="mergeGateway" targetRef="employeeDecision" />
+
+    <exclusiveGateway id="employeeDecision" />
+    <sequenceFlow id="flow4" sourceRef="employeeDecision" targetRef="adminFinalTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision == 'APPROVED'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow5" sourceRef="employeeDecision" targetRef="rejectLoanTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision == 'REJECTED'}]]></conditionExpression>
+    </sequenceFlow>
+
+    <!-- Admin Review -->
+    <userTask id="adminFinalTask" name="Admin Final Review" flowable:candidateGroups="ADMIN" />
+    <boundaryEvent id="timerAdmin" attachedToRef="adminFinalTask" cancelActivity="true">
+      <timerEventDefinition><timeDuration>PT24H</timeDuration></timerEventDefinition>
+    </boundaryEvent>
+    <sequenceFlow id="flowTimerAdmin" sourceRef="timerAdmin" targetRef="rejectLoanTask" />
+    <sequenceFlow id="flow6" sourceRef="adminFinalTask" targetRef="adminDecision" />
+
+    <exclusiveGateway id="adminDecision" />
+    <sequenceFlow id="flow7" sourceRef="adminDecision" targetRef="approveLoanTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision == 'APPROVED'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow8" sourceRef="adminDecision" targetRef="rejectLoanTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision == 'REJECTED'}]]></conditionExpression>
+    </sequenceFlow>
+
+    <serviceTask id="approveLoanTask" name="Approve Loan" flowable:type="http">
+      <extensionElements>
+        <flowable:field name="requestMethod"><flowable:string>POST</flowable:string></flowable:field>
+        <flowable:field name="requestUrl"><flowable:string>http://host.docker.internal:3007/delegates/approve-loan</flowable:string></flowable:field>
+        <flowable:field name="requestHeaders"><flowable:string>Content-Type: application/json</flowable:string></flowable:field>
+        <flowable:field name="requestBody"><flowable:expression>{"loanId":"${loanId}"}</flowable:expression></flowable:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow9" sourceRef="approveLoanTask" targetRef="end1" />
+    <endEvent id="end1" />
+
+    <serviceTask id="rejectLoanTask" name="Reject Loan" flowable:type="http">
+      <extensionElements>
+        <flowable:field name="requestMethod"><flowable:string>POST</flowable:string></flowable:field>
+        <flowable:field name="requestUrl"><flowable:string>http://host.docker.internal:3007/delegates/reject-loan</flowable:string></flowable:field>
+        <flowable:field name="requestHeaders"><flowable:string>Content-Type: application/json</flowable:string></flowable:field>
+        <flowable:field name="requestBody"><flowable:expression>{"loanId":"${loanId}"}</flowable:expression></flowable:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow10" sourceRef="rejectLoanTask" targetRef="end2" />
+    <endEvent id="end2" />
+
+  </process>
+</definitions>

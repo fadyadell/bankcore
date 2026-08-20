@@ -51,52 +51,19 @@ export class TransactionsProxyController {
     });
   }
 
-  @Post('deposit')
-  @ApiOperation({ summary: 'Make a deposit' })
-  async deposit(
+  @Post()
+  @ApiOperation({ summary: 'Create a transaction' })
+  async createTransaction(
     @Body() body: unknown,
     @Req() req: Request,
   ): Promise<unknown> {
     return this.proxy.forward('transaction', {
       method: 'POST',
-      path: '/transactions/deposit',
+      path: '/transactions',
       body,
       headers: {
         [CORRELATION_ID_HEADER]: req.headers[CORRELATION_ID_HEADER] as string,
-        authorization: req.headers['authorization'] as string,
-      },
-    });
-  }
-
-  @Post('withdrawal')
-  @ApiOperation({ summary: 'Make a withdrawal' })
-  async withdrawal(
-    @Body() body: unknown,
-    @Req() req: Request,
-  ): Promise<unknown> {
-    return this.proxy.forward('transaction', {
-      method: 'POST',
-      path: '/transactions/withdrawal',
-      body,
-      headers: {
-        [CORRELATION_ID_HEADER]: req.headers[CORRELATION_ID_HEADER] as string,
-        authorization: req.headers['authorization'] as string,
-      },
-    });
-  }
-
-  @Post('transfer')
-  @ApiOperation({ summary: 'Transfer between accounts' })
-  async transfer(
-    @Body() body: unknown,
-    @Req() req: Request,
-  ): Promise<unknown> {
-    return this.proxy.forward('transaction', {
-      method: 'POST',
-      path: '/transactions/transfer',
-      body,
-      headers: {
-        [CORRELATION_ID_HEADER]: req.headers[CORRELATION_ID_HEADER] as string,
+        'idempotency-key': req.headers['idempotency-key'] as string,
         authorization: req.headers['authorization'] as string,
       },
     });

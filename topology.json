@@ -1,0 +1,131 @@
+{
+  "graph": {
+    "nodes": {
+      "notification-service": {
+        "name": "notification-service",
+        "type": "app",
+        "data": {
+          "root": "apps/notification-service",
+          "name": "notification-service",
+          "$schema": "../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "apps/notification-service/src",
+          "projectType": "application",
+          "targets": {
+            "build": {
+              "executor": "@nx/webpack:webpack",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "target": "node",
+                "compiler": "tsc",
+                "outputPath": "dist/apps/notification-service",
+                "main": "apps/notification-service/src/main.ts",
+                "tsConfig": "apps/notification-service/tsconfig.app.json",
+                "assets": [
+                  "apps/notification-service/src/assets"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve": {
+              "executor": "@nx/js:node",
+              "options": {
+                "buildTarget": "notification-service:build"
+              },
+              "configurations": {},
+              "parallelism": true
+            }
+          },
+          "implicitDependencies": [],
+          "tags": []
+        }
+      },
+      "web-portal": {
+        "name": "web-portal",
+        "type": "app",
+        "data": {
+          "root": "apps/web-portal",
+          "name": "web-portal",
+          "tags": [
+            "npm:private"
+          ],
+          "metadata": {
+            "targetGroups": {
+              "NPM Scripts": [
+                "dev",
+                "build",
+                "start",
+                "lint"
+              ]
+            },
+            "js": {
+              "packageName": "@bankcore/web-portal",
+              "packageVersion": "0.0.1",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "targets": {
+            "dev": {
+              "executor": "nx:run-script",
+              "metadata": {
+                "scriptContent": "next dev",
+                "runCommand": "npm run dev"
+              },
+              "options": {
+                "script": "dev"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "next build",
+                "cwd": "apps/web-portal"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "start": {
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "next start -p 4200",
+                "cwd": "apps/web-portal"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "nx:run-script",
+              "metadata": {
+                "scriptContent": "next lint",
+                "runCommand": "npm run lint"
+              },
+              "options": {
+                "script": "lint"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve": {
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "next dev -p 4200",
+                "cwd": "apps/web-portal"
+              },
+              "configurations": {},
+              "parallelism": true
+            }
+          },
+          "implicitDependencies": []
+        }
+      }
+    },
+    "dependencies": {
+      "notification-service": [],
+      "web-portal": []
+    }
+  }
+}

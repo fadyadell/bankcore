@@ -1,47 +1,61 @@
 {
-  "extends": "./tsconfig.base.json",
-  "compileOnSave": false,
-  "files": [],
-  "references": [
-    {
-      "path": "./libs/common"
+  "compilerOptions": {
+    "composite": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
+    "importHelpers": true,
+    "isolatedModules": true,
+    "lib": [
+      "es2022",
+      "dom",
+      "dom.iterable"
+    ],
+    "module": "node16",
+    "moduleResolution": "node16",
+    "noEmitOnError": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2022",
+    "noUncheckedSideEffectImports": false,
+    "types": [],
+    "rootDir": ".",
+    "paths": {
+      "@bankcore/common": [
+        "./libs/common/src/index.ts"
+      ],
+      "@bankcore/database": [
+        "./libs/database/src/index.ts"
+      ],
+      "@bankcore/config": [
+        "./libs/config/src/index.ts"
+      ],
+      "@bankcore/logger": [
+        "./libs/logger/src/index.ts"
+      ],
+      "@bankcore/events": [
+        "./libs/events/src/index.ts"
+      ],
+      "@bankcore/workflow": [
+        "./libs/workflow/src/index.ts"
+      ],
+      "@bankcore/auth": [
+        "./libs/auth/src/index.ts"
+      ],
+      "@bankcore/messaging": [
+        "./libs/messaging/src/index.ts"
+      ],
+      "@bankcore/cache": [
+        "./libs/cache/src/index.ts"
+      ],
+      "@bankcore/web-portal/*": [
+        "./apps/web-portal/*"
+      ]
     },
-    {
-      "path": "./apps/notification-service"
-    },
-    {
-      "path": "./apps/transaction-service"
-    },
-    {
-      "path": "./apps/account-service"
-    },
-    {
-      "path": "./libs/prisma-client"
-    },
-    {
-      "path": "./apps/api-gateway"
-    },
-    {
-      "path": "./apps/iam-service"
-    },
-    {
-      "path": "./libs/messaging"
-    },
-    {
-      "path": "./libs/cache"
-    },
-    {
-      "path": "./libs/auth"
-    },
-    {
-      "path": "./apps/loan-service"
-    },
-    {
-      "path": "./apps/workflow-service"
-    },
-    {
-      "path": "./apps/web-portal"
-    }
-  ],
-  "compilerOptions": {}
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  }
 }

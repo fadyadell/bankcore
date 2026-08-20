@@ -1,79 +1,13 @@
-import { Module, type NestModule, type MiddlewareConsumer } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
-import { CommonModule, bankcoreConfiguration, validateEnvironment } from '@bankcore/common';
-import { AuthModule } from '@bankcore/auth';
-import { CacheModule } from '@bankcore/cache';
-import { CorrelationIdMiddleware, RequestLoggingMiddleware } from '@bankcore/common';
-import { HealthController } from './health/health.controller.js';
-import { AuthProxyController } from './proxy/auth-proxy.controller.js';
-import { UsersProxyController } from './proxy/users-proxy.controller.js';
-import { AccountsProxyController } from './proxy/accounts-proxy.controller.js';
-import { TransactionsProxyController } from './proxy/transactions-proxy.controller.js';
-import { ProxyService } from './proxy/proxy.service.js';
-import { AdminController } from './admin/admin.controller.js';
-import { PrismaModule } from '@bankcore/prisma-client';
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [bankcoreConfiguration],
-      validate: validateEnvironment,
-      envFilePath: ['.env.local', '.env'],
     }),
-    ThrottlerModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        throttlers: [
-          {
-            ttl: config.get<number>('THROTTLE_TTL', 60000),
-            limit: config.get<number>('THROTTLE_LIMIT', 100),
-          },
-        ],
-      }),
-    }),
-    AuthModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        keycloakBaseUrl: config.get<string>('KEYCLOAK_BASE_URL', 'http://localhost:8080'),
-        keycloakRealm: config.get<string>('KEYCLOAK_REALM', 'bankcore'),
-        keycloakClientId: config.get<string>('KEYCLOAK_CLIENT_ID', 'bankcore-api'),
-      }),
-    }),
-    CacheModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        host: config.get<string>('REDIS_HOST', 'localhost'),
-        port: config.get<number>('REDIS_PORT', 6379),
-        password: config.get<string>('REDIS_PASSWORD'),
-        keyPrefix: 'bankcore:gateway:',
-        defaultTtl: 300,
-      }),
-    }),
-    CommonModule,
-    PrismaModule.forRoot(),
   ],
-  controllers: [
-    HealthController,
-    AuthProxyController,
-    UsersProxyController,
-    AccountsProxyController,
-    TransactionsProxyController,
-    AdminController,
-  ],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
-    ProxyService,
-  ],
+  controllers: [AppController],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(CorrelationIdMiddleware, RequestLoggingMiddleware).forRoutes('*');
-  }
-}
+export class AppModule {}

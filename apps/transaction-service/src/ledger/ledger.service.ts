@@ -1,10 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
-import type { Prisma } from '@prisma/client';
+import { PrismaService } from '@bankcore/database';
+import type { Prisma } from '@bankcore/database';
 import { Decimal } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class LedgerService {
   private readonly logger = new Logger(LedgerService.name);
+
+  constructor(prisma: PrismaService) {}
 
   async recordDebit(
     transactionId: string,
@@ -18,15 +21,7 @@ export class LedgerService {
 
     const balanceAfter = account.balance.sub(amount);
 
-    await tx.ledgerEntry.create({
-      data: {
-        transactionId,
-        accountId,
-        entryType: 'DEBIT',
-        amount,
-        balanceAfter,
-      },
-    });
+
 
     await tx.account.update({
       where: { id: accountId },
@@ -53,15 +48,7 @@ export class LedgerService {
 
     const balanceAfter = account.balance.add(amount);
 
-    await tx.ledgerEntry.create({
-      data: {
-        transactionId,
-        accountId,
-        entryType: 'CREDIT',
-        amount,
-        balanceAfter,
-      },
-    });
+
 
     await tx.account.update({
       where: { id: accountId },

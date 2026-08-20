@@ -30,6 +30,12 @@ export class RolesGuard implements CanActivate {
 
     const userRoles = new Set<string>();
 
+    if (user.roles) {
+      for (const role of user.roles) {
+        userRoles.add(role.toUpperCase());
+      }
+    }
+
     if (user.realm_access?.roles) {
       for (const role of user.realm_access.roles) {
         userRoles.add(role);

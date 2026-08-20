@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:flowable="http://flowable.org/bpmn"
+  typeLanguage="http://www.w3.org/2001/XMLSchema"
+  expressionLanguage="http://www.w3.org/1999/XPath"
+  targetNamespace="http://www.flowable.org/processdef">
+
+  <process id="transactionApproval" name="Transaction Approval Process" isExecutable="true">
+    
+    <startEvent id="start" />
+    <sequenceFlow id="flow1" sourceRef="start" targetRef="employeeReview" />
+
+    <userTask id="employeeReview" name="Employee Review" flowable:candidateGroups="EMPLOYEE" />
+    
+    <boundaryEvent id="timer1" attachedToRef="employeeReview" cancelActivity="true">
+      <timerEventDefinition>
+        <timeDuration>PT24H</timeDuration>
+      </timerEventDefinition>
+    </boundaryEvent>
+    <sequenceFlow id="flowTimer1" sourceRef="timer1" targetRef="rejectServiceTask1" />
+
+    <sequenceFlow id="flow2" sourceRef="employeeReview" targetRef="employeeDecision" />
+
+    <exclusiveGateway id="employeeDecision" />
+    <sequenceFlow id="flow3" sourceRef="employeeDecision" targetRef="adminReview">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision == 'APPROVED' && amount > 10000}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow3_auto" sourceRef="employeeDecision" targetRef="completeServiceTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision == 'APPROVED' && amount <= 10000}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow4" sourceRef="employeeDecision" targetRef="rejectServiceTask1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision == 'REJECTED'}]]></conditionExpression>
+    </sequenceFlow>
+
+    <serviceTask id="rejectServiceTask1" name="Reject Transaction" flowable:type="http">
+      <extensionElements>
+        <flowable:field name="requestMethod"><flowable:string>POST</flowable:string></flowable:field>
+        <flowable:field name="requestUrl"><flowable:string>http://host.docker.internal:3007/delegates/reject-transaction</flowable:string></flowable:field>
+        <flowable:field name="requestHeaders"><flowable:string>Content-Type: application/json</flowable:string></flowable:field>
+        <flowable:field name="requestBody"><flowable:expression>{"transactionId":"${transactionId}","reason":"${reason != null ? reason : 'SLA_TIMEOUT'}"}</flowable:expression></flowable:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow5" sourceRef="rejectServiceTask1" targetRef="end1" />
+    <endEvent id="end1" />
+
+    <userTask id="adminReview" name="Admin Final Review" flowable:candidateGroups="ADMIN" />
+    
+    <boundaryEvent id="timer2" attachedToRef="adminReview" cancelActivity="true">
+      <timerEventDefinition>
+        <timeDuration>PT24H</timeDuration>
+      </timerEventDefinition>
+    </boundaryEvent>
+    <sequenceFlow id="flowTimer2" sourceRef="timer2" targetRef="rejectServiceTask2" />
+
+    <sequenceFlow id="flow6" sourceRef="adminReview" targetRef="adminDecision" />
+
+    <exclusiveGateway id="adminDecision" />
+    <sequenceFlow id="flow7" sourceRef="adminDecision" targetRef="completeServiceTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision == 'APPROVED'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow8" sourceRef="adminDecision" targetRef="rejectServiceTask2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision == 'REJECTED'}]]></conditionExpression>
+    </sequenceFlow>
+
+    <serviceTask id="rejectServiceTask2" name="Reject by Admin" flowable:type="http">
+      <extensionElements>
+        <flowable:field name="requestMethod"><flowable:string>POST</flowable:string></flowable:field>
+        <flowable:field name="requestUrl"><flowable:string>http://host.docker.internal:3007/delegates/reject-transaction</flowable:string></flowable:field>
+        <flowable:field name="requestHeaders"><flowable:string>Content-Type: application/json</flowable:string></flowable:field>
+        <flowable:field name="requestBody"><flowable:expression>{"transactionId":"${transactionId}","reason":"${reason != null ? reason : 'SLA_TIMEOUT'}"}</flowable:expression></flowable:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow9" sourceRef="rejectServiceTask2" targetRef="end2" />
+    <endEvent id="end2" />
+
+    <serviceTask id="completeServiceTask" name="Execute Transfer" flowable:type="http">
+      <extensionElements>
+        <flowable:field name="requestMethod"><flowable:string>POST</flowable:string></flowable:field>
+        <flowable:field name="requestUrl"><flowable:string>http://host.docker.internal:3007/delegates/execute-transfer</flowable:string></flowable:field>
+        <flowable:field name="requestHeaders"><flowable:string>Content-Type: application/json</flowable:string></flowable:field>
+        <flowable:field name="requestBody"><flowable:expression>{"transactionId":"${transactionId}"}</flowable:expression></flowable:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow10" sourceRef="completeServiceTask" targetRef="end3" />
+    <endEvent id="end3" />
+
+  </process>
+</definitions>

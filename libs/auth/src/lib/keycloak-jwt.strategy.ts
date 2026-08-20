@@ -69,6 +69,7 @@ export class KeycloakJwtStrategy extends PassportStrategy(Strategy, 'keycloak-jw
       preferred_username: payload['preferred_username'],
       given_name: payload['given_name'],
       family_name: payload['family_name'],
+      roles: payload['roles'],
       realm_access: payload['realm_access'],
       resource_access: payload['resource_access'],
     };

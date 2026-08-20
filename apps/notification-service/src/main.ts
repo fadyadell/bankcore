@@ -19,7 +19,7 @@ async function bootstrap(): Promise<void> {
   app.useGlobalFilters(new GlobalExceptionFilter());
   app.useGlobalInterceptors(new ResponseTransformInterceptor());
 
-  const port = process.env['NOTIFICATION_SERVICE_PORT'] || 3004;
+  const port = process.env['NOTIFICATION_SERVICE_PORT'] || 3006;
   await app.listen(port);
   logger.log(`Notification Service running on http://localhost:${port}`);
 }

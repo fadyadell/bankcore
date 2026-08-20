@@ -1,44 +1,24 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { PrismaModule } from '@bankcore/prisma-client';
-import { KafkaModule } from '@bankcore/messaging';
-import { RabbitMQModule } from '@bankcore/messaging';
-import { CommonModule, bankcoreConfiguration, validateEnvironment } from '@bankcore/common';
-import { TransactionsController } from './transactions/transactions.controller.js';
-import { TransactionsService } from './transactions/transactions.service.js';
-import { LedgerService } from './ledger/ledger.service.js';
-import { HealthController } from './health/health.controller.js';
+import { PrismaModule } from '@bankcore/database';
+import { TransactionModule } from './transaction/transaction.module';
+import { AuthModule } from '@bankcore/auth';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [bankcoreConfiguration],
-      validate: validateEnvironment,
-      envFilePath: ['.env.local', '.env'],
     }),
-    PrismaModule.forRoot(),
-    KafkaModule.forRootAsync({
+    AuthModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        brokers: [config.get<string>('KAFKA_BROKER', 'localhost:9092')],
-        clientId: 'transaction-service',
-        groupId: config.get<string>('KAFKA_GROUP_ID', 'bankcore-consumers'),
+        keycloakBaseUrl: config.get('KEYCLOAK_URL') || 'http://localhost:8080',
+        keycloakRealm: config.get('KEYCLOAK_REALM') || 'bankcore',
+        keycloakClientId: config.get('KEYCLOAK_CLIENT_ID') || 'api-gateway',
       }),
     }),
-    RabbitMQModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        url: `amqp://${config.get<string>('RABBITMQ_USER', 'bankcore')}:${config.get<string>('RABBITMQ_PASSWORD', 'bankcore_rabbit')}@${config.get<string>('RABBITMQ_HOST', 'localhost')}:${config.get<number>('RABBITMQ_PORT', 5672)}`,
-        exchange: 'bankcore.notifications.exchange',
-        queue: 'bankcore.notifications',
-        deadLetterExchange: 'bankcore.notifications.dlq.exchange',
-        deadLetterQueue: 'bankcore.notifications.dlq',
-      }),
-    }),
-    CommonModule,
+    PrismaModule,
+    TransactionModule,
   ],
-  controllers: [HealthController, TransactionsController],
-  providers: [TransactionsService, LedgerService],
 })
 export class AppModule {}
