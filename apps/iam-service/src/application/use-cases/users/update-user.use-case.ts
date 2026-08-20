@@ -1,9 +1,9 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { AUDIT_WRITER, IDENTITY_PROVIDER, USER_REPOSITORY } from '../../tokens.js';
-import type { AuditWriterPort } from '../../ports/audit-writer.port.js';
-import type { IdentityProviderPort } from '../../ports/identity-provider.port.js';
-import type { UserRepositoryPort } from '../../ports/user-repository.port.js';
-import type { UpdateUserDto } from '../../../users/dto/user.dto.js';
+import { AUDIT_WRITER, IDENTITY_PROVIDER, USER_REPOSITORY } from '../../tokens';
+import type { AuditWriterPort } from '../../ports/audit-writer.port';
+import type { IdentityProviderPort } from '../../ports/identity-provider.port';
+import type { UserRepositoryPort } from '../../ports/user-repository.port';
+import type { UpdateUserDto } from '../../../users/dto/user.dto';
 import type { User, KycStatus, UserStatus } from '@prisma/client';
 
 @Injectable()

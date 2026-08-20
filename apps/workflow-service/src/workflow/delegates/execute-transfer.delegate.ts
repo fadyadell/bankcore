@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '@bankcore/database';
+import { PrismaService } from '@bankcore/prisma-client';
 import { AuditLogService } from '@bankcore/common';
-import { TransactionStatus } from '@bankcore/database';
+
 import { KafkaProducerService } from '@bankcore/messaging';
 
 @Injectable()
@@ -20,7 +20,7 @@ export class ExecuteTransferDelegate {
     const transaction = await this.prisma.transaction.findUnique({ where: { id: transactionId }, include: { debitAccount: true } });
     if (!transaction) return;
 
-    await this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async (tx: any) => {
       const accounts = [transaction.debitAccountId!, transaction.creditAccountId!].sort();
       for (const accId of accounts) {
         await tx.$queryRaw`SELECT * FROM "Account" WHERE id = ${accId} FOR UPDATE`;
@@ -42,7 +42,7 @@ export class ExecuteTransferDelegate {
       });
       await tx.transaction.update({
         where: { id: transactionId },
-        data: { status: TransactionStatus.COMPLETED }
+        data: { status: 'COMPLETED' }
       });
     });
 
@@ -50,6 +50,7 @@ export class ExecuteTransferDelegate {
       entityType: 'TRANSACTION',
       entityId: transactionId,
       action: 'TRANSFER_EXECUTED',
+      metadata: { actorId: 'SYSTEM' }
     });
 
     await this.kafkaProducer.publish('bankcore.transaction.completed', {
@@ -57,7 +58,7 @@ export class ExecuteTransferDelegate {
       debitAccountId: transaction.debitAccountId,
       creditAccountId: transaction.creditAccountId,
       amount: transaction.amount,
-      customerId: transaction.debitAccount?.customerId
+      userId: transaction.debitAccount?.userId
     });
   }
 }

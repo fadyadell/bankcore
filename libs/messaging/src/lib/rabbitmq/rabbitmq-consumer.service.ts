@@ -1,6 +1,6 @@
 import { Injectable, Inject, Logger, type OnModuleDestroy } from '@nestjs/common';
 import * as amqplib from 'amqplib';
-import type { RabbitMQModuleOptions } from './rabbitmq.module.js';
+import type { RabbitMQModuleOptions } from './rabbitmq.module';
 
 export interface RabbitMQMessageHandler {
   (message: {

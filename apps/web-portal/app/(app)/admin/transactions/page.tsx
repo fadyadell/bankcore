@@ -49,7 +49,7 @@ export default function AdminTransactionsPage() {
         reason: approved ? 'Final approval by admin' : 'Rejected by admin'
       });
       fetchTasks();
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to complete task", err);
       alert("Failed to review transaction. Please try again.");
     }

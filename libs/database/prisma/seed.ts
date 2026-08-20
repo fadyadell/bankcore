@@ -1,4 +1,4 @@
-import { PrismaClient, UserRole, AccountType, AccountStatus } from '../generated/prisma';
+import { PrismaClient, AccountType, AccountStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -44,7 +44,8 @@ async function main() {
     create: {
       email: 'admin@bankcore.local',
       keycloakId: adminKc.id,
-      role: UserRole.ADMIN,
+      firstName: 'Admin',
+      lastName: 'User',
     },
   });
 
@@ -54,13 +55,8 @@ async function main() {
     create: {
       email: 'employee@bankcore.local',
       keycloakId: employeeKc.id,
-      role: UserRole.EMPLOYEE,
-      employee: {
-        create: {
-          employeeNumber: 'EMP-001',
-          department: 'Operations',
-        }
-      }
+      firstName: 'Employee',
+      lastName: 'User',
     },
   });
 
@@ -70,27 +66,22 @@ async function main() {
     create: {
       email: 'customer@bankcore.local',
       keycloakId: customerKc.id,
-      role: UserRole.CUSTOMER,
-      customer: {
-        create: {
-          nationalId: '12345678901234',
-          phone: '+1234567890',
-          address: '123 Tech Avenue, Innovation City',
-        }
-      }
+      firstName: 'Customer',
+      lastName: 'User',
+      nationalId: '12345678901234',
+      phone: '+1234567890',
     },
-    include: { customer: true }
   });
 
   // 3. Create Accounts for Customer
-  if (customer.customer) {
+  if (customer) {
     const checkingAccount = await prisma.account.upsert({
       where: { accountNumber: 'CHK-0001' },
       update: {},
       create: {
-        customerId: customer.customer.id,
+        userId: customer.id,
         accountNumber: 'CHK-0001',
-        type: AccountType.CHECKING,
+        type: AccountType.CURRENT,
         balance: 15000.50,
         availableBalance: 15000.50,
         status: AccountStatus.ACTIVE,
@@ -101,7 +92,7 @@ async function main() {
       where: { accountNumber: 'SAV-0001' },
       update: {},
       create: {
-        customerId: customer.customer.id,
+        userId: customer.id,
         accountNumber: 'SAV-0001',
         type: AccountType.SAVINGS,
         balance: 50000.00,

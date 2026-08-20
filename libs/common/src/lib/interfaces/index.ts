@@ -1,2 +1,2 @@
-export * from './api-response.interface.js';
-export * from './events.interface.js';
+export * from './api-response.interface';
+export * from './events.interface';

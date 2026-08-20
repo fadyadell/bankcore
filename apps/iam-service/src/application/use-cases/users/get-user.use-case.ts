@@ -1,6 +1,6 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { USER_REPOSITORY } from '../../tokens.js';
-import type { UserRepositoryPort } from '../../ports/user-repository.port.js';
+import { USER_REPOSITORY } from '../../tokens';
+import type { UserRepositoryPort } from '../../ports/user-repository.port';
 import type { User } from '@prisma/client';
 
 @Injectable()

@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   description: 'BankCore customer-facing web portal foundation',
 };
 
+import { SessionProvider } from './providers/SessionProvider';
+import { SocketProvider } from './providers/SocketProvider';
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -19,7 +22,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <SessionProvider>
+          <SocketProvider>
+            {children}
+          </SocketProvider>
+        </SessionProvider>
+      </body>
     </html>
   );
 }

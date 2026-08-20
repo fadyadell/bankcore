@@ -1,7 +1,7 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { AUDIT_WRITER, IDENTITY_PROVIDER } from '../../tokens.js';
-import type { AuditWriterPort } from '../../ports/audit-writer.port.js';
-import type { IdentityProviderPort } from '../../ports/identity-provider.port.js';
+import { AUDIT_WRITER, IDENTITY_PROVIDER } from '../../tokens';
+import type { AuditWriterPort } from '../../ports/audit-writer.port';
+import type { IdentityProviderPort } from '../../ports/identity-provider.port';
 
 @Injectable()
 export class LoginUseCase {

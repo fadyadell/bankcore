@@ -1,6 +1,6 @@
 import { Module, type DynamicModule } from '@nestjs/common';
-import { KafkaProducerService } from './kafka-producer.service.js';
-import { KafkaConsumerService } from './kafka-consumer.service.js';
+import { KafkaProducerService } from './kafka-producer.service';
+import { KafkaConsumerService } from './kafka-consumer.service';
 
 export interface KafkaModuleOptions {
   brokers: string[];

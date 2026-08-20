@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Patch, Param, Body, Query, ParseUUIDPipe } from '@nestjs/common';
-import { TransactionsService } from './transactions.service.js';
-import { DepositDto, WithdrawalDto, TransferDto } from './dto/transaction.dto.js';
+import { TransactionsService } from './transactions.service';
+import { DepositDto, WithdrawalDto, TransferDto } from './dto/transaction.dto';
 import { PaginationDto, buildPaginatedResponse } from '@bankcore/common';
 
 @Controller('transactions')

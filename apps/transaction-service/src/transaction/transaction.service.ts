@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
-import { PrismaService } from '@bankcore/database';
+import { PrismaService } from '@bankcore/prisma-client';
 import { AuditLogService, PaginationDto, generateReferenceNumber } from '@bankcore/common';
-import { RabbitMQClient, KafkaProducerService } from '@bankcore/messaging';
+import { KafkaProducerService } from '@bankcore/messaging';
 import axios from 'axios';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 
-import { CurrentUserPayload } from '@bankcore/auth';
-import { TransactionStatus, UserRole, ApprovalDecision, ApprovalStage, Account } from '@bankcore/database';
+import { JwtPayload } from '@bankcore/common';
+import { TransactionStatus, Account, ApprovalStatus } from '@bankcore/prisma-client';
 import { LedgerService } from '../ledger/ledger.service';
 import { ReviewTransactionDto } from './dto/review-transaction.dto';
 
@@ -15,19 +15,18 @@ export class TransactionService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditLogService: AuditLogService,
-    private readonly rabbitMQClient: RabbitMQClient,
     private readonly kafkaProducer: KafkaProducerService,
     private readonly ledgerService: LedgerService,
   ) {}
 
   private async resolveCustomerUserId(keycloakSub: string) {
-    const user = await this.prisma.user.findUnique({ where: { keycloakId: keycloakSub }, include: { customer: true, employee: true } });
+    const user = await this.prisma.user.findUnique({ where: { keycloakId: keycloakSub } });
     return user;
   }
 
-  async createTransaction(dto: CreateTransactionDto, currentUser: CurrentUserPayload) {
+  async createTransaction(dto: CreateTransactionDto, currentUser: JwtPayload) {
     const userDb = await this.resolveCustomerUserId(currentUser.sub);
-    if (!userDb || !userDb.customer) {
+    if (!userDb) {
       throw new ForbiddenException('User is not a registered customer');
     }
 
@@ -47,7 +46,7 @@ export class TransactionService {
       }
       const fromAccount = accounts[0];
 
-      if (fromAccount.customerId !== userDb.customer?.id) {
+      if (fromAccount.userId !== userDb.id) {
         throw new ForbiddenException('Account does not belong to you');
       }
 
@@ -84,8 +83,10 @@ export class TransactionService {
       entityType: 'TRANSACTION',
       entityId: transaction.id,
       action: 'CREATED',
-      actorId: userDb.id,
-      after: transaction as unknown as Record<string, unknown>,
+      metadata: {
+        actorId: userDb.id,
+        after: transaction as unknown as Record<string, unknown>,
+      },
     });
 
     try {
@@ -95,7 +96,7 @@ export class TransactionService {
       console.error(e);
     }
 
-    await this.rabbitMQClient.publish('bankcore.notifications.employee', {
+    await this.kafkaProducer.publish('bankcore.notifications.employee', {
       type: 'TRANSACTION_CREATED',
       title: 'New Transaction Requires Review',
       body: `Transaction ${transaction.referenceNumber} for ${transaction.amount} ${transaction.currency} requires employee review.`,
@@ -105,7 +106,7 @@ export class TransactionService {
     return transaction;
   }
 
-  async findAll(currentUser: CurrentUserPayload, pagination: PaginationDto) {
+  async findAll(currentUser: JwtPayload, pagination: PaginationDto) {
     const userDb = await this.resolveCustomerUserId(currentUser.sub);
     if (!userDb) throw new ForbiddenException('User not found');
 
@@ -113,16 +114,15 @@ export class TransactionService {
     const take = pagination.limit || 20;
 
     const roles = currentUser.realm_access?.roles || [];
-    const isEmployeeOrAdmin = roles.includes(UserRole.EMPLOYEE) || roles.includes(UserRole.ADMIN);
+    const isEmployeeOrAdmin = roles.includes('employee') || roles.includes('admin');
 
     let whereClause = {};
 
     if (!isEmployeeOrAdmin) {
-      if (!userDb.customer) throw new ForbiddenException('Customer profile not found');
-      whereClause = { debitAccount: { customerId: userDb.customer.id } };
+      whereClause = { debitAccount: { userId: userDb.id } };
     } else {
       whereClause = {
-        status: { notIn: [TransactionStatus.COMPLETED, TransactionStatus.REJECTED] }
+        status: { notIn: [TransactionStatus.COMPLETED, TransactionStatus.FAILED] }
       };
     }
 
@@ -132,30 +132,29 @@ export class TransactionService {
       skip,
       take,
       include: {
-        debitAccount: { include: { customer: { include: { user: true } } } },
+        debitAccount: { include: { user: true } },
         creditAccount: true,
       }
     });
   }
 
-  async findOne(id: string, currentUser: CurrentUserPayload) {
+  async findOne(id: string, currentUser: JwtPayload) {
     const transaction = await this.prisma.transaction.findUnique({
       where: { id },
       include: {
-        debitAccount: { include: { customer: { include: { user: true } } } },
-        creditAccount: true,
-        approvals: { include: { approver: true } }
+        debitAccount: { include: { user: true } },
+        creditAccount: true
       }
     });
 
     if (!transaction) throw new NotFoundException('Transaction not found');
 
     const roles = currentUser.realm_access?.roles || [];
-    const isEmployeeOrAdmin = roles.includes(UserRole.EMPLOYEE) || roles.includes(UserRole.ADMIN);
+    const isEmployeeOrAdmin = roles.includes('employee') || roles.includes('admin');
 
     if (!isEmployeeOrAdmin) {
       const userDb = await this.resolveCustomerUserId(currentUser.sub);
-      if (!userDb?.customer || transaction.debitAccount?.customerId !== userDb.customer.id) {
+      if (!userDb || transaction.debitAccount?.userId !== userDb.id) {
         throw new ForbiddenException('You do not have access to this transaction');
       }
     }
@@ -163,13 +162,13 @@ export class TransactionService {
     return transaction;
   }
 
-  async reviewTransaction(id: string, dto: ReviewTransactionDto, currentUser: CurrentUserPayload) {
+  async reviewTransaction(id: string, dto: ReviewTransactionDto, currentUser: JwtPayload) {
     const userDb = await this.prisma.user.findUnique({ where: { keycloakId: currentUser.sub } });
     if (!userDb) throw new ForbiddenException('User not found in DB');
 
     const roles = currentUser.realm_access?.roles || [];
-    const isEmployee = roles.includes(UserRole.EMPLOYEE);
-    const isAdmin = roles.includes(UserRole.ADMIN);
+    const isEmployee = roles.includes('employee');
+    const isAdmin = roles.includes('admin');
 
     if (!isEmployee && !isAdmin) {
       throw new ForbiddenException('Only employees or admins can review transactions');
@@ -184,20 +183,20 @@ export class TransactionService {
       throw new NotFoundException('Transaction not found');
     }
 
-    if (transaction.status === TransactionStatus.COMPLETED || transaction.status === TransactionStatus.REJECTED) {
+    if (transaction.status === TransactionStatus.COMPLETED || transaction.status === TransactionStatus.FAILED) {
       throw new BadRequestException('Transaction is already processed');
     }
 
     // Determine current stage
-    let currentStage: ApprovalStage = ApprovalStage.EMPLOYEE_REVIEW;
-    if (transaction.status === TransactionStatus.ADMIN_REVIEW) {
-      currentStage = ApprovalStage.ADMIN_FINAL;
-    } else if (transaction.status !== TransactionStatus.PENDING && transaction.status !== TransactionStatus.EMPLOYEE_REVIEW) {
+    let currentStage = 'EMPLOYEE_REVIEW';
+    if (transaction.status === TransactionStatus.PROCESSING) {
+      currentStage = 'ADMIN_FINAL';
+    } else if (transaction.status !== TransactionStatus.PENDING) {
       // If it is in some other state, we can't review it
       throw new BadRequestException(`Cannot review transaction in status: ${transaction.status}`);
     }
 
-    if (currentStage === ApprovalStage.ADMIN_FINAL && !isAdmin) {
+    if (currentStage === 'ADMIN_FINAL' && !isAdmin) {
       throw new ForbiddenException('Only admins can review this transaction');
     }
 
@@ -205,27 +204,28 @@ export class TransactionService {
       // 1. Create Approval Record
       await tx.approval.create({
         data: {
-          transactionId: transaction.id,
-          stage: currentStage,
-          decision: dto.decision,
-          reason: dto.decision === ApprovalDecision.REJECTED ? dto.reason : dto.approvedReason,
-          approverId: userDb.id,
+          entityType: 'TRANSACTION',
+          entityId: transaction.id,
+          role: currentStage,
+          reviewerId: userDb.id,
+          status: dto.decision === 'REJECTED' ? ApprovalStatus.REJECTED : ApprovalStatus.APPROVED,
+          comments: dto.decision === 'REJECTED' ? dto.reason : dto.approvedReason,
         }
       });
 
       // 2. Determine Next Status
       let nextStatus = transaction.status;
 
-      if (dto.decision === ApprovalDecision.REJECTED) {
-        nextStatus = TransactionStatus.REJECTED;
+      if (dto.decision === 'REJECTED') {
+        nextStatus = TransactionStatus.FAILED;
       } else {
-        if (currentStage === ApprovalStage.EMPLOYEE_REVIEW) {
+        if (currentStage === 'EMPLOYEE_REVIEW') {
           if (Number(transaction.amount) > 10000) {
-            nextStatus = TransactionStatus.ADMIN_REVIEW;
+            nextStatus = TransactionStatus.PROCESSING;
           } else {
             nextStatus = TransactionStatus.COMPLETED;
           }
-        } else if (currentStage === ApprovalStage.ADMIN_FINAL) {
+        } else if (currentStage === 'ADMIN_FINAL') {
           nextStatus = TransactionStatus.COMPLETED;
         }
       }
@@ -235,7 +235,7 @@ export class TransactionService {
         where: { id: transaction.id },
         data: {
           status: nextStatus,
-          processedAt: nextStatus === TransactionStatus.COMPLETED || nextStatus === TransactionStatus.REJECTED ? new Date() : undefined
+          processedAt: nextStatus === TransactionStatus.COMPLETED || nextStatus === TransactionStatus.FAILED ? new Date() : undefined
         },
       });
 
@@ -254,12 +254,14 @@ export class TransactionService {
         entityType: 'TRANSACTION',
         entityId: transaction.id,
         action: `REVIEWED_${dto.decision}`,
-        actorId: userDb.id,
-        after: updatedTx as unknown as Record<string, unknown>,
+        metadata: {
+          actorId: userDb.id,
+          after: updatedTx as unknown as Record<string, unknown>,
+        }
       });
 
-      if (transaction.debitAccount && transaction.debitAccount.customer) {
-        await this.rabbitMQClient.publish(`bankcore.notifications.customer.${transaction.debitAccount.customer.userId}`, {
+      if (transaction.debitAccount) {
+        await this.kafkaProducer.publish(`bankcore.notifications.customer.${transaction.debitAccount.userId}`, {
           type: 'TRANSACTION_STATUS_UPDATED',
           title: 'Transaction Status Updated',
           body: `Your transaction status is now ${nextStatus}.`,
@@ -272,8 +274,8 @@ export class TransactionService {
         payload: {
           transactionId: transaction.id,
           status: nextStatus,
-          userId: transaction.debitAccount?.customerId,
-          customerId: transaction.debitAccount?.customerId,
+          userId: transaction.debitAccount?.userId,
+          customerId: transaction.debitAccount?.userId, // using userId for backward compat or if needed
         },
       });
 

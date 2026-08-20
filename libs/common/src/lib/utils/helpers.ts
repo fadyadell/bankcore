@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import type { PaginatedResponse } from '../interfaces/api-response.interface.js';
+import type { PaginatedResponse } from '../interfaces/api-response.interface';
 
 export function generateAccountNumber(): string {
   const timestamp = Date.now().toString().slice(-8);

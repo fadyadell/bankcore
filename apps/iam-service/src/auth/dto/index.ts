@@ -1,3 +1,3 @@
-export * from './login.dto.js';
-export * from './refresh.dto.js';
-export * from './logout.dto.js';
+export * from './login.dto';
+export * from './refresh.dto';
+export * from './logout.dto';

@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
-import { PrismaModule } from '@bankcore/database';
+import { PrismaModule } from '@bankcore/prisma-client';
 import { AuthModule } from '@bankcore/auth';
-import { MessagingModule } from '@bankcore/messaging';
+import { KafkaModule } from '@bankcore/messaging';
 import { FlowableClient } from './flowable.client';
 import { WorkflowService } from './workflow.service';
 import { WorkflowController } from './workflow.controller';
@@ -14,7 +14,7 @@ import { ApproveLoanDelegate } from './delegates/approve-loan.delegate';
 import { RejectLoanDelegate } from './delegates/reject-loan.delegate';
 
 @Module({
-  imports: [HttpModule, PrismaModule, AuthModule, MessagingModule],
+  imports: [HttpModule, PrismaModule, AuthModule, KafkaModule],
   controllers: [WorkflowController],
   providers: [
     FlowableClient,

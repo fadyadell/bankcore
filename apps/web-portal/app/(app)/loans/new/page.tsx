@@ -35,7 +35,7 @@ export default function NewLoanPage() {
       });
       // Redirect to loans page on success
       router.push('/loans');
-    } catch (err) {
+    } catch (err: any) {
       console.error("Loan application failed", err);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setError((err as any).response?.data?.message || "Loan application failed. Please try again.");

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { PrismaModule } from '@bankcore/database';
-import { MessagingModule } from '@bankcore/messaging';
+import { PrismaModule } from '@bankcore/prisma-client';
+import { KafkaModule } from '@bankcore/messaging';
 import { NotificationModule } from './notification/notification.module';
 import { AuthModule } from '@bankcore/auth';
 
@@ -17,7 +17,7 @@ import { AuthModule } from '@bankcore/auth';
       }),
     }),
     PrismaModule,
-    MessagingModule,
+    KafkaModule,
     NotificationModule,
   ],
 })

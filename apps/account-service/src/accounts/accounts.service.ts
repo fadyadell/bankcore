@@ -6,7 +6,7 @@ import { generateAccountNumber, KAFKA_TOPICS, CACHE_KEYS, CACHE_TTL } from '@ban
 import type { Account, AccountType, AccountStatus } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 import { randomUUID } from 'crypto';
-import type { CreateAccountDto, UpdateAccountStatusDto } from './dto/account.dto.js';
+import type { CreateAccountDto, UpdateAccountStatusDto } from './dto/account.dto';
 
 @Injectable()
 export class AccountsService {

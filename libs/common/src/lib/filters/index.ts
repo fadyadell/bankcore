@@ -1,1 +1,1 @@
-export * from './global-exception.filter.js';
+export * from './global-exception.filter';

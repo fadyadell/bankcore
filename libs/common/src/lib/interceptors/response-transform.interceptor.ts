@@ -7,8 +7,8 @@ import {
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import type { Request } from 'express';
-import { CORRELATION_ID_HEADER } from '../constants/index.js';
-import type { ApiResponse } from '../interfaces/api-response.interface.js';
+import { CORRELATION_ID_HEADER } from '../constants/index';
+import type { ApiResponse } from '../interfaces/api-response.interface';
 
 @Injectable()
 export class ResponseTransformInterceptor<T>

@@ -1,13 +1,12 @@
 import { Injectable, Logger, OnModuleInit, BadRequestException } from '@nestjs/common';
 import { FlowableClient } from './flowable.client';
-import { PrismaService } from '@bankcore/database';
+import { PrismaService } from '@bankcore/prisma-client';
 export interface CurrentUserPayload {
   sub: string;
   email: string;
   realm_access?: { roles: string[] };
 }
 import { CompleteTaskDto } from './dto/complete-task.dto';
-import { TransactionStatus, LoanStatus, ApprovalStage, ApprovalDecision, UserRole } from '@bankcore/database';
 import { AuditLogService } from '@bankcore/common';
 import { KafkaProducerService } from '@bankcore/messaging';
 import * as path from 'path';
@@ -54,7 +53,7 @@ export class WorkflowService implements OnModuleInit {
 
     await this.prisma.transaction.update({
       where: { id: transactionId },
-      data: { flowableProcessId: processInstanceId }
+      data: { metadata: { flowableProcessId: processInstanceId } }
     });
 
     await this.kafkaProducer.publish('bankcore.transaction.created', { entityId: transactionId });
@@ -68,10 +67,7 @@ export class WorkflowService implements OnModuleInit {
       decision: ''
     });
 
-    await this.prisma.loan.update({
-      where: { id: loanId },
-      data: { flowableProcessId: processInstanceId }
-    });
+
 
     await this.kafkaProducer.publish('bankcore.loan.applied', { entityId: loanId });
 
@@ -81,8 +77,8 @@ export class WorkflowService implements OnModuleInit {
   async getMyTasks(currentUser: CurrentUserPayload): Promise<unknown[]> {
     const roles = currentUser.realm_access?.roles || [];
     const groups: string[] = [];
-    if (roles.includes(UserRole.EMPLOYEE)) groups.push('EMPLOYEE');
-    if (roles.includes(UserRole.ADMIN)) groups.push('ADMIN');
+    if (roles.includes('employee')) groups.push('EMPLOYEE');
+    if (roles.includes('admin')) groups.push('ADMIN');
 
     let allTasks: unknown[] = [];
     for (const group of groups) {
@@ -115,40 +111,42 @@ export class WorkflowService implements OnModuleInit {
     if (transactionId) {
       await this.prisma.approval.create({
         data: {
-          transactionId,
-          stage: task.taskDefinitionKey.includes('admin') ? ApprovalStage.ADMIN_FINAL : ApprovalStage.EMPLOYEE_REVIEW,
-          decision: dto.decision,
-          reason: dto.reason,
-          approverId: user.id,
+          entityType: 'TRANSACTION',
+          entityId: transactionId,
+          role: task.taskDefinitionKey.includes('admin') ? 'ADMIN_FINAL' : 'EMPLOYEE_REVIEW',
+          status: dto.decision as any,
+          comments: dto.reason,
+          reviewerId: user.id,
         }
       });
 
-      if (dto.decision === ApprovalDecision.APPROVED && task.taskDefinitionKey === 'employeeReview') {
+      if (dto.decision === 'APPROVED' && task.taskDefinitionKey === 'employeeReview') {
         await this.prisma.transaction.update({
           where: { id: transactionId },
-          data: { status: TransactionStatus.ADMIN_REVIEW }
+          data: { status: 'PROCESSING' }
         });
         await this.kafkaProducer.publish('bankcore.transaction.approved', { entityId: transactionId });
       }
     } else if (loanId) {
       await this.prisma.approval.create({
         data: {
-          loanId,
-          stage: task.taskDefinitionKey.includes('admin') ? ApprovalStage.ADMIN_FINAL : ApprovalStage.EMPLOYEE_REVIEW,
-          decision: dto.decision,
-          reason: dto.reason,
-          approverId: user.id,
+          entityType: 'LOAN',
+          entityId: loanId,
+          role: task.taskDefinitionKey.includes('admin') ? 'ADMIN_FINAL' : 'EMPLOYEE_REVIEW',
+          status: dto.decision as any,
+          comments: dto.reason,
+          reviewerId: user.id,
         }
       });
 
-      if (dto.decision === ApprovalDecision.APPROVED && (
+      if (dto.decision === 'APPROVED' && (
         task.taskDefinitionKey === 'highRiskReview' || 
         task.taskDefinitionKey === 'standardReview' || 
         task.taskDefinitionKey === 'fastTrackReview'
       )) {
         await this.prisma.loan.update({
           where: { id: loanId },
-          data: { status: LoanStatus.ADMIN_REVIEW }
+          data: { status: 'REVIEWING' }
         });
       }
     }
@@ -162,8 +160,7 @@ export class WorkflowService implements OnModuleInit {
       entityType: transactionId ? 'TRANSACTION' : 'LOAN',
       entityId: (transactionId || loanId) as string,
       action: 'TASK_COMPLETED',
-      actorId: user.id,
-      after: { taskId, taskKey: task.taskDefinitionKey, decision: dto.decision }
+      metadata: { actorId: user.id, after: { taskId, taskKey: task.taskDefinitionKey, decision: dto.decision } }
     });
   }
 }

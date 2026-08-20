@@ -12,7 +12,7 @@ export default function EmployeeDashboard() {
   useEffect(() => {
     // In a real scenario, this would have the Keycloak JWT token attached
     fetch('http://localhost:3100/admin/stats')
-      .then((res) => res.json())
+      .then((res: any) => res.json())
       .then((data) => {
         if (!data.statusCode) {
           setStats(data);

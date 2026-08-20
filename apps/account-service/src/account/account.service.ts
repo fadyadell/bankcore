@@ -1,35 +1,33 @@
 import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '@bankcore/database';
-import { PaginationDto } from '@bankcore/common';
-import { UserRole } from '@bankcore/database';
-import { CurrentUserPayload } from '@bankcore/auth';
+import { PrismaService } from '@bankcore/prisma-client';
+import { PaginationDto, JwtPayload } from '@bankcore/common';
 
 @Injectable()
 export class AccountService {
   constructor(private readonly prisma: PrismaService) {}
 
   private async resolveCustomerUserId(keycloakSub: string) {
-    return this.prisma.user.findUnique({ where: { keycloakId: keycloakSub }, include: { customer: true } });
+    return this.prisma.user.findUnique({ where: { keycloakId: keycloakSub } });
   }
 
-  async getMyAccounts(currentUser: CurrentUserPayload) {
+  async getMyAccounts(currentUser: JwtPayload) {
     const userDb = await this.resolveCustomerUserId(currentUser.sub);
-    if (!userDb || !userDb.customer) {
+    if (!userDb) {
       throw new ForbiddenException('User is not a registered customer');
     }
 
     return this.prisma.account.findMany({
-      where: { customerId: userDb.customer.id },
+      where: { userId: userDb.id },
       include: {
-        outgoingTransactions: { take: 5, orderBy: { createdAt: 'desc' } },
-        incomingTransactions: { take: 5, orderBy: { createdAt: 'desc' } },
+        debitTransactions: { take: 5, orderBy: { createdAt: 'desc' } },
+        creditTransactions: { take: 5, orderBy: { createdAt: 'desc' } },
       }
     });
   }
 
-  async createAccount(currentUser: CurrentUserPayload, dto: any) {
+  async createAccount(currentUser: JwtPayload, dto: any) {
     const userDb = await this.resolveCustomerUserId(currentUser.sub);
-    if (!userDb || !userDb.customer) {
+    if (!userDb) {
       throw new ForbiddenException('User is not a registered customer');
     }
 
@@ -38,7 +36,7 @@ export class AccountService {
 
     return this.prisma.account.create({
       data: {
-        customerId: userDb.customer.id,
+        userId: userDb.id,
         accountNumber,
         type: dto.type || 'SAVINGS',
         currency: dto.currency || 'EGP',
@@ -49,7 +47,7 @@ export class AccountService {
     });
   }
 
-  async getAccount(id: string, currentUser: CurrentUserPayload, pagination: PaginationDto) {
+  async getAccount(id: string, currentUser: JwtPayload, pagination: PaginationDto) {
     const account = await this.prisma.account.findUnique({
       where: { id },
     });
@@ -59,11 +57,11 @@ export class AccountService {
     }
 
     const roles = currentUser.realm_access?.roles || [];
-    const isEmployeeOrAdmin = roles.includes(UserRole.EMPLOYEE) || roles.includes(UserRole.ADMIN);
+    const isEmployeeOrAdmin = roles.includes('employee') || roles.includes('admin');
 
     if (!isEmployeeOrAdmin) {
       const userDb = await this.resolveCustomerUserId(currentUser.sub);
-      if (!userDb?.customer || account.customerId !== userDb.customer.id) {
+      if (!userDb || account.userId !== userDb.id) {
         throw new ForbiddenException('You do not have access to this account');
       }
     }
@@ -95,7 +93,7 @@ export class AccountService {
     return this.prisma.account.findMany({
       skip,
       take,
-      include: { customer: { include: { user: true } } },
+      include: { user: true },
     });
   }
 }

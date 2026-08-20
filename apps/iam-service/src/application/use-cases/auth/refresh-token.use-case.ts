@@ -1,6 +1,6 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { IDENTITY_PROVIDER } from '../../tokens.js';
-import type { IdentityProviderPort } from '../../ports/identity-provider.port.js';
+import { IDENTITY_PROVIDER } from '../../tokens';
+import type { IdentityProviderPort } from '../../ports/identity-provider.port';
 
 @Injectable()
 export class RefreshTokenUseCase {

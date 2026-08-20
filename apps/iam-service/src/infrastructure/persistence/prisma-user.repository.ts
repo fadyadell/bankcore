@@ -5,7 +5,7 @@ import type {
   CreateUserInput,
   UpdateUserInput,
   UserRepositoryPort,
-} from '../../application/ports/user-repository.port.js';
+} from '../../application/ports/user-repository.port';
 
 @Injectable()
 export class PrismaUserRepository implements UserRepositoryPort {

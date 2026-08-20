@@ -9,7 +9,7 @@ import {
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { Public, CORRELATION_ID_HEADER } from '@bankcore/common';
-import { ProxyService } from './proxy.service.js';
+import { ProxyService } from './proxy.service';
 
 @ApiTags('Auth')
 @Controller('auth')

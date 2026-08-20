@@ -1,16 +1,15 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
-import { PrismaService } from '@bankcore/database';
-import { Roles, ResponseDto } from '@bankcore/common';
-import { KeycloakAuthGuard, RolesGuard } from '@bankcore/auth';
-import { UserRole } from '@bankcore/database';
+import { PrismaService } from '@bankcore/prisma-client';
+import { Roles } from '@bankcore/common';
+import { JwtAuthGuard, RolesGuard } from '@bankcore/auth';
 
-@UseGuards(KeycloakAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('admin')
 export class AdminController {
   constructor(private readonly prisma: PrismaService) {}
 
   @Get('stats')
-  @Roles(UserRole.ADMIN)
+  @Roles('admin')
   async getStats() {
     const totalTransactions = await this.prisma.transaction.count();
     const totalAccounts = await this.prisma.account.count();
@@ -18,20 +17,20 @@ export class AdminController {
     const totalUsers = await this.prisma.user.count();
 
     const pendingTransactions = await this.prisma.transaction.count({
-      where: { status: 'ADMIN_REVIEW' }
+      where: { status: 'PROCESSING' }
     });
 
     const pendingLoans = await this.prisma.loan.count({
-      where: { status: 'ADMIN_REVIEW' }
+      where: { status: 'REVIEWING' }
     });
 
-    return ResponseDto.success({
+    return {
       totalTransactions,
       totalAccounts,
       totalLoans,
       totalUsers,
       pendingTransactions,
       pendingLoans,
-    });
+    };
   }
 }

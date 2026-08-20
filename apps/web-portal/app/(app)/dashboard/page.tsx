@@ -66,7 +66,7 @@ export default function DashboardPage() {
         const fetchedTxs = txRes.data.data || txRes.data || [];
         setAccounts(Array.isArray(fetchedAccounts) ? fetchedAccounts : []);
         setTransactions(Array.isArray(fetchedTxs) ? fetchedTxs.slice(0, 5) : []);
-      } catch (err) {
+      } catch (err: any) {
         console.error("Failed to fetch dashboard data", err);
       } finally {
         setLoading(false);

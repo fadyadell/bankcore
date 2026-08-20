@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { PrismaModule } from '@bankcore/database';
+import { PrismaModule } from '@bankcore/prisma-client';
 import { TransactionModule } from './transaction/transaction.module';
 import { AuthModule } from '@bankcore/auth';
 

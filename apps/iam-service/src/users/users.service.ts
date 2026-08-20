@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import type { CreateUserDto, UpdateUserDto } from './dto/user.dto.js';
-import { CreateUserUseCase } from '../application/use-cases/users/create-user.use-case.js';
-import { ListUsersUseCase } from '../application/use-cases/users/list-users.use-case.js';
-import { GetUserUseCase } from '../application/use-cases/users/get-user.use-case.js';
-import { GetUserByKeycloakIdUseCase } from '../application/use-cases/users/get-user-by-keycloak-id.use-case.js';
-import { UpdateUserUseCase } from '../application/use-cases/users/update-user.use-case.js';
+import type { CreateUserDto, UpdateUserDto } from './dto/user.dto';
+import { CreateUserUseCase } from '../application/use-cases/users/create-user.use-case';
+import { ListUsersUseCase } from '../application/use-cases/users/list-users.use-case';
+import { GetUserUseCase } from '../application/use-cases/users/get-user.use-case';
+import { GetUserByKeycloakIdUseCase } from '../application/use-cases/users/get-user-by-keycloak-id.use-case';
+import { UpdateUserUseCase } from '../application/use-cases/users/update-user.use-case';
 import type { User } from '@prisma/client';
 
 @Injectable()

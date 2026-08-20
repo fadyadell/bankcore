@@ -24,7 +24,11 @@
     },
     {
       "path": "../../libs/prisma-client/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/auth/tsconfig.lib.json"
     }
   ],
   "exclude": ["./src/**/*.spec.ts", "./src/**/*.test.ts"]
 }
+

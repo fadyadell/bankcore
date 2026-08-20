@@ -1,3 +1,3 @@
-import { User as PrismaUser } from '@bankcore/database';
+import { User as PrismaUser } from '@bankcore/prisma-client';
 
 export type UserEntity = PrismaUser;

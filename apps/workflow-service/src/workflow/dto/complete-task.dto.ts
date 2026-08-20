@@ -1,9 +1,8 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
-import { ApprovalDecision } from '@bankcore/database';
+import { IsIn, IsOptional, IsString } from 'class-validator';
 
 export class CompleteTaskDto {
-  @IsEnum(ApprovalDecision)
-  decision!: ApprovalDecision;
+  @IsIn(['APPROVED', 'REJECTED', 'REQUEST_MORE_INFO'])
+  decision!: string;
 
   @IsOptional()
   @IsString()

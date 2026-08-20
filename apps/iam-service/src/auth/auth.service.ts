@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { LoginUseCase } from '../application/use-cases/auth/login.use-case.js';
-import { RefreshTokenUseCase } from '../application/use-cases/auth/refresh-token.use-case.js';
-import { LogoutUseCase } from '../application/use-cases/auth/logout.use-case.js';
+import { LoginUseCase } from '../application/use-cases/auth/login.use-case';
+import { RefreshTokenUseCase } from '../application/use-cases/auth/refresh-token.use-case';
+import { LogoutUseCase } from '../application/use-cases/auth/logout.use-case';
 
 @Injectable()
 export class AuthService {

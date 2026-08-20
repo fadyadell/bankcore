@@ -49,7 +49,7 @@ export default function AdminLoansPage() {
         reason: approved ? 'Final approval by admin' : 'Rejected by admin'
       });
       fetchTasks();
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to complete task", err);
       alert("Failed to review loan application. Please try again.");
     }

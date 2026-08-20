@@ -1,8 +1,8 @@
 import { Module, type DynamicModule } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
-import { KeycloakJwtStrategy } from './keycloak-jwt.strategy.js';
-import { JwtAuthGuard } from './jwt-auth.guard.js';
-import { RolesGuard } from './roles.guard.js';
+import { KeycloakJwtStrategy } from './keycloak-jwt.strategy';
+import { JwtAuthGuard } from './jwt-auth.guard';
+import { RolesGuard } from './roles.guard';
 
 export interface AuthModuleOptions {
   keycloakBaseUrl: string;

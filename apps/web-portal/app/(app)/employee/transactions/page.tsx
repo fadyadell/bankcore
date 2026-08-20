@@ -49,7 +49,7 @@ export default function EmployeeTransactionsPage() {
         reason: approved ? 'Approved by employee' : 'Rejected by employee'
       });
       fetchTasks();
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to complete task", err);
       alert("Failed to review transaction. Please try again.");
     }

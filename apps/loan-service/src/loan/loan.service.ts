@@ -1,14 +1,12 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '@bankcore/database';
+import { PrismaService } from '@bankcore/prisma-client';
 import { AuditLogService, PaginationDto, GoRulesService } from '@bankcore/common';
-import { RabbitMQClient, KafkaProducerService } from '@bankcore/messaging';
+import { KafkaProducerService } from '@bankcore/messaging';
 import { CreateLoanDto } from './dto/create-loan.dto';
 import { ReviewLoanDto } from './dto/review-loan.dto';
 import axios from 'axios';
 
-import { CurrentUserPayload } from '@bankcore/auth';
-import { LoanStatus, UserRole, ApprovalDecision, ApprovalStage } from '@bankcore/database';
-import { RiskTier } from '@bankcore/database'; // Assuming RiskTier is exported
+import { JwtPayload } from '@bankcore/common';
 
 @Injectable()
 export class LoanService {
@@ -16,24 +14,23 @@ export class LoanService {
     private readonly prisma: PrismaService,
     private readonly auditLogService: AuditLogService,
     private readonly goRulesService: GoRulesService,
-    private readonly rabbitMQClient: RabbitMQClient,
     private readonly kafkaProducer: KafkaProducerService,
   ) {}
 
-  private async resolveCustomerUserId(keycloakSub: string) {
-    return this.prisma.user.findUnique({ where: { keycloakId: keycloakSub }, include: { customer: true } });
+  private async resolveUserId(keycloakSub: string) {
+    return this.prisma.user.findUnique({ where: { keycloakId: keycloakSub } });
   }
 
-  async createLoan(dto: CreateLoanDto, currentUser: CurrentUserPayload) {
-    const userDb = await this.resolveCustomerUserId(currentUser.sub);
-    if (!userDb || !userDb.customer) {
-      throw new ForbiddenException('User is not a registered customer');
+  async createLoan(dto: CreateLoanDto, currentUser: JwtPayload) {
+    const userDb = await this.resolveUserId(currentUser.sub);
+    if (!userDb) {
+      throw new ForbiddenException('User is not registered');
     }
 
     const existingLoansCount = await this.prisma.loan.count({
       where: {
-        customerId: userDb.customer.id,
-        status: { notIn: [LoanStatus.REJECTED] }
+        userId: userDb.id,
+        status: { notIn: ['REJECTED'] as any }
       }
     });
 
@@ -45,12 +42,14 @@ export class LoanService {
 
     const loan = await this.prisma.loan.create({
       data: {
-        customerId: userDb.customer.id,
+        referenceNumber: `LN-${Date.now()}`,
+        userId: userDb.id,
         amount: dto.amount,
+        interestRate: 0.05,
         purpose: dto.purpose,
         termMonths: dto.termMonths,
-        status: LoanStatus.PENDING,
-        riskTier: riskTier as RiskTier, // ensure enum match
+        status: 'PENDING' as any,
+        riskLevel: riskTier,
       },
     });
 
@@ -58,11 +57,10 @@ export class LoanService {
       entityType: 'LOAN',
       entityId: loan.id,
       action: 'LOAN_APPLIED',
-      actorId: userDb.id,
-      after: { loan, riskTier },
+      metadata: { actorId: userDb.id, after: { loan, riskTier } },
     });
 
-    await this.rabbitMQClient.publish('bankcore.notifications.employee', {
+    await this.kafkaProducer.publish('bankcore.notifications.employee', {
       type: 'LOAN_APPLIED',
       title: 'New Loan Application Requires Review',
       body: `Loan application for ${loan.amount} over ${loan.termMonths} months requires employee review.`,
@@ -79,24 +77,23 @@ export class LoanService {
     return loan;
   }
 
-  async findAll(currentUser: CurrentUserPayload, pagination: PaginationDto) {
-    const userDb = await this.resolveCustomerUserId(currentUser.sub);
+  async findAll(currentUser: JwtPayload, pagination: PaginationDto) {
+    const userDb = await this.resolveUserId(currentUser.sub);
     if (!userDb) throw new ForbiddenException('User not found');
 
     const skip = ((pagination.page || 1) - 1) * (pagination.limit || 20);
     const take = pagination.limit || 20;
 
     const roles = currentUser.realm_access?.roles || [];
-    const isEmployeeOrAdmin = roles.includes(UserRole.EMPLOYEE) || roles.includes(UserRole.ADMIN);
+    const isEmployeeOrAdmin = roles.includes('employee') || roles.includes('admin');
 
     let whereClause = {};
 
     if (!isEmployeeOrAdmin) {
-      if (!userDb.customer) throw new ForbiddenException('Customer profile not found');
-      whereClause = { customerId: userDb.customer.id };
+      whereClause = { userId: userDb.id };
     } else {
       whereClause = {
-        status: { notIn: [LoanStatus.APPROVED, LoanStatus.REJECTED] }
+        status: { notIn: ['APPROVED', 'REJECTED'] as any }
       };
     }
 
@@ -106,28 +103,28 @@ export class LoanService {
       skip,
       take,
       include: {
-        customer: { include: { user: true } },
+        user: true,
       }
     });
   }
 
-  async findOne(id: string, currentUser: CurrentUserPayload) {
+  async findOne(id: string, currentUser: JwtPayload) {
     const loan = await this.prisma.loan.findUnique({
       where: { id },
       include: {
-        customer: { include: { user: true } },
-        approvals: { include: { approver: true } }
+        user: true,
+        approvals: true
       }
     });
 
     if (!loan) throw new NotFoundException('Loan not found');
 
     const roles = currentUser.realm_access?.roles || [];
-    const isEmployeeOrAdmin = roles.includes(UserRole.EMPLOYEE) || roles.includes(UserRole.ADMIN);
+    const isEmployeeOrAdmin = roles.includes('employee') || roles.includes('admin');
 
     if (!isEmployeeOrAdmin) {
-      const userDb = await this.resolveCustomerUserId(currentUser.sub);
-      if (!userDb?.customer || loan.customerId !== userDb.customer.id) {
+      const userDb = await this.resolveUserId(currentUser.sub);
+      if (!userDb || loan.userId !== userDb.id) {
         throw new ForbiddenException('You do not have access to this loan');
       }
     }
@@ -135,13 +132,13 @@ export class LoanService {
     return loan;
   }
 
-  async reviewLoan(id: string, dto: ReviewLoanDto, currentUser: CurrentUserPayload) {
+  async reviewLoan(id: string, dto: ReviewLoanDto, currentUser: JwtPayload) {
     const userDb = await this.prisma.user.findUnique({ where: { keycloakId: currentUser.sub } });
     if (!userDb) throw new ForbiddenException('User not found in DB');
 
     const roles = currentUser.realm_access?.roles || [];
-    const isEmployee = roles.includes(UserRole.EMPLOYEE);
-    const isAdmin = roles.includes(UserRole.ADMIN);
+    const isEmployee = roles.includes('employee');
+    const isAdmin = roles.includes('admin');
 
     if (!isEmployee && !isAdmin) {
       throw new ForbiddenException('Only employees or admins can review loans');
@@ -149,50 +146,51 @@ export class LoanService {
 
     const loan = await this.prisma.loan.findUnique({
       where: { id },
-      include: { customer: true }
+      include: { user: true }
     });
 
     if (!loan) throw new NotFoundException('Loan not found');
 
-    if (loan.status === LoanStatus.APPROVED || loan.status === LoanStatus.REJECTED) {
+    if (loan.status === 'APPROVED' || loan.status === 'REJECTED') {
       throw new BadRequestException('Loan is already processed');
     }
 
-    let currentStage: ApprovalStage = ApprovalStage.EMPLOYEE_REVIEW;
-    if (loan.status === LoanStatus.ADMIN_REVIEW) {
-      currentStage = ApprovalStage.ADMIN_FINAL;
-    } else if (loan.status !== LoanStatus.PENDING && loan.status !== LoanStatus.EMPLOYEE_REVIEW) {
+    let currentStage = 'EMPLOYEE_REVIEW';
+    if (loan.status === 'REVIEWING') {
+      currentStage = 'ADMIN_FINAL';
+    } else if (loan.status !== 'PENDING') {
       throw new BadRequestException(`Cannot review loan in status: ${loan.status}`);
     }
 
-    if (currentStage === ApprovalStage.ADMIN_FINAL && !isAdmin) {
+    if (currentStage === 'ADMIN_FINAL' && !isAdmin) {
       throw new ForbiddenException('Only admins can review this loan');
     }
 
-    return await this.prisma.$transaction(async (tx) => {
+    return await this.prisma.$transaction(async (tx: any) => {
       await tx.approval.create({
         data: {
-          loanId: loan.id,
-          stage: currentStage,
-          decision: dto.decision,
-          reason: dto.reason,
-          approverId: userDb.id,
+          entityType: 'LOAN',
+          entityId: loan.id,
+          reviewerId: userDb.id,
+          role: currentStage,
+          status: dto.decision as any,
+          comments: dto.reason,
         }
       });
 
       let nextStatus = loan.status;
 
-      if (dto.decision === ApprovalDecision.REJECTED) {
-        nextStatus = LoanStatus.REJECTED;
+      if (dto.decision === 'REJECTED') {
+        nextStatus = 'REJECTED' as any;
       } else {
-        if (currentStage === ApprovalStage.EMPLOYEE_REVIEW) {
+        if (currentStage === 'EMPLOYEE_REVIEW') {
           if (Number(loan.amount) > 50000) {
-            nextStatus = LoanStatus.ADMIN_REVIEW;
+            nextStatus = 'REVIEWING' as any;
           } else {
-            nextStatus = LoanStatus.APPROVED;
+            nextStatus = 'APPROVED' as any;
           }
-        } else if (currentStage === ApprovalStage.ADMIN_FINAL) {
-          nextStatus = LoanStatus.APPROVED;
+        } else if (currentStage === 'ADMIN_FINAL') {
+          nextStatus = 'APPROVED' as any;
         }
       }
 
@@ -205,11 +203,10 @@ export class LoanService {
         entityType: 'LOAN',
         entityId: loan.id,
         action: `REVIEWED_${dto.decision}`,
-        actorId: userDb.id,
-        after: updatedLoan as unknown as Record<string, unknown>,
+        metadata: { actorId: userDb.id, after: updatedLoan },
       });
 
-      await this.rabbitMQClient.publish(`bankcore.notifications.customer.${loan.customer.userId}`, {
+      await this.kafkaProducer.publish(`bankcore.notifications.customer.${loan.userId}`, {
         type: 'LOAN_STATUS_UPDATED',
         title: 'Loan Status Updated',
         body: `Your loan status is now ${nextStatus}.`,
@@ -221,8 +218,7 @@ export class LoanService {
         payload: {
           loanId: loan.id,
           status: nextStatus,
-          userId: loan.customerId,
-          customerId: loan.customerId,
+          userId: loan.userId,
         },
       });
 

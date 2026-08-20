@@ -1,2 +1,2 @@
-export * from './configuration.js';
-export * from './env.validation.js';
+export * from './configuration';
+export * from './env.validation';

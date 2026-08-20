@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '@bankcore/database';
+import { PrismaService } from '@bankcore/prisma-client';
 import { AuditLogService } from '@bankcore/common';
-import { LoanStatus } from '@bankcore/database';
+
 import { KafkaProducerService } from '@bankcore/messaging';
 
 @Injectable()
@@ -23,21 +23,21 @@ export class ApproveLoanDelegate {
       return;
     }
 
-    this.logger.log(`Found loan ${loanId}, customer ${loan.customerId}`);
+    this.logger.log(`Found loan ${loanId}, customer ${loan.userId}`);
 
-    await this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async (tx: any) => {
       await tx.loan.update({
         where: { id: loanId },
-        data: { status: LoanStatus.APPROVED }
+        data: { status: 'APPROVED' }
       });
 
       // Find primary account to deposit loan funds
       const account = await tx.account.findFirst({
-        where: { customerId: loan.customerId, status: 'ACTIVE' },
+        where: { userId: loan.userId, status: 'ACTIVE' },
         orderBy: { createdAt: 'asc' }
       });
 
-      this.logger.log(`Found account for customer ${loan.customerId}: ${account ? account.id : 'NONE'}`);
+      this.logger.log(`Found account for customer ${loan.userId}: ${account ? account.id : 'NONE'}`);
 
       if (account) {
         await tx.account.update({
@@ -68,11 +68,12 @@ export class ApproveLoanDelegate {
       entityType: 'LOAN',
       entityId: loanId,
       action: 'LOAN_APPROVED',
+      metadata: { actorId: 'SYSTEM' }
     });
 
     await this.kafkaProducer.publish('bankcore.loan.approved', { 
       entityId: loanId, 
-      customerId: loan.customerId 
+      userId: loan.userId 
     });
   }
 }

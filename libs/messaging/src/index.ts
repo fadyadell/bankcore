@@ -1,2 +1,2 @@
-export * from './lib/kafka/index.js';
-export * from './lib/rabbitmq/index.js';
+export * from './lib/kafka/index';
+export * from './lib/rabbitmq/index';

@@ -1,8 +1,9 @@
 import { Controller, Post, Get, Param, Body, UseGuards } from '@nestjs/common';
 import { WorkflowService } from './workflow.service';
 import { CompleteTaskDto } from './dto/complete-task.dto';
-import { ResponseDto } from '@bankcore/common';
-import { CurrentUser, CurrentUserPayload, KeycloakAuthGuard, RolesGuard } from '@bankcore/auth';
+import { CurrentUser } from '@bankcore/common';
+import type { JwtPayload } from '@bankcore/common';
+import { JwtAuthGuard, RolesGuard } from '@bankcore/auth';
 import { RejectTransactionDelegate } from './delegates/reject-transaction.delegate';
 import { ExecuteTransferDelegate } from './delegates/execute-transfer.delegate';
 import { EvaluateLoanRiskDelegate } from './delegates/evaluate-loan-risk.delegate';
@@ -56,33 +57,33 @@ export class WorkflowController {
   @Post('workflows/transaction/:id/start')
   async startTransaction(@Param('id') id: string) {
     const processInstanceId = await this.workflowService.startTransactionWorkflow(id);
-    return ResponseDto.success({ processInstanceId });
+    return { processInstanceId };
   }
 
   @Post('workflows/loan/:id/start')
   async startLoan(@Param('id') id: string) {
     const processInstanceId = await this.workflowService.startLoanWorkflow(id);
-    return ResponseDto.success({ processInstanceId });
+    return { processInstanceId };
   }
 
   @Get('tasks')
-  @UseGuards(KeycloakAuthGuard, RolesGuard)
-  async getTasks(@CurrentUser() user: CurrentUserPayload) {
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  async getTasks(@CurrentUser() user: JwtPayload) {
     const result = await this.workflowService.getMyTasks(user);
-    return ResponseDto.success(result);
+    return result;
   }
 
   @Post('tasks/:id/claim')
-  @UseGuards(KeycloakAuthGuard, RolesGuard)
-  async claimTask(@Param('id') id: string, @CurrentUser() user: CurrentUserPayload) {
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  async claimTask(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
     await this.workflowService.claimTask(id, user);
-    return ResponseDto.success({ message: 'Task claimed' });
+    return { message: 'Task claimed' };
   }
 
   @Post('tasks/:id/complete')
-  @UseGuards(KeycloakAuthGuard, RolesGuard)
-  async completeTask(@Param('id') id: string, @Body() dto: CompleteTaskDto, @CurrentUser() user: CurrentUserPayload) {
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  async completeTask(@Param('id') id: string, @Body() dto: CompleteTaskDto, @CurrentUser() user: JwtPayload) {
     await this.workflowService.completeTask(id, dto, user);
-    return ResponseDto.success({ message: 'Task completed' });
+    return { message: 'Task completed' };
   }
 }

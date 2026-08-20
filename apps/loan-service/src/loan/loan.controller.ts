@@ -3,44 +3,44 @@ import { LoanService } from './loan.service';
 import { CreateLoanDto } from './dto/create-loan.dto';
 import { ReviewLoanDto } from './dto/review-loan.dto';
 
-import { Roles, PaginationDto, ResponseDto } from '@bankcore/common';
-import { CurrentUser, KeycloakAuthGuard, RolesGuard, CurrentUserPayload } from '@bankcore/auth';
-import { UserRole } from '@bankcore/database';
+import { Roles, PaginationDto, CurrentUser } from '@bankcore/common';
+import type { JwtPayload } from '@bankcore/common';
+import { JwtAuthGuard, RolesGuard } from '@bankcore/auth';
 
-@UseGuards(KeycloakAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('loans')
 export class LoanController {
   constructor(private readonly loanService: LoanService) {}
 
   @Post()
-  @Roles(UserRole.CUSTOMER)
-  async createLoan(@Body() dto: CreateLoanDto, @CurrentUser() user: CurrentUserPayload) {
+  @Roles('customer')
+  async createLoan(@Body() dto: CreateLoanDto, @CurrentUser() user: JwtPayload) {
     const result = await this.loanService.createLoan(dto, user);
-    return ResponseDto.success(result);
+    return result;
   }
 
   @Get()
-  @Roles(UserRole.CUSTOMER, UserRole.EMPLOYEE, UserRole.ADMIN)
-  async findAll(@Query() pagination: PaginationDto, @CurrentUser() user: CurrentUserPayload) {
+  @Roles('customer', 'employee', 'admin')
+  async findAll(@Query() pagination: PaginationDto, @CurrentUser() user: JwtPayload) {
     const result = await this.loanService.findAll(user, pagination);
-    return ResponseDto.success(result);
+    return result;
   }
 
   @Get(':id')
-  @Roles(UserRole.CUSTOMER, UserRole.EMPLOYEE, UserRole.ADMIN)
-  async findOne(@Param('id') id: string, @CurrentUser() user: CurrentUserPayload) {
+  @Roles('customer', 'employee', 'admin')
+  async findOne(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
     const result = await this.loanService.findOne(id, user);
-    return ResponseDto.success(result);
+    return result;
   }
 
   @Patch(':id/review')
-  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN)
+  @Roles('employee', 'admin')
   async reviewLoan(
     @Param('id') id: string,
     @Body() dto: ReviewLoanDto,
-    @CurrentUser() user: CurrentUserPayload
+    @CurrentUser() user: JwtPayload
   ) {
     const result = await this.loanService.reviewLoan(id, dto, user);
-    return ResponseDto.success(result);
+    return result;
   }
 }

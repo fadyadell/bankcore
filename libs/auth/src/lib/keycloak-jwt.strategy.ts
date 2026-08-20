@@ -1,7 +1,7 @@
 import { Injectable, Inject, Logger, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, ExtractJwt } from 'passport-jwt';
-import type { AuthModuleOptions } from './auth.module.js';
+import type { AuthModuleOptions } from './auth.module';
 
 interface KeycloakJwksKey {
   kty: string;

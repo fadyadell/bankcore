@@ -6,7 +6,7 @@ import {
   type OnModuleDestroy,
 } from '@nestjs/common';
 import { Kafka, type Producer, type ProducerRecord, CompressionTypes } from 'kafkajs';
-import type { KafkaModuleOptions } from './kafka.module.js';
+import type { KafkaModuleOptions } from './kafka.module';
 
 @Injectable()
 export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {

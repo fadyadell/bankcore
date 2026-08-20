@@ -17,7 +17,7 @@ export default function NotificationsPage() {
     // Seeded customer user ID
     const customerId = '11111111-1111-1111-1111-111111111112';
     fetch(`http://localhost:3006/notifications/user/${customerId}`)
-      .then((res) => res.json())
+      .then((res: any) => res.json())
       .then((data) => {
         if (data && data.items) {
           setNotifications(data.items);

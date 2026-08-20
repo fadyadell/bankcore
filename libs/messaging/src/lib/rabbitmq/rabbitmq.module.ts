@@ -1,6 +1,6 @@
 import { Module, type DynamicModule } from '@nestjs/common';
-import { RabbitMQProducerService } from './rabbitmq-producer.service.js';
-import { RabbitMQConsumerService } from './rabbitmq-consumer.service.js';
+import { RabbitMQProducerService } from './rabbitmq-producer.service';
+import { RabbitMQConsumerService } from './rabbitmq-consumer.service';
 
 export interface RabbitMQModuleOptions {
   url: string;

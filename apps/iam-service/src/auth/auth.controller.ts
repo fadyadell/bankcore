@@ -5,8 +5,8 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { AuthService } from './auth.service.js';
-import { LoginDto, RefreshDto, LogoutDto } from './dto/index.js';
+import { AuthService } from './auth.service';
+import { LoginDto, RefreshDto, LogoutDto } from './dto/index';
 
 @Controller('auth')
 export class AuthController {

@@ -11,8 +11,8 @@ import { generateReferenceNumber, KAFKA_TOPICS, ERROR_CODES } from '@bankcore/co
 import type { Transaction } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 import { randomUUID } from 'crypto';
-import { LedgerService } from '../ledger/ledger.service.js';
-import type { DepositDto, WithdrawalDto, TransferDto } from './dto/transaction.dto.js';
+import { LedgerService } from '../ledger/ledger.service';
+import type { DepositDto, WithdrawalDto, TransferDto } from './dto/transaction.dto';
 
 @Injectable()
 export class TransactionsService {

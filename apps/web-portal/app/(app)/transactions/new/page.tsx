@@ -70,7 +70,7 @@ export default function NewTransactionPage() {
       });
       // Redirect to transactions page on success
       router.push('/transactions');
-    } catch (err) {
+    } catch (err: any) {
       console.error("Transfer failed", err);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setError((err as any).response?.data?.message || "Transfer failed. Please check the details and try again.");

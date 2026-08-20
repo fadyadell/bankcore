@@ -1,3 +1,3 @@
-export { CacheModule } from './lib/cache.module.js';
-export type { CacheModuleOptions } from './lib/cache.module.js';
-export { RedisCacheService } from './lib/redis-cache.service.js';
+export { CacheModule } from './lib/cache.module';
+export type { CacheModuleOptions } from './lib/cache.module';
+export { RedisCacheService } from './lib/redis-cache.service';

@@ -5,7 +5,7 @@ import { useSocket } from '../../providers/SocketProvider';
 
 export function Header() {
   const { data: session, status } = useSession();
-  const { isConnected } = useSocket();
+  const { connected: isConnected } = useSocket();
 
   return (
     <header className="flex h-20 items-center justify-between border-b border-white/20 glass-card mx-6 mt-3 px-6 z-10 sticky top-3">

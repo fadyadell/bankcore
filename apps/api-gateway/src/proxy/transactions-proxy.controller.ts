@@ -10,7 +10,7 @@ import {
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { CORRELATION_ID_HEADER } from '@bankcore/common';
-import { ProxyService } from './proxy.service.js';
+import { ProxyService } from './proxy.service';
 
 @ApiTags('Transactions')
 @ApiBearerAuth('keycloak-jwt')

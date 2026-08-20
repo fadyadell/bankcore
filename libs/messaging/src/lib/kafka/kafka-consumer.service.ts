@@ -5,7 +5,7 @@ import {
   type OnModuleDestroy,
 } from '@nestjs/common';
 import { Kafka, type Consumer, type EachMessagePayload } from 'kafkajs';
-import type { KafkaModuleOptions } from './kafka.module.js';
+import type { KafkaModuleOptions } from './kafka.module';
 
 export interface KafkaMessageHandler {
   (payload: {

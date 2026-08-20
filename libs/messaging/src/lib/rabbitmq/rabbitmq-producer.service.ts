@@ -6,7 +6,7 @@ import {
   type OnModuleDestroy,
 } from '@nestjs/common';
 import * as amqplib from 'amqplib';
-import type { RabbitMQModuleOptions } from './rabbitmq.module.js';
+import type { RabbitMQModuleOptions } from './rabbitmq.module';
 
 @Injectable()
 export class RabbitMQProducerService implements OnModuleInit, OnModuleDestroy {

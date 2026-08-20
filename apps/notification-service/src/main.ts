@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
-import { AppModule } from './app.module.js';
+import { AppModule } from './app.module';
 import { GlobalExceptionFilter, ResponseTransformInterceptor } from '@bankcore/common';
 
 async function bootstrap(): Promise<void> {

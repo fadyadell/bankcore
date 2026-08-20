@@ -10,8 +10,8 @@ import {
   UseGuards,
   ForbiddenException,
 } from '@nestjs/common';
-import { AccountsService } from './accounts.service.js';
-import { CreateAccountDto, UpdateAccountStatusDto } from './dto/account.dto.js';
+import { AccountsService } from './accounts.service';
+import { CreateAccountDto, UpdateAccountStatusDto } from './dto/account.dto';
 import {
   PaginationDto,
   buildPaginatedResponse,

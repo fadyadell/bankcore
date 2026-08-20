@@ -1,5 +1,5 @@
 import { Module, type DynamicModule } from '@nestjs/common';
-import { RedisCacheService } from './redis-cache.service.js';
+import { RedisCacheService } from './redis-cache.service';
 
 export interface CacheModuleOptions {
   host: string;

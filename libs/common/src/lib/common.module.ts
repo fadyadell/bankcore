@@ -1,6 +1,6 @@
 import { Module, type MiddlewareConsumer, type NestModule } from '@nestjs/common';
-import { CorrelationIdMiddleware } from './middleware/correlation-id.middleware.js';
-import { RequestLoggingMiddleware } from './middleware/request-logging.middleware.js';
+import { CorrelationIdMiddleware } from './middleware/correlation-id.middleware';
+import { RequestLoggingMiddleware } from './middleware/request-logging.middleware';
 
 @Module({
   providers: [],

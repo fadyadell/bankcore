@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '@bankcore/database';
+import { PrismaService } from '@bankcore/prisma-client';
 import { AuditLogService } from '@bankcore/common';
-import { LoanStatus, ApprovalStage, ApprovalDecision } from '@bankcore/database';
+
 import { KafkaProducerService } from '@bankcore/messaging';
 
 @Injectable()
@@ -19,16 +19,17 @@ export class RejectLoanDelegate {
     
     await this.prisma.loan.update({
       where: { id: loanId },
-      data: { status: LoanStatus.REJECTED }
+      data: { status: 'REJECTED' }
     });
 
     await this.prisma.approval.create({
       data: {
-        loanId: loanId,
-        stage: ApprovalStage.EMPLOYEE_REVIEW,
-        decision: ApprovalDecision.REJECTED,
-        reason: 'SLA_TIMEOUT or Auto Rejected',
-        approverId: 'SYSTEM',
+        entityType: 'LOAN',
+        entityId: loanId,
+        role: 'EMPLOYEE_REVIEW',
+        status: 'REJECTED',
+        comments: 'SLA_TIMEOUT or Auto Rejected',
+        reviewerId: 'SYSTEM',
       }
     });
 
@@ -36,6 +37,7 @@ export class RejectLoanDelegate {
       entityType: 'LOAN',
       entityId: loanId,
       action: 'LOAN_REJECTED',
+      metadata: { actorId: 'SYSTEM' }
     });
 
     await this.kafkaProducer.publish('bankcore.loan.rejected', { 
