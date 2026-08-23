@@ -23,12 +23,12 @@
     "build:web": "npm run build --prefix apps/web-portal",
     "lint:all": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "test:all": "jest",
-    "prisma:generate": "npx prisma generate --schema=libs/database/prisma/schema.prisma",
-    "prisma:migrate": "npx prisma migrate dev --schema=libs/database/prisma/schema.prisma",
-    "prisma:migrate:deploy": "npx prisma migrate deploy --schema=libs/database/prisma/schema.prisma",
-    "prisma:migrate:reset": "npx prisma migrate reset --schema=libs/database/prisma/schema.prisma --force",
-    "prisma:studio": "npx prisma studio --schema=libs/database/prisma/schema.prisma",
-    "prisma:seed": "npx prisma db seed --schema=libs/database/prisma/schema.prisma"
+    "prisma:generate": "npx prisma generate --schema=libs/prisma-client/prisma/schema.prisma",
+    "prisma:migrate": "npx prisma migrate dev --schema=libs/prisma-client/prisma/schema.prisma",
+    "prisma:migrate:deploy": "npx prisma migrate deploy --schema=libs/prisma-client/prisma/schema.prisma",
+    "prisma:migrate:reset": "npx prisma migrate reset --schema=libs/prisma-client/prisma/schema.prisma --force",
+    "prisma:studio": "npx prisma studio --schema=libs/prisma-client/prisma/schema.prisma",
+    "prisma:seed": "npx prisma db seed --schema=libs/prisma-client/prisma/schema.prisma"
   },
   "private": true,
   "devDependencies": {
@@ -36,6 +36,7 @@
     "@nestjs/cli": "^11.0.24",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.0",
+    "@nx/eslint-plugin": "^23.1.1",
     "@types/jest": "~30.0.0",
     "@types/node": "^24.13.3",
     "eslint": "^9.8.0",
@@ -51,7 +52,7 @@
     "ts-loader": "^9.6.2",
     "ts-node": "10.9.1",
     "tslib": "^2.3.0",
-    "typescript": "~6.0.3",
+    "typescript": "~5.6.3",
     "typescript-eslint": "^8.66.0",
     "webpack": "^5.101.3",
     "webpack-cli": "^7.0.0",
@@ -97,6 +98,6 @@
     "uuid": "^11.1.0"
   },
   "prisma": {
-    "seed": "ts-node --transpile-only libs/database/prisma/seed.ts"
+    "seed": "node libs/prisma-client/prisma/seed.mjs"
   }
 }

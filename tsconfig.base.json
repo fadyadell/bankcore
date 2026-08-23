@@ -20,6 +20,7 @@
     "target": "es2022",
     "customConditions": ["bankcore"],
     "noUncheckedSideEffectImports": false,
+    "ignoreDeprecations": "5.0",
     "baseUrl": ".",
     "paths": {
       "@bankcore/common": ["./libs/common/src/index.ts"],

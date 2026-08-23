@@ -39,7 +39,7 @@ export class TransactionService {
 
     const transaction = await this.prisma.$transaction(async (tx) => {
       // Pessimistic lock on the account to prevent double spending
-      const accounts = await tx.$queryRaw<Account[]>`SELECT * FROM "Account" WHERE id = ${dto.fromAccountId} FOR UPDATE`;
+      const accounts = await tx.$queryRaw<Account[]>`SELECT * FROM "accounts" WHERE id = ${dto.fromAccountId} FOR UPDATE`;
       
       if (!accounts || accounts.length === 0) {
         throw new NotFoundException('From account not found');

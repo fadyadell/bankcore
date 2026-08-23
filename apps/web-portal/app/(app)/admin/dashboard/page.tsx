@@ -19,18 +19,13 @@ export default function AdminDashboardPage() {
   });
 
   useEffect(() => {
-    Promise.all([
-      apiClient.get('/transactions?status=EMPLOYEE_APPROVED'),
-      apiClient.get('/loans?status=EMPLOYEE_APPROVED'),
-    ])
-    .then(([txRes, loanRes]) => {
-      const txs = txRes.data.data || txRes.data || [];
-      const loans = loanRes.data.data || loanRes.data || [];
-      
+    apiClient.get('/admin/stats')
+    .then(res => {
+      const data = res.data;
       setStats({
-        pendingTransactions: Array.isArray(txs) ? txs.length : 0,
-        pendingLoans: Array.isArray(loans) ? loans.length : 0,
-        totalUsers: 1420 // Mock
+        pendingTransactions: data.pendingTransactions || 0,
+        pendingLoans: data.pendingLoans || 0,
+        totalUsers: data.totalUsers || 0,
       });
     })
     .catch(err => console.error("Failed to fetch admin dashboard data", err))

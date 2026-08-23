@@ -25,9 +25,9 @@ export class AdminController {
       this.prisma.user.count(),
       this.prisma.account.count(),
       this.prisma.transaction.count(),
-      this.prisma.transaction.count({ where: { status: 'PENDING' } }),
+      this.prisma.transaction.count({ where: { status: 'PROCESSING' } }),
       this.prisma.loan.count(),
-      this.prisma.loan.count({ where: { status: 'PENDING' } }),
+      this.prisma.loan.count({ where: { status: 'REVIEWING' } }),
     ]);
 
     return {
