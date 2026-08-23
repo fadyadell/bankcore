@@ -5,10 +5,13 @@
     "emitDeclarationOnly": true,
     "importHelpers": true,
     "isolatedModules": true,
-    "lib": ["es2022", "dom", "dom.iterable"],
+    "lib": [
+      "es2022",
+      "dom",
+      "dom.iterable"
+    ],
     "module": "esnext",
     "moduleResolution": "bundler",
-
     "noEmitOnError": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
@@ -18,16 +21,37 @@
     "strict": true,
     "rootDir": ".",
     "target": "es2022",
-    "customConditions": ["bankcore"],
+    "customConditions": [
+      "bankcore"
+    ],
     "noUncheckedSideEffectImports": false,
     "ignoreDeprecations": "5.0",
     "baseUrl": ".",
     "paths": {
-      "@bankcore/common": ["./libs/common/src/index.ts"],
-      "@bankcore/prisma-client": ["./libs/prisma-client/src/index.ts"],
-      "@bankcore/auth": ["./libs/auth/src/index.ts"],
-      "@bankcore/messaging": ["./libs/messaging/src/index.ts"],
-      "@bankcore/cache": ["./libs/cache/src/index.ts"]
+      "@bankcore/common": [
+        "./libs/common/src/index.ts"
+      ],
+      "@bankcore/database": [
+        "./libs/database/src/index.ts"
+      ],
+      "@bankcore/contracts": [
+        "./libs/contracts/src/index.ts"
+      ],
+      "@bankcore/auth": [
+        "./libs/auth/src/index.ts"
+      ],
+      "@bankcore/cache": [
+        "./libs/cache/src/index.ts"
+      ],
+      "@bankcore/kafka": [
+        "./libs/kafka/src/index.ts"
+      ],
+      "@bankcore/rabbitmq": [
+        "./libs/rabbitmq/src/index.ts"
+      ],
+      "@bankcore/rules": [
+        "./libs/rules/src/index.ts"
+      ]
     }
   }
 }

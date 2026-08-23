@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
-import { PrismaService } from '@bankcore/prisma-client';
+import { PrismaService } from '@bankcore/database';
 
 @Injectable()
 export class AppService {

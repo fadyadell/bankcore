@@ -5,12 +5,14 @@ import { KafkaConsumerService } from './kafka-consumer.service';
 import { NotificationConsumer } from './notification.consumer';
 import { EmailService } from '../channels/email.service';
 import { SmsService } from '../channels/sms.service';
-import { PrismaModule } from '@bankcore/prisma-client';
-import { KafkaModule } from '@bankcore/messaging';
+import { DatabaseModule } from '@bankcore/database';
+import { KafkaModule } from '@bankcore/kafka';
+
+import { NotificationRabbitController } from './notification.rabbit.controller';
 
 @Module({
-  imports: [PrismaModule, KafkaModule],
-  controllers: [NotificationController],
+  imports: [DatabaseModule, KafkaModule],
+  controllers: [NotificationController, NotificationRabbitController],
   providers: [NotificationService, KafkaConsumerService, NotificationConsumer, EmailService, SmsService],
   exports: [NotificationService],
 })

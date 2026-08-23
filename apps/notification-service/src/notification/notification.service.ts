@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '@bankcore/prisma-client';
+import { PrismaService } from '@bankcore/database';
 import { Observable, Subject } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import type { Notification, NotificationChannel, NotificationStatus } from '@prisma/client';

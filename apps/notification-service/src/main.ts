@@ -21,6 +21,21 @@ async function bootstrap(): Promise<void> {
 
   const port = process.env['NOTIFICATION_SERVICE_PORT'] || 3006;
   await app.listen(port);
+
+  // Initialize RabbitMQ Microservice
+  const { Transport } = require('@nestjs/microservices');
+  app.connectMicroservice({
+    transport: Transport.RMQ,
+    options: {
+      urls: [process.env.RABBITMQ_URL || 'amqp://localhost:5672'],
+      queue: 'bankcore_queue',
+      queueOptions: {
+        durable: true,
+      },
+    },
+  });
+  await app.startAllMicroservices();
+
   logger.log(`Notification Service running on http://localhost:${port}`);
 }
 

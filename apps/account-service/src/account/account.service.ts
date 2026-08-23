@@ -1,5 +1,5 @@
 import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '@bankcore/prisma-client';
+import { PrismaService } from '@bankcore/database';
 import { PaginationDto, JwtPayload } from '@bankcore/common';
 
 @Injectable()

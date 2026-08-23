@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
-import { PrismaModule } from '@bankcore/prisma-client';
+import { DatabaseModule } from '@bankcore/database';
 
 @Module({
-  imports: [PrismaModule.forRoot()],
+  imports: [DatabaseModule],
   controllers: [AppController],
   providers: [AppService],
 })

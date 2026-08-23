@@ -5,7 +5,9 @@
     "tsBuildInfoFile": "./dist/tsconfig.app.tsbuildinfo",
     "emitDeclarationOnly": false,
     "forceConsistentCasingInFileNames": true,
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "target": "es2021",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
@@ -14,7 +16,9 @@
     "strictBindCallApply": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["./src/**/*.ts"],
+  "include": [
+    "./src/**/*.ts"
+  ],
   "references": [
     {
       "path": "../../libs/cache/tsconfig.lib.json"
@@ -26,9 +30,20 @@
       "path": "../../libs/auth/tsconfig.lib.json"
     },
     {
-      "path": "../../libs/prisma-client/tsconfig.lib.json"
+      "path": "../../libs/database/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/kafka/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/rabbitmq/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/rules/tsconfig.lib.json"
     }
   ],
-  "exclude": ["./src/**/*.spec.ts", "./src/**/*.test.ts"]
+  "exclude": [
+    "./src/**/*.spec.ts",
+    "./src/**/*.test.ts"
+  ]
 }
-

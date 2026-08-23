@@ -1,0 +1,15 @@
+{
+  "name": "@bankcore/contracts",
+  "version": "1.0.0",
+  "description": "Shared DTOs, events, and commands for BankCore",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.lib.json"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.28",
+    "class-validator": "^0.14.1",
+    "class-transformer": "^0.5.1"
+  }
+}

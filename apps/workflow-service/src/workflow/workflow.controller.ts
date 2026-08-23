@@ -9,6 +9,8 @@ import { ExecuteTransferDelegate } from './delegates/execute-transfer.delegate';
 import { EvaluateLoanRiskDelegate } from './delegates/evaluate-loan-risk.delegate';
 import { ApproveLoanDelegate } from './delegates/approve-loan.delegate';
 import { RejectLoanDelegate } from './delegates/reject-loan.delegate';
+import { VerifyNationalIdDelegate } from './delegates/verify-national-id.delegate';
+import { VerifyTaxDelegate } from './delegates/verify-tax.delegate';
 
 @Controller()
 export class WorkflowController {
@@ -19,6 +21,8 @@ export class WorkflowController {
     private readonly evaluateLoanRiskDelegate: EvaluateLoanRiskDelegate,
     private readonly approveLoanDelegate: ApproveLoanDelegate,
     private readonly rejectLoanDelegate: RejectLoanDelegate,
+    private readonly verifyNationalIdDelegate: VerifyNationalIdDelegate,
+    private readonly verifyTaxDelegate: VerifyTaxDelegate,
   ) {}
 
   // Flowable HTTP delegates endpoints (Called by Flowable)
@@ -39,6 +43,18 @@ export class WorkflowController {
   async delegateEvaluateLoanRisk(@Body() body: { loanId: string }) {
     const result = await this.evaluateLoanRiskDelegate.execute(body.loanId);
     return result; // returning { riskTier: '...' } mapped in saveResponseVariableAsJson
+  }
+
+  @Post('delegates/verify-national-id')
+  async delegateVerifyNationalId(@Body() body: { loanId: string }) {
+    await this.verifyNationalIdDelegate.execute(body.loanId);
+    return { success: true };
+  }
+
+  @Post('delegates/verify-tax')
+  async delegateVerifyTax(@Body() body: { loanId: string }) {
+    await this.verifyTaxDelegate.execute(body.loanId);
+    return { success: true };
   }
 
   @Post('delegates/approve-loan')

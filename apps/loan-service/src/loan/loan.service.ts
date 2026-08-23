@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '@bankcore/prisma-client';
+import { PrismaService } from '@bankcore/database';
 import { AuditLogService, PaginationDto, GoRulesService } from '@bankcore/common';
-import { KafkaProducerService } from '@bankcore/messaging';
+import { KafkaProducerService } from '@bankcore/kafka';
 import { CreateLoanDto } from './dto/create-loan.dto';
 import { ReviewLoanDto } from './dto/review-loan.dto';
 import axios from 'axios';

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { PrismaModule } from '@bankcore/prisma-client';
+import { DatabaseModule } from '@bankcore/database';
 import { WorkflowModule } from './workflow/workflow.module';
 import { AuthModule } from '@bankcore/auth';
 import { HttpModule } from '@nestjs/axios';
@@ -18,7 +18,7 @@ import { HttpModule } from '@nestjs/axios';
         keycloakClientId: config.get('KEYCLOAK_CLIENT_ID') || 'api-gateway',
       }),
     }),
-    PrismaModule,
+    DatabaseModule,
     HttpModule,
     WorkflowModule,
   ],

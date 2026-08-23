@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '@bankcore/prisma-client';
+import { PrismaService } from '@bankcore/database';
 import { AuditLogService } from '@bankcore/common';
 
-import { KafkaProducerService } from '@bankcore/messaging';
+import { KafkaProducerService } from '@bankcore/kafka';
 
 @Injectable()
 export class ApproveLoanDelegate {

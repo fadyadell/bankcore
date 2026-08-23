@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '@bankcore/prisma-client';
-import type { Prisma } from '@bankcore/prisma-client';
+import { PrismaService } from '@bankcore/database';
+import type { Prisma } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 
 @Injectable()

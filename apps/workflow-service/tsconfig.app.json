@@ -2,17 +2,21 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "tsBuildInfoFile": "./dist/tsconfig.app.tsbuildinfo",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "target": "es2021"
   },
-  "include": ["./src/**/*.ts"],
+  "include": [
+    "./src/**/*.ts"
+  ],
   "exclude": [],
   "references": [
     {
-      "path": "../../libs/prisma-client/tsconfig.lib.json"
+      "path": "../../libs/database/tsconfig.lib.json"
     },
     {
       "path": "../../libs/auth/tsconfig.lib.json"
@@ -21,8 +25,13 @@
       "path": "../../libs/common/tsconfig.lib.json"
     },
     {
-      "path": "../../libs/messaging/tsconfig.lib.json"
+      "path": "../../libs/kafka/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/rabbitmq/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/rules/tsconfig.lib.json"
     }
   ]
 }
-

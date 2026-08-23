@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
-import { PrismaService } from '@bankcore/prisma-client';
+import { PrismaService } from '@bankcore/database';
 import { AuditLogService, PaginationDto, generateReferenceNumber } from '@bankcore/common';
-import { KafkaProducerService } from '@bankcore/messaging';
+import { KafkaProducerService } from '@bankcore/kafka';
 import axios from 'axios';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 
 import { JwtPayload } from '@bankcore/common';
-import { TransactionStatus, Account, ApprovalStatus } from '@bankcore/prisma-client';
+import { TransactionStatus, Account, ApprovalStatus } from '@prisma/client';
 import { LedgerService } from '../ledger/ledger.service';
 import { ReviewTransactionDto } from './dto/review-transaction.dto';
 
@@ -37,7 +37,7 @@ export class TransactionService {
       if (existingTx) return existingTx;
     }
 
-    const transaction = await this.prisma.$transaction(async (tx) => {
+    const transaction = await this.prisma.$transaction(async (tx: any) => {
       // Pessimistic lock on the account to prevent double spending
       const accounts = await tx.$queryRaw<Account[]>`SELECT * FROM "accounts" WHERE id = ${dto.fromAccountId} FOR UPDATE`;
       
@@ -200,7 +200,7 @@ export class TransactionService {
       throw new ForbiddenException('Only admins can review this transaction');
     }
 
-    return await this.prisma.$transaction(async (tx) => {
+    return await this.prisma.$transaction(async (tx: any) => {
       // 1. Create Approval Record
       await tx.approval.create({
         data: {
@@ -260,7 +260,7 @@ export class TransactionService {
         }
       });
 
-      if (transaction.debitAccount) {
+      if (transaction.debitAccount && transaction.debitAccount.userId) {
         await this.kafkaProducer.publish(`bankcore.notifications.customer.${transaction.debitAccount.userId}`, {
           type: 'TRANSACTION_STATUS_UPDATED',
           title: 'Transaction Status Updated',

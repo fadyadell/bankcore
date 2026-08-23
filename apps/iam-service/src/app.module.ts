@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { CommonModule, bankcoreConfiguration, validateEnvironment } from '@bankcore/common';
-import { PrismaModule } from '@bankcore/prisma-client';
+import { DatabaseModule } from '@bankcore/database';
 import { AUDIT_WRITER, IDENTITY_PROVIDER, USER_REPOSITORY } from './application/tokens';
 import { LoginUseCase } from './application/use-cases/auth/login.use-case';
 import { LogoutUseCase } from './application/use-cases/auth/logout.use-case';
@@ -28,7 +28,7 @@ import { UsersService } from './users/users.service';
       validate: validateEnvironment,
       envFilePath: ['.env.local', '.env'],
     }),
-    PrismaModule.forRoot(),
+    DatabaseModule,
     CommonModule,
   ],
   controllers: [HealthController, AuthController, UsersController],

@@ -1,0 +1,18 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/api/auth/[...nextauth]/route": "/api/auth/[...nextauth]",
+  "/employee/page": "/employee",
+  "/notifications/page": "/notifications",
+  "/page": "/",
+  "/(app)/admin/dashboard/page": "/admin/dashboard",
+  "/(app)/admin/transactions/page": "/admin/transactions",
+  "/(app)/admin/loans/page": "/admin/loans",
+  "/(app)/dashboard/page": "/dashboard",
+  "/(app)/employee/dashboard/page": "/employee/dashboard",
+  "/(app)/employee/loans/page": "/employee/loans",
+  "/(app)/employee/transactions/page": "/employee/transactions",
+  "/(app)/loans/new/page": "/loans/new",
+  "/(app)/loans/page": "/loans",
+  "/(app)/transactions/new/page": "/transactions/new",
+  "/(app)/transactions/page": "/transactions"
+}

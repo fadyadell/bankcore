@@ -10,15 +10,6 @@
   "root": "apps/api-gateway",
   "project": "api-gateway",
   "projects": {
-    "api-gateway": {
-      "type": "application",
-      "root": "apps/api-gateway",
-      "entryFile": "main",
-      "sourceRoot": "apps/api-gateway/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
-      }
-    },
     "account-service": {
       "type": "application",
       "root": "apps/account-service",
@@ -28,52 +19,13 @@
         "tsConfigPath": "apps/account-service/tsconfig.app.json"
       }
     },
-    "iam-service": {
+    "api-gateway": {
       "type": "application",
-      "root": "apps/iam-service",
+      "root": "apps/api-gateway",
       "entryFile": "main",
-      "sourceRoot": "apps/iam-service/src",
+      "sourceRoot": "apps/api-gateway/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/iam-service/tsconfig.app.json"
-      }
-    },
-    "loan-service": {
-      "type": "application",
-      "root": "apps/loan-service",
-      "entryFile": "main",
-      "sourceRoot": "apps/loan-service/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/loan-service/tsconfig.app.json"
-      }
-    },
-    "notification-service": {
-      "type": "application",
-      "root": "apps/notification-service",
-      "entryFile": "main",
-      "sourceRoot": "apps/notification-service/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/notification-service/tsconfig.app.json"
-      }
-    },
-    "transaction-service": {
-      "type": "application",
-      "root": "apps/transaction-service",
-      "entryFile": "main",
-      "sourceRoot": "apps/transaction-service/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/transaction-service/tsconfig.app.json"
-      }
-    },
-    "workflow-service": {
-      "type": "application",
-      "root": "apps/workflow-service",
-      "entryFile": "main",
-      "sourceRoot": "apps/workflow-service/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/workflow-service/tsconfig.app.json",
-        "assets": [
-          { "include": "**/*.bpmn20.xml", "outDir": "dist/apps/workflow-service/src" }
-        ]
+        "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
       }
     },
     "auth": {
@@ -104,6 +56,15 @@
       "sourceRoot": "libs/config/src",
       "compilerOptions": {}
     },
+    "contracts": {
+      "type": "library",
+      "root": "libs/contracts",
+      "entryFile": "index",
+      "sourceRoot": "libs/contracts/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/contracts/tsconfig.lib.json"
+      }
+    },
     "database": {
       "type": "library",
       "root": "libs/database",
@@ -111,12 +72,23 @@
       "sourceRoot": "libs/database/src",
       "compilerOptions": {}
     },
-    "events": {
-      "type": "library",
-      "root": "libs/events",
-      "entryFile": "index",
-      "sourceRoot": "libs/events/src",
-      "compilerOptions": {}
+    "iam-service": {
+      "type": "application",
+      "root": "apps/iam-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/iam-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/iam-service/tsconfig.app.json"
+      }
+    },
+    "loan-service": {
+      "type": "application",
+      "root": "apps/loan-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/loan-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/loan-service/tsconfig.app.json"
+      }
     },
     "logger": {
       "type": "library",
@@ -125,18 +97,58 @@
       "sourceRoot": "libs/logger/src",
       "compilerOptions": {}
     },
-    "messaging": {
+    "notification-service": {
+      "type": "application",
+      "root": "apps/notification-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/notification-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/notification-service/tsconfig.app.json"
+      }
+    },
+    "transaction-service": {
+      "type": "application",
+      "root": "apps/transaction-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/transaction-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/transaction-service/tsconfig.app.json"
+      }
+    },
+    "workflow-service": {
+      "type": "application",
+      "root": "apps/workflow-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/workflow-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/workflow-service/tsconfig.app.json",
+        "assets": [
+          {
+            "include": "**/*.bpmn20.xml",
+            "outDir": "dist/apps/workflow-service/src"
+          }
+        ]
+      }
+    },
+    "kafka": {
       "type": "library",
-      "root": "libs/messaging",
+      "root": "libs/kafka",
       "entryFile": "index",
-      "sourceRoot": "libs/messaging/src",
+      "sourceRoot": "libs/kafka/src",
       "compilerOptions": {}
     },
-    "workflow": {
+    "rabbitmq": {
       "type": "library",
-      "root": "libs/workflow",
+      "root": "libs/rabbitmq",
       "entryFile": "index",
-      "sourceRoot": "libs/workflow/src",
+      "sourceRoot": "libs/rabbitmq/src",
+      "compilerOptions": {}
+    },
+    "rules": {
+      "type": "library",
+      "root": "libs/rules",
+      "entryFile": "index",
+      "sourceRoot": "libs/rules/src",
       "compilerOptions": {}
     }
   }

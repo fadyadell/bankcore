@@ -1,54 +1,42 @@
 #!/bin/bash
 set -e
 
-echo "1. Installing Packages..."
-sudo apt update
-sudo apt install -y curl wget gnupg2 lsb-release apt-transport-https openjdk-17-jdk redis-server rabbitmq-server unzip
+echo "=========================================="
+echo "BankCore Native Infrastructure Setup"
+echo "=========================================="
 
-echo "2. Installing PostgreSQL 15..."
-sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-sudo apt update
-sudo apt install -y postgresql-15 postgresql-contrib-15
-sudo systemctl enable postgresql
+echo "[1/5] Installing dependencies..."
+sudo apt-get update
+sudo apt-get install -y postgresql postgresql-contrib rabbitmq-server default-jre wget unzip tar
+
+echo "[2/5] Setting up PostgreSQL..."
 sudo systemctl start postgresql
+sudo systemctl enable postgresql
+sudo -u postgres psql -c "CREATE USER bankcore WITH PASSWORD 'bankcore';" || echo "User might already exist"
+sudo -u postgres psql -c "CREATE DATABASE bankcore OWNER bankcore;" || echo "DB might already exist"
+sudo -u postgres psql -c "ALTER USER bankcore CREATEDB;"
 
-echo "3. Configuring PostgreSQL..."
-sudo -u postgres psql -c "CREATE USER bankcore WITH PASSWORD 'bankcore_secret';" || true
-sudo -u postgres psql -c "CREATE DATABASE bankcore OWNER bankcore;" || true
-sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE bankcore TO bankcore;" || true
+echo "[3/5] Setting up RabbitMQ..."
+sudo systemctl start rabbitmq-server
+sudo systemctl enable rabbitmq-server
+# Enable rabbitmq management plugin just in case
+sudo rabbitmq-plugins enable rabbitmq_management
 
-echo "4. Configuring Redis..."
-sudo sed -i 's/# requirepass foobared/requirepass bankcore_redis/' /etc/redis/redis.conf
-sudo systemctl restart redis-server
+echo "[4/5] Setting up Kafka & Zookeeper..."
+mkdir -p /home/fady-adel/bankcore/infra
+cd /home/fady-adel/bankcore/infra
+if [ ! -d "kafka_2.13-3.8.0" ]; then
+  wget -q https://downloads.apache.org/kafka/3.8.0/kafka_2.13-3.8.0.tgz
+  tar -xzf kafka_2.13-3.8.0.tgz
+  rm kafka_2.13-3.8.0.tgz
+fi
+# We won't start Kafka in this script to avoid blocking, we'll start it manually later or via a runner script.
 
-echo "5. Configuring RabbitMQ..."
-sudo rabbitmqctl add_user bankcore bankcore_rabbit || true
-sudo rabbitmqctl set_user_tags bankcore administrator || true
-sudo rabbitmqctl set_permissions -p / bankcore ".*" ".*" ".*" || true
+echo "[5/5] Setting up Keycloak..."
+if [ ! -d "keycloak-26.0.0" ]; then
+  wget -q https://github.com/keycloak/keycloak/releases/download/26.0.0/keycloak-26.0.0.zip
+  unzip -q keycloak-26.0.0.zip
+  rm keycloak-26.0.0.zip
+fi
 
-echo "6. Downloading Keycloak 24..."
-cd /opt
-sudo wget -nc https://github.com/keycloak/keycloak/releases/download/24.0.0/keycloak-24.0.0.zip || true
-sudo unzip -o keycloak-24.0.0.zip
-
-echo "7. Downloading Kafka 3.4.0..."
-sudo wget -nc https://downloads.apache.org/kafka/3.4.0/kafka_2.13-3.4.0.tgz || true
-sudo tar -xzf kafka_2.13-3.4.0.tgz
-
-echo "8. Downloading Flowable 6.8.0..."
-sudo wget -nc https://github.com/flowable/flowable-engine/releases/download/flowable-6.8.0/flowable-6.8.0.zip || true
-sudo unzip -o flowable-6.8.0.zip
-
-echo "9. Downloading GoRules..."
-sudo wget -nc https://github.com/gorules/zen/releases/download/v0.19.1/zen-linux-amd64 || true
-sudo chmod +x zen-linux-amd64
-
-echo "======================================================"
-echo "INSTALLATION COMPLETE."
-echo "You must now manually start the services in separate terminal windows:"
-echo "1. Keycloak: cd /opt/keycloak-24.0.0 && export KEYCLOAK_ADMIN=admin KEYCLOAK_ADMIN_PASSWORD=admin && bin/kc.sh start-dev --http-port=8080"
-echo "2. Zookeeper: cd /opt/kafka_2.13-3.4.0 && bin/zookeeper-server-start.sh config/zookeeper.properties"
-echo "3. Kafka: cd /opt/kafka_2.13-3.4.0 && bin/kafka-server-start.sh config/server.properties"
-echo "4. GoRules: cd /opt && ./zen-linux-amd64 server --port 8181"
-echo "======================================================"
+echo "Infrastructure installed successfully!"

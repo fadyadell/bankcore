@@ -1,5 +1,5 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
-import { PrismaService } from '@bankcore/prisma-client';
+import { PrismaService } from '@bankcore/database';
 import { Roles } from '@bankcore/common';
 import { JwtAuthGuard, RolesGuard } from '@bankcore/auth';
 

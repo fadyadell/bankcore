@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { Kafka } from 'kafkajs';
-import { KafkaProducerService } from '@bankcore/messaging';
+import { KafkaProducerService } from '@bankcore/kafka';
 
 @Injectable()
 export class KafkaConsumerService implements OnModuleInit {

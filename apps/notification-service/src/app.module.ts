@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { PrismaModule } from '@bankcore/prisma-client';
-import { KafkaModule } from '@bankcore/messaging';
+import { DatabaseModule } from '@bankcore/database';
+import { KafkaModule } from '@bankcore/kafka';
 import { NotificationModule } from './notification/notification.module';
 import { AuthModule } from '@bankcore/auth';
 
@@ -16,7 +16,7 @@ import { AuthModule } from '@bankcore/auth';
         keycloakClientId: config.get('KEYCLOAK_CLIENT_ID') || 'api-gateway',
       }),
     }),
-    PrismaModule,
+    DatabaseModule,
     KafkaModule,
     NotificationModule,
   ],

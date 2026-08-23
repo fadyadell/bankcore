@@ -36,7 +36,7 @@
     <serviceTask id="rejectServiceTask1" name="Reject Transaction" flowable:type="http">
       <extensionElements>
         <flowable:field name="requestMethod"><flowable:string>POST</flowable:string></flowable:field>
-        <flowable:field name="requestUrl"><flowable:string>http://host.docker.internal:3007/delegates/reject-transaction</flowable:string></flowable:field>
+        <flowable:field name="requestUrl"><flowable:string>http://localhost:3007/delegates/reject-transaction</flowable:string></flowable:field>
         <flowable:field name="requestHeaders"><flowable:string>Content-Type: application/json</flowable:string></flowable:field>
         <flowable:field name="requestBody"><flowable:expression>{"transactionId":"${transactionId}","reason":"${reason != null ? reason : 'SLA_TIMEOUT'}"}</flowable:expression></flowable:field>
       </extensionElements>
@@ -66,7 +66,7 @@
     <serviceTask id="rejectServiceTask2" name="Reject by Admin" flowable:type="http">
       <extensionElements>
         <flowable:field name="requestMethod"><flowable:string>POST</flowable:string></flowable:field>
-        <flowable:field name="requestUrl"><flowable:string>http://host.docker.internal:3007/delegates/reject-transaction</flowable:string></flowable:field>
+        <flowable:field name="requestUrl"><flowable:string>http://localhost:3007/delegates/reject-transaction</flowable:string></flowable:field>
         <flowable:field name="requestHeaders"><flowable:string>Content-Type: application/json</flowable:string></flowable:field>
         <flowable:field name="requestBody"><flowable:expression>{"transactionId":"${transactionId}","reason":"${reason != null ? reason : 'SLA_TIMEOUT'}"}</flowable:expression></flowable:field>
       </extensionElements>
@@ -77,7 +77,7 @@
     <serviceTask id="completeServiceTask" name="Execute Transfer" flowable:type="http">
       <extensionElements>
         <flowable:field name="requestMethod"><flowable:string>POST</flowable:string></flowable:field>
-        <flowable:field name="requestUrl"><flowable:string>http://host.docker.internal:3007/delegates/execute-transfer</flowable:string></flowable:field>
+        <flowable:field name="requestUrl"><flowable:string>http://localhost:3007/delegates/execute-transfer</flowable:string></flowable:field>
         <flowable:field name="requestHeaders"><flowable:string>Content-Type: application/json</flowable:string></flowable:field>
         <flowable:field name="requestBody"><flowable:expression>{"transactionId":"${transactionId}"}</flowable:expression></flowable:field>
       </extensionElements>

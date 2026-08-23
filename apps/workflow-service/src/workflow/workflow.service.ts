@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleInit, BadRequestException } from '@nestjs/common';
 import { FlowableClient } from './flowable.client';
-import { PrismaService } from '@bankcore/prisma-client';
+import { PrismaService } from '@bankcore/database';
 export interface CurrentUserPayload {
   sub: string;
   email: string;
@@ -8,7 +8,7 @@ export interface CurrentUserPayload {
 }
 import { CompleteTaskDto } from './dto/complete-task.dto';
 import { AuditLogService } from '@bankcore/common';
-import { KafkaProducerService } from '@bankcore/messaging';
+import { KafkaProducerService } from '@bankcore/kafka';
 import * as path from 'path';
 
 @Injectable()

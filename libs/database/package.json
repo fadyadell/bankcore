@@ -1,0 +1,14 @@
+{
+  "name": "@bankcore/database",
+  "version": "1.0.0",
+  "description": "Shared Prisma database client",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.lib.json"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.28",
+    "@prisma/client": "^5.14.0"
+  }
+}
