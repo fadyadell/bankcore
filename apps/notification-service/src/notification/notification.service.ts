@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@bankcore/database';
 import { Observable, Subject } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
-import type { Notification, NotificationChannel, NotificationStatus } from '@prisma/client';
+import type { Notification } from '@prisma/client';
 
 @Injectable()
 export class NotificationService {
@@ -24,7 +24,7 @@ export class NotificationService {
     if (!notification) throw new NotFoundException('Notification not found');
     return this.prisma.notification.update({
       where: { id },
-      data: { status: 'DELIVERED' as NotificationStatus },
+      data: { status: 'DELIVERED' },
     });
   }
 
@@ -50,7 +50,7 @@ export class NotificationService {
     const notification = await this.prisma.notification.create({
       data: {
         userId: data.userId,
-        channel: data.channel as NotificationChannel,
+        channel: data.channel,
         type: data.type,
         subject: data.subject,
         body: data.body,
@@ -68,7 +68,7 @@ export class NotificationService {
     return this.prisma.notification.update({
       where: { id },
       data: {
-        status: 'SENT' as NotificationStatus,
+        status: 'SENT',
         sentAt: new Date(),
       },
     });
@@ -78,7 +78,7 @@ export class NotificationService {
     return this.prisma.notification.update({
       where: { id },
       data: {
-        status: 'FAILED' as NotificationStatus,
+        status: 'FAILED',
         failedAt: new Date(),
         failureReason: reason,
       },

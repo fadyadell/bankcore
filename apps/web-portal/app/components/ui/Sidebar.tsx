@@ -31,6 +31,7 @@ export default function Sidebar() {
 
   const adminNav: NavItem[] = [
     { name: 'Executive', href: '/admin/dashboard', icon: 'bar_chart' },
+    { name: 'Directory', href: '/admin/users', icon: 'group' },
     { name: 'Approvals', href: '/admin/transactions', icon: 'gavel' },
     { name: 'Loan Review', href: '/admin/loans', icon: 'verified' },
     { name: 'Audit Logs', href: '/admin/audit', icon: 'history' },

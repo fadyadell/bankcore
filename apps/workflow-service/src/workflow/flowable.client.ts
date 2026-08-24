@@ -8,7 +8,7 @@ import FormData from 'form-data';
 @Injectable()
 export class FlowableClient {
   private readonly logger = new Logger(FlowableClient.name);
-  private readonly baseUrl = process.env.FLOWABLE_REST_URL || 'http://localhost:8082/flowable-rest/service';
+  private readonly baseUrl = process.env.FLOWABLE_REST_URL || 'http://localhost:8081/flowable-rest/service';
   private readonly auth = { username: 'rest-admin', password: 'test' };
 
   constructor(private readonly httpService: HttpService) {}

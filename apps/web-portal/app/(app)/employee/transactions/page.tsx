@@ -56,71 +56,77 @@ export default function EmployeeTransactionsPage() {
   };
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Transaction Review Queue</h1>
-        <p className="text-slate-500">Review and approve or reject pending transactions.</p>
+    <div className="animate-fade-in pb-10 max-w-6xl mx-auto">
+      <div className="mb-8 glass-card p-6 border-none shadow-sm bg-white/40">
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 font-display gradient-text">Transaction Review Queue</h1>
+        <p className="mt-1.5 text-sm text-slate-500 font-medium">Review and approve or reject pending transactions.</p>
       </div>
 
-      <Card>
-        <CardHeader className="border-b border-slate-100 bg-slate-50/50 pb-4">
-          <CardTitle>Pending Transactions</CardTitle>
+      <Card className="glass-card overflow-hidden">
+        <CardHeader className="border-b border-slate-100 bg-slate-50/50 p-6">
+          <CardTitle className="text-lg font-bold">Pending Transactions</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-slate-50/80">
               <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="font-bold text-slate-600 uppercase text-xs tracking-wider px-6">Date</TableHead>
+                <TableHead className="font-bold text-slate-600 uppercase text-xs tracking-wider">Description</TableHead>
+                <TableHead className="font-bold text-slate-600 uppercase text-xs tracking-wider">Type</TableHead>
+                <TableHead className="font-bold text-slate-600 uppercase text-xs tracking-wider">Amount</TableHead>
+                <TableHead className="text-right font-bold text-slate-600 uppercase text-xs tracking-wider px-6">Actions</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
+            <TableBody className="divide-y divide-slate-100">
               {loading ? (
                 Array.from({length: 4}).map((_, i) => (
-                  <TableRow key={i}>
-                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-40" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                    <TableCell className="text-right"><Skeleton className="ml-auto h-8 w-32 rounded-md" /></TableCell>
+                  <TableRow key={i} className="hover:bg-slate-50/50 transition-colors">
+                    <TableCell className="px-6 py-4"><Skeleton className="h-4 w-24 skeleton-shimmer" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-40 skeleton-shimmer" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-20 skeleton-shimmer" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-24 skeleton-shimmer" /></TableCell>
+                    <TableCell className="px-6 py-4 text-right"><Skeleton className="ml-auto h-8 w-32 rounded-md skeleton-shimmer" /></TableCell>
                   </TableRow>
                 ))
               ) : tasks.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="py-12 text-center text-slate-500">
-                    <span className="material-symbols-outlined mx-auto mb-2 text-3xl text-slate-400">check_circle</span>
-                    <p>No pending transactions to review.</p>
+                  <TableCell colSpan={5} className="py-16 text-center text-slate-500">
+                    <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 mb-4">
+                      <span className="material-symbols-outlined text-3xl text-emerald-500">check_circle</span>
+                    </div>
+                    <p className="font-semibold text-slate-600">No pending transactions to review.</p>
+                    <p className="text-sm mt-1">Queue is empty. Great job!</p>
                   </TableCell>
                 </TableRow>
               ) : (
                 tasks.map((task) => (
-                  <TableRow key={task.id}>
-                    <TableCell className="text-slate-500">
-                      {new Date(task.createTime).toLocaleString()}
+                  <TableRow key={task.id} className="hover:bg-blue-50/30 transition-colors cursor-default">
+                    <TableCell className="px-6 py-4 text-sm text-slate-500 font-medium">
+                      {new Date(task.createTime).toLocaleString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </TableCell>
-                    <TableCell className="font-medium text-slate-900">
+                    <TableCell className="py-4 font-medium text-slate-900">
                       {task.variables?.description || `Transaction ${task.variables?.transactionId || task.id}`}
                     </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{task.variables?.type || 'TRANSFER'}</Badge>
+                    <TableCell className="py-4">
+                      <Badge variant="outline" className="border-blue-200 text-blue-700 bg-blue-50/50">{task.variables?.type || 'TRANSFER'}</Badge>
                     </TableCell>
-                    <TableCell className={`font-medium ${(task.variables?.amount || 0) > 0 ? 'text-emerald-600' : 'text-slate-900'}`}>
+                    <TableCell className={`py-4 font-mono-data font-bold text-base ${(task.variables?.amount || 0) > 0 ? 'text-emerald-600' : 'text-slate-900'}`}>
                       {Number(task.variables?.amount || 0).toLocaleString('en-US', {style: 'currency', currency: 'USD'})}
                     </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
+                    <TableCell className="px-6 py-4 text-right">
+                      <div className="flex justify-end gap-3 opacity-80 hover:opacity-100 transition-opacity">
                         <Button 
                           variant="outline" 
-                          className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                          size="sm"
+                          className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 font-bold px-4"
                           onClick={() => handleReview(task.id, false)}
                         >
                           Reject
                         </Button>
                         <Button 
                           variant="primary"
+                          size="sm"
+                          className="font-bold shadow-md shadow-blue-500/20 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
                           onClick={() => handleReview(task.id, true)}
                         >
                           Approve

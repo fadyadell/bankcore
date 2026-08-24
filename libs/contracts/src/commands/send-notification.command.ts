@@ -5,6 +5,6 @@ export class SendNotificationCommand {
     public readonly type: string,
     public readonly subject: string,
     public readonly body: string,
-    public readonly metadata?: Record<string, any>,
+    public readonly metadata?: Record<string, unknown>,
   ) {}
 }

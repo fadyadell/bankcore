@@ -1,4 +1,6 @@
-import type { User, KycStatus, UserStatus } from '@prisma/client';
+import type { User } from '@prisma/client';
+type KycStatus = 'PENDING' | 'VERIFIED' | 'REJECTED';
+type UserStatus = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
 
 export interface CreateUserInput {
   keycloakId: string;

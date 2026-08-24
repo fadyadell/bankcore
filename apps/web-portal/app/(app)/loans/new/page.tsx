@@ -45,87 +45,87 @@ export default function NewLoanPage() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Apply for a Loan</h1>
-        <p className="text-slate-500">Get the funds you need quickly and securely.</p>
+    <div className="mx-auto max-w-2xl animate-fade-in pb-10">
+      <div className="mb-8 glass-card p-6 border-none shadow-sm bg-white/40">
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 font-display gradient-text">Apply for a Loan</h1>
+        <p className="mt-1.5 text-sm text-slate-500 font-medium">Get the funds you need quickly and securely.</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Loan Application</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {error && (
-            <div className="mb-6 rounded-lg bg-red-50 p-4 text-sm text-red-600">
-              {error}
-            </div>
-          )}
+      <div className="glass-card p-8">
+        <h2 className="text-xl font-bold mb-6 text-slate-800">Loan Details</h2>
+        
+        {error && (
+          <div className="mb-6 rounded-xl bg-red-50/80 backdrop-blur-md p-4 text-sm font-semibold text-red-600 border border-red-200 shadow-sm">
+            <span className="material-symbols-outlined align-middle mr-2">error</span>
+            {error}
+          </div>
+        )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <label htmlFor="amount" className="text-sm font-medium text-slate-700">Loan Amount</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
-                <input
-                  id="amount"
-                  name="amount"
-                  type="number"
-                  min="100"
-                  step="100"
-                  placeholder="5000.00"
-                  value={formData.amount}
-                  onChange={handleChange}
-                  required
-                  className="w-full rounded-md border border-slate-300 pl-8 pr-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                />
+        <form onSubmit={handleSubmit} className="space-y-6 stagger-children">
+          <div className="space-y-2">
+            <label htmlFor="amount" className="text-sm font-bold tracking-wide text-slate-700 uppercase">Loan Amount</label>
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <span className="text-slate-400 font-mono-data font-bold text-lg group-focus-within:text-blue-500 transition-colors">$</span>
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="termMonths" className="text-sm font-medium text-slate-700">Loan Term</label>
-              <select
-                id="termMonths"
-                name="termMonths"
-                value={formData.termMonths}
-                onChange={handleChange}
-                required
-                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-              >
-                <option value="6">6 Months</option>
-                <option value="12">12 Months</option>
-                <option value="24">24 Months</option>
-                <option value="36">36 Months</option>
-                <option value="48">48 Months</option>
-                <option value="60">60 Months</option>
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="purpose" className="text-sm font-medium text-slate-700">Purpose</label>
               <input
-                id="purpose"
-                name="purpose"
-                type="text"
-                placeholder="e.g., Home Renovation, Auto, Personal"
-                value={formData.purpose}
+                id="amount"
+                name="amount"
+                type="number"
+                min="100"
+                step="100"
+                placeholder="5000.00"
+                value={formData.amount}
                 onChange={handleChange}
                 required
-                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                className="block w-full pl-10 pr-4 py-4 bg-white/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:bg-white text-lg font-mono-data font-bold shadow-sm"
               />
             </div>
+          </div>
 
-            <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
-              <Button type="button" variant="outline" onClick={() => router.back()} disabled={submitting}>
-                Cancel
-              </Button>
-              <Button type="submit" variant="primary" disabled={submitting}>
-                {submitting ? 'Submitting...' : 'Submit Application'}
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+          <div className="space-y-2">
+            <label htmlFor="termMonths" className="text-sm font-bold tracking-wide text-slate-700 uppercase">Loan Term</label>
+            <select
+              id="termMonths"
+              name="termMonths"
+              value={formData.termMonths}
+              onChange={handleChange}
+              required
+              className="block w-full px-4 py-4 bg-white/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:bg-white text-md font-bold shadow-sm appearance-none"
+            >
+              <option value="6">6 Months</option>
+              <option value="12">12 Months</option>
+              <option value="24">24 Months</option>
+              <option value="36">36 Months</option>
+              <option value="48">48 Months</option>
+              <option value="60">60 Months</option>
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="purpose" className="text-sm font-bold tracking-wide text-slate-700 uppercase">Purpose</label>
+            <input
+              id="purpose"
+              name="purpose"
+              type="text"
+              placeholder="e.g., Home Renovation, Auto, Personal"
+              value={formData.purpose}
+              onChange={handleChange}
+              required
+              className="block w-full px-4 py-4 bg-white/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:bg-white text-md shadow-sm"
+            />
+          </div>
+
+          <div className="pt-8 mt-8 border-t border-slate-100 flex gap-4 justify-end">
+            <Button type="button" variant="outline" className="px-6 py-6 rounded-xl font-bold" onClick={() => router.back()} disabled={submitting}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary" className="px-8 py-6 rounded-xl font-bold shadow-lg shadow-blue-500/20 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700" disabled={submitting}>
+              {submitting ? 'Processing...' : 'Submit Application'}
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

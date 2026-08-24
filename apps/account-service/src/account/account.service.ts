@@ -25,7 +25,7 @@ export class AccountService {
     });
   }
 
-  async createAccount(currentUser: JwtPayload, dto: any) {
+  async createAccount(currentUser: JwtPayload, dto: { type?: string; currency?: string }) {
     const userDb = await this.resolveCustomerUserId(currentUser.sub);
     if (!userDb) {
       throw new ForbiddenException('User is not a registered customer');

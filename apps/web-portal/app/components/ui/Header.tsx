@@ -2,6 +2,7 @@
 
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { useSocket } from '../../providers/SocketProvider';
+import Link from 'next/link';
 
 export function Header() {
   const { data: session, status } = useSession();
@@ -46,23 +47,25 @@ export function Header() {
         <div className="h-8 w-px bg-slate-200" />
 
         {/* Notification bell */}
-        <button
+        <Link
+          href="/notifications"
           className="relative flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-all duration-200 hover:bg-slate-100 hover:text-slate-700"
           aria-label="Notifications"
         >
           <span className="material-symbols-outlined text-xl">notifications</span>
           <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white">
-            3
+            !
           </span>
-        </button>
+        </Link>
 
         {/* Settings */}
-        <button
+        <Link
+          href="/profile"
           className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-all duration-200 hover:bg-slate-100 hover:text-slate-700"
           aria-label="Settings"
         >
           <span className="material-symbols-outlined text-xl">settings</span>
-        </button>
+        </Link>
 
         {/* Divider */}
         <div className="h-8 w-px bg-slate-200" />

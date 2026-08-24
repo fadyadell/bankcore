@@ -84,8 +84,8 @@ export class LoanService {
     const skip = ((pagination.page || 1) - 1) * (pagination.limit || 20);
     const take = pagination.limit || 20;
 
-    const roles = currentUser.realm_access?.roles || [];
-    const isEmployeeOrAdmin = roles.includes('employee') || roles.includes('admin');
+    const roles = (currentUser.realm_access?.roles || []).map(r => r.toUpperCase());
+    const isEmployeeOrAdmin = roles.includes('EMPLOYEE') || roles.includes('ADMIN');
 
     let whereClause = {};
 
@@ -119,8 +119,8 @@ export class LoanService {
 
     if (!loan) throw new NotFoundException('Loan not found');
 
-    const roles = currentUser.realm_access?.roles || [];
-    const isEmployeeOrAdmin = roles.includes('employee') || roles.includes('admin');
+    const roles = (currentUser.realm_access?.roles || []).map(r => r.toUpperCase());
+    const isEmployeeOrAdmin = roles.includes('EMPLOYEE') || roles.includes('ADMIN');
 
     if (!isEmployeeOrAdmin) {
       const userDb = await this.resolveUserId(currentUser.sub);
@@ -136,9 +136,9 @@ export class LoanService {
     const userDb = await this.prisma.user.findUnique({ where: { keycloakId: currentUser.sub } });
     if (!userDb) throw new ForbiddenException('User not found in DB');
 
-    const roles = currentUser.realm_access?.roles || [];
-    const isEmployee = roles.includes('employee');
-    const isAdmin = roles.includes('admin');
+    const roles = (currentUser.realm_access?.roles || []).map(r => r.toUpperCase());
+    const isEmployee = roles.includes('EMPLOYEE');
+    const isAdmin = roles.includes('ADMIN');
 
     if (!isEmployee && !isAdmin) {
       throw new ForbiddenException('Only employees or admins can review loans');

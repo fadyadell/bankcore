@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CommonModule, bankcoreConfiguration, validateEnvironment } from '@bankcore/common';
 import { DatabaseModule } from '@bankcore/database';
+import { CacheModule } from '@bankcore/cache';
 import { AUDIT_WRITER, IDENTITY_PROVIDER, USER_REPOSITORY } from './application/tokens';
 import { LoginUseCase } from './application/use-cases/auth/login.use-case';
 import { LogoutUseCase } from './application/use-cases/auth/logout.use-case';
@@ -30,6 +31,14 @@ import { UsersService } from './users/users.service';
     }),
     DatabaseModule,
     CommonModule,
+    CacheModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        host: config.get<string>('REDIS_HOST', 'localhost'),
+        port: config.get<number>('REDIS_PORT', 6379),
+        password: config.get<string>('REDIS_PASSWORD', 'bankcore_redis'),
+      }),
+    }),
   ],
   controllers: [HealthController, AuthController, UsersController],
   providers: [

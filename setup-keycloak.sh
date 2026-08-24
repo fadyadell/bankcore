@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-KEYCLOAK_URL="http://127.0.0.1:8180"
+KEYCLOAK_URL="http://127.0.0.1:8080"
 ADMIN_USER="admin"
 ADMIN_PASS="admin"
 

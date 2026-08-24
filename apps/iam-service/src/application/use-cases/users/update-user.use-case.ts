@@ -4,7 +4,9 @@ import type { AuditWriterPort } from '../../ports/audit-writer.port';
 import type { IdentityProviderPort } from '../../ports/identity-provider.port';
 import type { UserRepositoryPort } from '../../ports/user-repository.port';
 import type { UpdateUserDto } from '../../../users/dto/user.dto';
-import type { User, KycStatus, UserStatus } from '@prisma/client';
+import type { User } from '@prisma/client';
+type KycStatus = 'PENDING' | 'VERIFIED' | 'REJECTED';
+type UserStatus = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
 
 @Injectable()
 export class UpdateUserUseCase {

@@ -80,3 +80,7 @@ CLAUDE.md
 opencode.json
 
 vite.config.*.timestamp*
+# Next.js
+.next
+*/.next
+apps/web-portal/.next

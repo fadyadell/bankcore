@@ -2,6 +2,6 @@ import React from 'react';
 
 export const Skeleton = ({ className = '' }: { className?: string }) => {
   return (
-    <div className={`animate-pulse bg-gray-200 rounded ${className}`}></div>
+    <div className={`skeleton-shimmer bg-slate-200/50 rounded-lg ${className}`}></div>
   );
 };

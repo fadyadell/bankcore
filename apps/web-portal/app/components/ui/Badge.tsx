@@ -2,13 +2,13 @@ import React from 'react';
 
 export const Badge = ({ children, variant = 'default', className = '' }: { children: React.ReactNode; variant?: 'default' | 'success' | 'warning' | 'danger' | 'outline' | 'secondary' | 'destructive'; className?: string }) => {
   const variants = {
-    default: "bg-gray-100 text-gray-800",
-    secondary: "bg-gray-100 text-gray-800",
-    success: "bg-green-100 text-green-800",
-    warning: "bg-yellow-100 text-yellow-800",
-    danger: "bg-red-100 text-red-800",
-    destructive: "bg-red-100 text-red-800",
-    outline: "border border-gray-300 text-gray-700 bg-transparent"
+    default: "bg-primary-50 text-primary-700 border border-primary-200",
+    secondary: "bg-slate-100 text-slate-700 border border-slate-200",
+    success: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+    warning: "bg-amber-50 text-amber-700 border border-amber-200",
+    danger: "bg-red-50 text-red-700 border border-red-200",
+    destructive: "bg-red-50 text-red-700 border border-red-200",
+    outline: "border border-slate-300 text-slate-700 bg-white/50 backdrop-blur-sm"
   };
 
   return (

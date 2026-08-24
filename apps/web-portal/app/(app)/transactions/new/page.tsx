@@ -88,99 +88,99 @@ export default function NewTransactionPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Transfer Money</h1>
-        <p className="text-slate-500">Send money securely to another account.</p>
+    <div className="mx-auto max-w-2xl animate-fade-in pb-10">
+      <div className="mb-8 glass-card p-6 border-none shadow-sm bg-white/40">
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 font-display gradient-text">Transfer Money</h1>
+        <p className="mt-1.5 text-sm text-slate-500 font-medium">Send money securely to another account.</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Transfer Details</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {error && (
-            <div className="mb-6 rounded-lg bg-red-50 p-4 text-sm text-red-600">
-              {error}
-            </div>
-          )}
+      <div className="glass-card p-8">
+        <h2 className="text-xl font-bold mb-6 text-slate-800">Transfer Details</h2>
+        
+        {error && (
+          <div className="mb-6 rounded-xl bg-red-50/80 backdrop-blur-md p-4 text-sm font-semibold text-red-600 border border-red-200 shadow-sm">
+            <span className="material-symbols-outlined align-middle mr-2">error</span>
+            {error}
+          </div>
+        )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <label htmlFor="debitAccountId" className="text-sm font-medium text-slate-700">From Account</label>
-              <select
-                id="debitAccountId"
-                name="debitAccountId"
-                value={formData.debitAccountId}
-                onChange={handleChange}
-                required
-                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-              >
-                {accounts.map(acc => (
-                  <option key={acc.id} value={acc.id}>
-                    {acc.type} (...{acc.accountNumber.slice(-4)}) - {Number(acc.balance).toLocaleString('en-US', { style: 'currency', currency: acc.currency || 'USD' })}
-                  </option>
-                ))}
-              </select>
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-6 stagger-children">
+          <div className="space-y-2">
+            <label htmlFor="debitAccountId" className="text-sm font-bold tracking-wide text-slate-700 uppercase">From Account</label>
+            <select
+              id="debitAccountId"
+              name="debitAccountId"
+              value={formData.debitAccountId}
+              onChange={handleChange}
+              required
+              className="block w-full px-4 py-4 bg-white/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:bg-white text-md font-bold shadow-sm appearance-none"
+            >
+              {accounts.map(acc => (
+                <option key={acc.id} value={acc.id}>
+                  {acc.type} (...{acc.accountNumber.slice(-4)}) - {Number(acc.balance).toLocaleString('en-US', { style: 'currency', currency: acc.currency || 'USD' })}
+                </option>
+              ))}
+            </select>
+          </div>
 
-            <div className="space-y-2">
-              <label htmlFor="creditAccountId" className="text-sm font-medium text-slate-700">To Account (Recipient ID)</label>
-              <input
-                id="creditAccountId"
-                name="creditAccountId"
-                type="text"
-                placeholder="Enter recipient account ID"
-                value={formData.creditAccountId}
-                onChange={handleChange}
-                required
-                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-              />
-            </div>
+          <div className="space-y-2">
+            <label htmlFor="creditAccountId" className="text-sm font-bold tracking-wide text-slate-700 uppercase">To Account (Recipient ID)</label>
+            <input
+              id="creditAccountId"
+              name="creditAccountId"
+              type="text"
+              placeholder="Enter recipient account ID"
+              value={formData.creditAccountId}
+              onChange={handleChange}
+              required
+              className="block w-full px-4 py-4 bg-white/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:bg-white text-md shadow-sm"
+            />
+          </div>
 
-            <div className="space-y-2">
-              <label htmlFor="amount" className="text-sm font-medium text-slate-700">Amount</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
-                <input
-                  id="amount"
-                  name="amount"
-                  type="number"
-                  min="0.01"
-                  step="0.01"
-                  placeholder="0.00"
-                  value={formData.amount}
-                  onChange={handleChange}
-                  required
-                  className="w-full rounded-md border border-slate-300 pl-8 pr-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                />
+          <div className="space-y-2">
+            <label htmlFor="amount" className="text-sm font-bold tracking-wide text-slate-700 uppercase">Amount</label>
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <span className="text-slate-400 font-mono-data font-bold text-lg group-focus-within:text-blue-500 transition-colors">$</span>
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="description" className="text-sm font-medium text-slate-700">Description (Optional)</label>
               <input
-                id="description"
-                name="description"
-                type="text"
-                placeholder="What is this for?"
-                value={formData.description}
+                id="amount"
+                name="amount"
+                type="number"
+                min="0.01"
+                step="0.01"
+                placeholder="0.00"
+                value={formData.amount}
                 onChange={handleChange}
-                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                required
+                className="block w-full pl-10 pr-4 py-4 bg-white/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:bg-white text-lg font-mono-data font-bold shadow-sm"
               />
             </div>
+          </div>
 
-            <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
-              <Button type="button" variant="outline" onClick={() => router.back()} disabled={submitting}>
-                Cancel
-              </Button>
-              <Button type="submit" variant="primary" disabled={submitting}>
-                {submitting ? 'Processing...' : 'Send Transfer'}
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+          <div className="space-y-2">
+            <label htmlFor="description" className="text-sm font-bold tracking-wide text-slate-700 uppercase">Description (Optional)</label>
+            <input
+              id="description"
+              name="description"
+              type="text"
+              placeholder="What is this for?"
+              value={formData.description}
+              onChange={handleChange}
+              className="block w-full px-4 py-4 bg-white/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:bg-white text-md shadow-sm"
+            />
+          </div>
+
+          <div className="pt-8 mt-8 border-t border-slate-100 flex gap-4 justify-end">
+            <Button type="button" variant="outline" className="px-6 py-6 rounded-xl font-bold" onClick={() => router.back()} disabled={submitting}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary" className="px-8 py-6 rounded-xl font-bold shadow-lg shadow-blue-500/20 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700" disabled={submitting}>
+              {submitting ? 'Processing...' : 'Send Transfer'}
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

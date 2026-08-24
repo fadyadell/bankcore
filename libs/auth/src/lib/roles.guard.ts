@@ -38,19 +38,19 @@ export class RolesGuard implements CanActivate {
 
     if (user.realm_access?.roles) {
       for (const role of user.realm_access.roles) {
-        userRoles.add(role);
+        userRoles.add(role.toUpperCase());
       }
     }
 
     if (user.resource_access) {
       for (const resource of Object.values(user.resource_access)) {
         for (const role of resource.roles) {
-          userRoles.add(role);
+          userRoles.add(role.toUpperCase());
         }
       }
     }
 
-    const hasRole = requiredRoles.some((role) => userRoles.has(role));
+    const hasRole = requiredRoles.some((role) => userRoles.has(role.toUpperCase()));
 
     if (!hasRole) {
       throw new ForbiddenException(

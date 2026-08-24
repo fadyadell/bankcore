@@ -2,7 +2,7 @@ import React from 'react';
 
 export const Card = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => {
   return (
-    <div className={`bg-white rounded-lg shadow-sm border border-slate-200 ${className}`}>
+    <div className={`bg-white/80 backdrop-blur-xl rounded-2xl shadow-sm border border-white/40 ${className}`}>
       {children}
     </div>
   );

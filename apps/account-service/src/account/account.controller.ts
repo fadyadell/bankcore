@@ -19,7 +19,7 @@ export class AccountController {
 
   @Post()
   @Roles('customer')
-  async createAccount(@CurrentUser() user: JwtPayload, @Body() dto: any) {
+  async createAccount(@CurrentUser() user: JwtPayload, @Body() dto: { type?: string; currency?: string }) {
     const result = await this.accountService.createAccount(user, dto);
     return result;
   }

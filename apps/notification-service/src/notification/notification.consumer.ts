@@ -1,12 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Kafka } from 'kafkajs';
 import { NotificationService } from './notification.service';
 import { EmailService } from '../channels/email.service';
 import { SmsService } from '../channels/sms.service';
 
-
 @Injectable()
-export class NotificationConsumer {
+export class NotificationConsumer implements OnModuleInit {
   private readonly logger = new Logger(NotificationConsumer.name);
 
   constructor(
@@ -14,6 +13,10 @@ export class NotificationConsumer {
     private readonly emailService: EmailService,
     private readonly smsService: SmsService,
   ) {}
+
+  async onModuleInit() {
+    this.startConsuming().catch(err => this.logger.error('Error starting consumer', err));
+  }
 
   async startConsuming(): Promise<void> {
     const kafka = new Kafka({
@@ -29,11 +32,16 @@ export class NotificationConsumer {
         if (!message.value) return;
         const payload = JSON.parse(message.value.toString());
         
+        let finalUserId = payload.customerId;
+        if (payload.targetRole === 'EMPLOYEE') finalUserId = '11111111-1111-1111-1111-111111111113';
+        if (payload.targetRole === 'ADMIN') finalUserId = '11111111-1111-1111-1111-111111111111';
+        if (!finalUserId) finalUserId = '11111111-1111-1111-1111-111111111111'; // fallback
+
         // This simulates the notification request event parsing
         const event = {
           eventType: topic,
           payload: {
-            userId: payload.targetRole || 'SYSTEM',
+            userId: finalUserId,
             channel: 'PUSH',
             type: payload.type,
             subject: payload.title,
