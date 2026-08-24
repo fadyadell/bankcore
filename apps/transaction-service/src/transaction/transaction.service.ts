@@ -6,9 +6,22 @@ import axios from 'axios';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 
 import { JwtPayload } from '@bankcore/common';
-import { TransactionStatus, Account, ApprovalStatus } from '@prisma/client';
+import { Account, Prisma } from '@prisma/client';
 import { LedgerService } from '../ledger/ledger.service';
 import { ReviewTransactionDto } from './dto/review-transaction.dto';
+
+export enum TransactionStatus {
+  PENDING = 'PENDING',
+  PROCESSING = 'PROCESSING',
+  COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
+}
+
+export enum ApprovalStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
 
 @Injectable()
 export class TransactionService {
@@ -37,7 +50,7 @@ export class TransactionService {
       if (existingTx) return existingTx;
     }
 
-    const transaction = await this.prisma.$transaction(async (tx: any) => {
+    const transaction = await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Pessimistic lock on the account to prevent double spending
       const accounts = await tx.$queryRaw<Account[]>`SELECT * FROM "accounts" WHERE id = ${dto.fromAccountId} FOR UPDATE`;
       
@@ -200,7 +213,7 @@ export class TransactionService {
       throw new ForbiddenException('Only admins can review this transaction');
     }
 
-    return await this.prisma.$transaction(async (tx: any) => {
+    return await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // 1. Create Approval Record
       await tx.approval.create({
         data: {
