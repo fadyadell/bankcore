@@ -21,8 +21,8 @@ export class VerifyTaxDelegate {
         eventType: 'loan.verification.tax.completed',
         payload: { loanId, status: 'SUCCESS' },
       });
-    } catch (error: any) {
-      this.logger.error(`Tax verification failed: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Tax verification failed: ${error instanceof Error ? error.message : String(error)}`);
       throw new HttpException({
         status: HttpStatus.BAD_REQUEST,
         error: 'VERIFICATION_FAILED',
