@@ -37,22 +37,6 @@ export const ERROR_CODES = {
 
 export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
 
-export const KAFKA_TOPICS = {
-  TRANSACTION_COMPLETED: 'bankcore.transaction.completed',
-  TRANSACTION_FAILED: 'bankcore.transaction.failed',
-  ACCOUNT_CREATED: 'bankcore.account.created',
-  ACCOUNT_STATUS_CHANGED: 'bankcore.account.status_changed',
-} as const;
-
-export const RABBITMQ_QUEUES = {
-  NOTIFICATIONS: 'bankcore.notifications',
-  NOTIFICATIONS_DLQ: 'bankcore.notifications.dlq',
-} as const;
-
-export const RABBITMQ_EXCHANGES = {
-  NOTIFICATIONS: 'bankcore.notifications.exchange',
-  NOTIFICATIONS_DLQ: 'bankcore.notifications.dlq.exchange',
-} as const;
 
 export const CACHE_KEYS = {
   ACCOUNT_BALANCE: (accountId: string) => `account:${accountId}:balance`,
