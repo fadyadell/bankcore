@@ -8,11 +8,9 @@ import { SmsService } from '../channels/sms.service';
 import { DatabaseModule } from '@bankcore/database';
 import { KafkaModule } from '@bankcore/kafka';
 
-import { NotificationRabbitController } from './notification.rabbit.controller';
-
 @Module({
   imports: [DatabaseModule, KafkaModule],
-  controllers: [NotificationController, NotificationRabbitController],
+  controllers: [NotificationController],
   providers: [NotificationService, KafkaConsumerService, NotificationConsumer, EmailService, SmsService],
   exports: [NotificationService],
 })
