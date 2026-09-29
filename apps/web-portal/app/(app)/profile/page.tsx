@@ -2,11 +2,11 @@
 
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/Card';
-import { Badge } from '../../../components/ui/Badge';
-import { Button } from '../../../components/ui/Button';
-import { Skeleton } from '../../../components/ui/Skeleton';
-import { apiClient } from '../../../../lib/apiClient';
+import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
+import { Badge } from '../../components/ui/Badge';
+import { Button } from '../../components/ui/Button';
+import { Skeleton } from '../../components/ui/Skeleton';
+import { apiClient } from '../../../lib/apiClient';
 
 interface UserProfile {
   id: string;
@@ -24,10 +24,11 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
 
   const fetchProfile = async () => {
-    if (!session?.user?.id) return;
+    const userId = (session?.user as { id?: string })?.id;
+    if (!userId) return;
     try {
       setLoading(true);
-      const res = await apiClient.get(`/users/${session.user.id}`);
+      const res = await apiClient.get(`/users/${userId}`);
       setProfile(res.data.data || res.data);
     } catch (err) {
       console.error('Failed to fetch profile', err);
@@ -38,7 +39,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     fetchProfile();
-  }, [session?.user?.id]);
+  }, [(session?.user as { id?: string })?.id]);
 
   const verifyKyc = async () => {
     if (!profile?.id) return;

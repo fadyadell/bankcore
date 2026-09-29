@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/Card';
+
 import { Button } from '../../../components/ui/Button';
 import { apiClient } from '../../../../lib/apiClient';
 
@@ -37,7 +37,7 @@ export default function NewLoanPage() {
       router.push('/loans');
     } catch (err: any) {
       console.error("Loan application failed", err);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       setError((err as any).response?.data?.message || "Loan application failed. Please try again.");
     } finally {
       setSubmitting(false);

@@ -164,7 +164,7 @@ export default function DashboardPage() {
                     />
                     <Tooltip 
                       contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)' }}
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                       
                       formatter={(value: any) => [formatCurrency(Number(value)), 'Balance']}
                     />
                     <Area 

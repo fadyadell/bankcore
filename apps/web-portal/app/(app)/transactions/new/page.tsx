@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/Card';
+
 import { Button } from '../../../components/ui/Button';
 import { apiClient } from '../../../../lib/apiClient';
 
@@ -72,7 +72,7 @@ export default function NewTransactionPage() {
       router.push('/transactions');
     } catch (err: any) {
       console.error("Transfer failed", err);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       setError((err as any).response?.data?.message || "Transfer failed. Please check the details and try again.");
     } finally {
       setSubmitting(false);

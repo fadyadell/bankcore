@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/Card';
-import { Skeleton } from '../../../components/ui/Skeleton';
-import { Button } from '../../../components/ui/Button';
-import { apiClient } from '../../../../lib/apiClient';
-import { useSocket } from '../../../providers/SocketProvider';
+import { Card, CardContent } from '../../components/ui/Card';
+import { Skeleton } from '../../components/ui/Skeleton';
+import { Button } from '../../components/ui/Button';
+import { apiClient } from '../../../lib/apiClient';
+import { useSocket } from '../../providers/SocketProvider';
 
 interface Notification {
   id: string;

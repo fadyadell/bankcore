@@ -8,12 +8,12 @@ export const Table = ({ children, className = '' }: { children: React.ReactNode;
   </div>
 );
 
-export const TableHeader = ({ children }: { children: React.ReactNode }) => (
-  <thead className="bg-slate-50/80 backdrop-blur-sm">{children}</thead>
+export const TableHeader = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
+  <thead className={`bg-slate-50/80 backdrop-blur-sm ${className}`}>{children}</thead>
 );
 
-export const TableBody = ({ children }: { children: React.ReactNode }) => (
-  <tbody className="bg-transparent divide-y divide-slate-100">{children}</tbody>
+export const TableBody = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
+  <tbody className={`bg-transparent divide-y divide-slate-100 ${className}`}>{children}</tbody>
 );
 
 export const TableRow = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
