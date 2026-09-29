@@ -85,3 +85,5 @@ vite.config.*.timestamp*
 .next
 */.next
 apps/web-portal/.next
+logs_*.txt
+scripts/dev-scratch/
