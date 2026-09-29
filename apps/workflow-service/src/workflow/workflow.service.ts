@@ -1,3 +1,4 @@
+import { TOPICS } from '@bankcore/contracts';
 import { Injectable, Logger, OnModuleInit, BadRequestException } from '@nestjs/common';
 import { FlowableClient } from './flowable.client';
 import { PrismaService } from '@bankcore/database';
@@ -56,7 +57,7 @@ export class WorkflowService implements OnModuleInit {
       data: { metadata: { flowableProcessId: processInstanceId } }
     });
 
-    await this.kafkaProducer.publish('bankcore.transaction.created', { entityId: transactionId });
+    await this.kafkaProducer.publish(TOPICS.TRANSACTION_CREATED, { entityId: transactionId });
 
     return processInstanceId;
   }
@@ -69,7 +70,7 @@ export class WorkflowService implements OnModuleInit {
 
 
 
-    await this.kafkaProducer.publish('bankcore.loan.applied', { entityId: loanId });
+    await this.kafkaProducer.publish(TOPICS.LOAN_APPLIED, { entityId: loanId });
 
     return processInstanceId;
   }
@@ -125,7 +126,7 @@ export class WorkflowService implements OnModuleInit {
           where: { id: transactionId },
           data: { status: 'PROCESSING' }
         });
-        await this.kafkaProducer.publish('bankcore.transaction.approved', { entityId: transactionId });
+        await this.kafkaProducer.publish(TOPICS.TRANSACTION_APPROVED, { entityId: transactionId });
       }
     } else if (loanId) {
       await this.prisma.approval.create({

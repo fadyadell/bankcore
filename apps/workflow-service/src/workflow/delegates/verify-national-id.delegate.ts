@@ -1,3 +1,4 @@
+import { TOPICS } from '@bankcore/contracts';
 import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { KafkaProducerService } from '@bankcore/kafka';
 
@@ -20,7 +21,7 @@ export class VerifyNationalIdDelegate {
 
       this.logger.log(`National ID verification successful for loan: ${loanId}`);
       
-      await this.kafkaProducer.publish('bankcore.domain.events', {
+      await this.kafkaProducer.publish(TOPICS.DOMAIN_EVENTS, {
         eventType: 'loan.verification.national_id.completed',
         payload: { loanId, status: 'SUCCESS' },
       });

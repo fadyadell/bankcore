@@ -1,3 +1,4 @@
+import { TOPICS } from '@bankcore/contracts';
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '@bankcore/database';
 import { AuditLogService, PaginationDto, GoRulesService } from '@bankcore/common';
@@ -60,7 +61,7 @@ export class LoanService {
       metadata: { actorId: userDb.id, after: { loan, riskTier } },
     });
 
-    await this.kafkaProducer.publish('bankcore.notifications.employee', {
+    await this.kafkaProducer.publish(TOPICS.NOTIFICATIONS_EMPLOYEE, {
       type: 'LOAN_APPLIED',
       title: 'New Loan Application Requires Review',
       body: `Loan application for ${loan.amount} over ${loan.termMonths} months requires employee review.`,
@@ -206,14 +207,14 @@ export class LoanService {
         metadata: { actorId: userDb.id, after: updatedLoan },
       });
 
-      await this.kafkaProducer.publish(`bankcore.notifications.customer.${loan.userId}`, {
+      await this.kafkaProducer.publish(TOPICS.notificationsCustomer(loan.userId), {
         type: 'LOAN_STATUS_UPDATED',
         title: 'Loan Status Updated',
         body: `Your loan status is now ${nextStatus}.`,
         metadata: { loanId: loan.id, status: nextStatus },
       });
 
-      await this.kafkaProducer.publish('bankcore.domain.events', {
+      await this.kafkaProducer.publish(TOPICS.DOMAIN_EVENTS, {
         eventType: 'loan.updated',
         payload: {
           loanId: loan.id,

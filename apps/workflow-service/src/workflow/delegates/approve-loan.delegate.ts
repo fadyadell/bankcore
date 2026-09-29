@@ -1,3 +1,4 @@
+import { TOPICS } from '@bankcore/contracts';
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@bankcore/database';
 import { AuditLogService } from '@bankcore/common';
@@ -71,7 +72,7 @@ export class ApproveLoanDelegate {
       metadata: { actorId: 'SYSTEM' }
     });
 
-    await this.kafkaProducer.publish('bankcore.loan.approved', { 
+    await this.kafkaProducer.publish(TOPICS.LOAN_APPROVED, { 
       entityId: loanId, 
       userId: loan.userId 
     });

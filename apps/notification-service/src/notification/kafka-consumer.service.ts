@@ -1,3 +1,4 @@
+import { TOPICS } from '@bankcore/contracts';
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { Kafka } from 'kafkajs';
 import { KafkaProducerService } from '@bankcore/kafka';
@@ -28,56 +29,56 @@ export class KafkaConsumerService implements OnModuleInit {
           this.logger.log(`Received Kafka message on ${topic}: ${message.value.toString()}`);
 
           switch (topic) {
-            case 'bankcore.transaction.created':
-              await this.kafkaProducer.publish('bankcore.notifications.employee', {
+            case TOPICS.TRANSACTION_CREATED:
+              await this.kafkaProducer.publish(TOPICS.NOTIFICATIONS_EMPLOYEE, {
                 type: 'TRANSACTION_PENDING',
                 title: 'New transaction to review',
                 body: `Transaction ${payload.entityId} needs review`,
                 targetRole: 'EMPLOYEE'
               });
               break;
-            case 'bankcore.transaction.approved':
-              await this.kafkaProducer.publish('bankcore.notifications.admin', {
+            case TOPICS.TRANSACTION_APPROVED:
+              await this.kafkaProducer.publish(TOPICS.NOTIFICATIONS_ADMIN, {
                 type: 'TRANSACTION_AWAITING_ADMIN',
                 title: 'Transaction awaits admin review',
                 body: `Transaction ${payload.entityId} was approved by employee and awaits admin`,
                 targetRole: 'ADMIN'
               });
               break;
-            case 'bankcore.transaction.completed':
-              await this.kafkaProducer.publish(`bankcore.notifications.customer.${payload.customerId}`, {
+            case TOPICS.TRANSACTION_COMPLETED:
+              await this.kafkaProducer.publish(TOPICS.notificationsCustomer(payload.customerId), {
                 type: 'TRANSACTION_COMPLETED',
                 title: 'Transfer completed',
                 body: `Your transaction ${payload.entityId} has been completed.`
               });
               break;
-            case 'bankcore.transaction.rejected':
+            case TOPICS.TRANSACTION_REJECTED:
               if (payload.customerId) {
-                await this.kafkaProducer.publish(`bankcore.notifications.customer.${payload.customerId}`, {
+                await this.kafkaProducer.publish(TOPICS.notificationsCustomer(payload.customerId), {
                   type: 'TRANSACTION_REJECTED',
                   title: 'Transfer rejected',
                   body: `Your transaction ${payload.entityId} was rejected. Reason: ${payload.reason}`
                 });
               }
               break;
-            case 'bankcore.loan.applied':
-              await this.kafkaProducer.publish('bankcore.notifications.employee', {
+            case TOPICS.LOAN_APPLIED:
+              await this.kafkaProducer.publish(TOPICS.NOTIFICATIONS_EMPLOYEE, {
                 type: 'LOAN_PENDING',
                 title: 'New loan applied',
                 body: `Loan ${payload.entityId} needs review`,
                 targetRole: 'EMPLOYEE'
               });
               break;
-            case 'bankcore.loan.approved':
-              await this.kafkaProducer.publish(`bankcore.notifications.customer.${payload.customerId}`, {
+            case TOPICS.LOAN_APPROVED:
+              await this.kafkaProducer.publish(TOPICS.notificationsCustomer(payload.customerId), {
                 type: 'LOAN_APPROVED',
                 title: 'Loan Approved',
                 body: `Your loan ${payload.entityId} has been approved.`
               });
               break;
-            case 'bankcore.loan.rejected':
+            case TOPICS.LOAN_REJECTED:
               if (payload.customerId) {
-                await this.kafkaProducer.publish(`bankcore.notifications.customer.${payload.customerId}`, {
+                await this.kafkaProducer.publish(TOPICS.notificationsCustomer(payload.customerId), {
                   type: 'LOAN_REJECTED',
                   title: 'Loan Rejected',
                   body: `Your loan ${payload.entityId} was rejected. Reason: ${payload.reason}`

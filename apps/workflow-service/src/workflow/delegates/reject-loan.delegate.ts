@@ -1,3 +1,4 @@
+import { TOPICS } from '@bankcore/contracts';
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@bankcore/database';
 import { AuditLogService } from '@bankcore/common';
@@ -40,7 +41,7 @@ export class RejectLoanDelegate {
       metadata: { actorId: 'SYSTEM' }
     });
 
-    await this.kafkaProducer.publish('bankcore.loan.rejected', { 
+    await this.kafkaProducer.publish(TOPICS.LOAN_REJECTED, { 
       entityId: loanId, 
       reason: 'SLA_TIMEOUT or Auto Rejected' 
     });

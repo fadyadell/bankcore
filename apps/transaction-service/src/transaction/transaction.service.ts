@@ -1,3 +1,4 @@
+import { TOPICS } from '@bankcore/contracts';
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '@bankcore/database';
 import { AuditLogService, PaginationDto, generateReferenceNumber } from '@bankcore/common';
@@ -109,7 +110,7 @@ export class TransactionService {
       console.error(e);
     }
 
-    await this.kafkaProducer.publish('bankcore.notifications.employee', {
+    await this.kafkaProducer.publish(TOPICS.NOTIFICATIONS_EMPLOYEE, {
       type: 'TRANSACTION_CREATED',
       title: 'New Transaction Requires Review',
       body: `Transaction ${transaction.referenceNumber} for ${transaction.amount} ${transaction.currency} requires employee review.`,
@@ -274,7 +275,7 @@ export class TransactionService {
       });
 
       if (transaction.debitAccount && transaction.debitAccount.userId) {
-        await this.kafkaProducer.publish(`bankcore.notifications.customer.${transaction.debitAccount.userId}`, {
+        await this.kafkaProducer.publish(TOPICS.notificationsCustomer(transaction.debitAccount.userId), {
           type: 'TRANSACTION_STATUS_UPDATED',
           title: 'Transaction Status Updated',
           body: `Your transaction status is now ${nextStatus}.`,
@@ -282,7 +283,7 @@ export class TransactionService {
         });
       }
 
-      await this.kafkaProducer.publish('bankcore.domain.events', {
+      await this.kafkaProducer.publish(TOPICS.DOMAIN_EVENTS, {
         eventType: 'transaction.updated',
         payload: {
           transactionId: transaction.id,

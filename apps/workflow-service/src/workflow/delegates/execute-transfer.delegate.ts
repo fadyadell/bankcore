@@ -1,3 +1,4 @@
+import { TOPICS } from '@bankcore/contracts';
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@bankcore/database';
 import { AuditLogService } from '@bankcore/common';
@@ -53,7 +54,7 @@ export class ExecuteTransferDelegate {
       metadata: { actorId: 'SYSTEM' }
     });
 
-    await this.kafkaProducer.publish('bankcore.transaction.completed', {
+    await this.kafkaProducer.publish(TOPICS.TRANSACTION_COMPLETED, {
       entityId: transactionId,
       debitAccountId: transaction.debitAccountId,
       creditAccountId: transaction.creditAccountId,
