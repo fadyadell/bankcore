@@ -9,6 +9,7 @@
 .nx/workspace-data
 # compiled output
 dist
+libs/*/dist
 tmp
 out-tsc
 
