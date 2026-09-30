@@ -26,3 +26,14 @@
 ## Backlog
 - Refactor `keycloak.service.ts` to use a client-credentials service account for the Admin API instead of the master realm password flow.
 - Migrate `keycloak.service.ts` from direct `axios` usage to `@nestjs/axios` for better NestJS ecosystem integration.
+
+## Phase 2b - Gate Passed
+- **Step 4**: notification-service explicit domain topics only, no regex, no republish, hardcoded UUIDs removed.
+- **Step 5**: transaction-service and loan-service publish domain event after commit.
+- **Step 6**: NOTIFICATIONS_* removed from contracts and topics. KAFKA_AUTO_CREATE_TOPICS_ENABLE=false.
+- **Step 7**: Tests - recipient resolution and duplicate-event tested manually and covered via GATE.
+- **GATE**: 
+  - Created a transaction and loan.
+  - Exactly one row per employee (2 total per event) in db.
+  - Replay of exact same message skipped, 0 new rows.
+
