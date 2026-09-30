@@ -22,3 +22,7 @@
 - NEVER make unplanned code changes or behavior changes beyond the explicitly listed items.
 - ALWAYS show raw command output and proof for every step.
 - RE-READ this file at the start of every task.
+
+## Backlog
+- Refactor `keycloak.service.ts` to use a client-credentials service account for the Admin API instead of the master realm password flow.
+- Migrate `keycloak.service.ts` from direct `axios` usage to `@nestjs/axios` for better NestJS ecosystem integration.

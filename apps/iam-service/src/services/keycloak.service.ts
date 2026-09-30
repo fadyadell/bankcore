@@ -1,5 +1,7 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
+import axios from 'axios';
+import * as crypto from 'crypto';
 import { keycloakConfig } from '../config/keycloak.config';
 
 @Injectable()
@@ -20,8 +22,6 @@ export class KeycloakService {
     params.append('password', this.config.adminPassword);
 
     try {
-      // @ts-ignore
-      const axios = require('axios').default || require('axios');
       const response = await axios.post(tokenUrl, params, {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       });
@@ -38,8 +38,6 @@ export class KeycloakService {
     const usersUrl = `${this.config.authServerUrl}/admin/realms/${this.config.realm}/users`;
 
     try {
-      // @ts-ignore
-      const axios = require('axios').default || require('axios');
       const response = await axios.post(
         usersUrl,
         {
@@ -52,7 +50,7 @@ export class KeycloakService {
           credentials: [
             {
               type: 'password',
-              value: password || 'Customer@123',
+              value: password || crypto.randomUUID(),
               temporary: false,
             },
           ],
@@ -65,24 +63,27 @@ export class KeycloakService {
       // Get user ID from Location header
       const location = response.headers.location;
       if (location) {
-        return location.split('/').pop() || `kc-${Date.now()}`;
+        const id = location.split('/').pop();
+        if (id) return id;
       }
 
       // If location header is not present (e.g. proxy stripped it), find by email
       const getResponse = await axios.get(`${usersUrl}?email=${email}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      return getResponse.data[0]?.id || `kc-${Date.now()}`;
+      const id = getResponse.data[0]?.id;
+      if (!id) throw new Error(`Could not determine Keycloak ID for user ${email}`);
+      return id;
     } catch (error: any) {
       this.logger.error('Failed to create user in Keycloak', error.response?.data || error.message);
       if (error.response?.status === 409) {
         // User exists, find their ID
-        // @ts-ignore
-        const axios = require('axios').default || require('axios');
         const getResponse = await axios.get(`${usersUrl}?email=${email}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        return getResponse.data[0]?.id || `kc-${Date.now()}`;
+        const id = getResponse.data[0]?.id;
+        if (!id) throw new Error(`Could not determine Keycloak ID for user ${email} after 409 conflict`);
+        return id;
       }
       throw error;
     }
