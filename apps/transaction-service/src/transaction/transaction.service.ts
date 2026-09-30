@@ -284,23 +284,7 @@ export class TransactionService {
         }
       });
 
-      if (nextStatus === TransactionStatus.PROCESSING) {
-        await this.kafkaProducer.publish(TOPICS.TRANSACTION_APPROVED, {
-          transactionId: transaction.id,
-          userId: transaction.debitAccount?.userId,
-        });
-      } else if (nextStatus === TransactionStatus.COMPLETED) {
-        await this.kafkaProducer.publish(TOPICS.TRANSACTION_COMPLETED, {
-          transactionId: transaction.id,
-          userId: transaction.debitAccount?.userId,
-        });
-      } else if (nextStatus === TransactionStatus.FAILED) {
-        await this.kafkaProducer.publish(TOPICS.TRANSACTION_REJECTED, {
-          transactionId: transaction.id,
-          userId: transaction.debitAccount?.userId,
-          reason: dto.decision === 'REJECTED' ? dto.reason : 'Failed',
-        });
-      }
+
 
       return updatedTx;
     });

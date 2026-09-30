@@ -18,10 +18,7 @@ export class VerifyTaxDelegate {
 
       this.logger.log(`Tax verification successful for loan: ${loanId}`);
       
-      await this.kafkaProducer.publish(TOPICS.DOMAIN_EVENTS, {
-        eventType: 'loan.verification.tax.completed',
-        payload: { loanId, status: 'SUCCESS' },
-      });
+
     } catch (error: unknown) {
       this.logger.error(`Tax verification failed: ${error instanceof Error ? error.message : String(error)}`);
       throw new HttpException({

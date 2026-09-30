@@ -214,18 +214,7 @@ export class LoanService {
         metadata: { actorId: userDb.id, after: updatedLoan },
       });
 
-      if (nextStatus === 'APPROVED' as any) {
-        await this.kafkaProducer.publish(TOPICS.LOAN_APPROVED, {
-          loanId: loan.id,
-          userId: loan.userId,
-        });
-      } else if (nextStatus === 'REJECTED' as any) {
-        await this.kafkaProducer.publish(TOPICS.LOAN_REJECTED, {
-          loanId: loan.id,
-          userId: loan.userId,
-          reason: dto.decision === 'REJECTED' ? dto.reason : 'Failed',
-        });
-      }
+
 
       return updatedLoan;
     });

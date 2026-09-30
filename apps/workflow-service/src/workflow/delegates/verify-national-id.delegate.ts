@@ -21,10 +21,7 @@ export class VerifyNationalIdDelegate {
 
       this.logger.log(`National ID verification successful for loan: ${loanId}`);
       
-      await this.kafkaProducer.publish(TOPICS.DOMAIN_EVENTS, {
-        eventType: 'loan.verification.national_id.completed',
-        payload: { loanId, status: 'SUCCESS' },
-      });
+
     } catch (error: unknown) {
       this.logger.error(`National ID verification failed: ${error instanceof Error ? error.message : String(error)}`);
       // Throw an HTTP 400 with a specific error so Flowable triggers VERIFICATION_FAILED boundary event
