@@ -1,5 +1,6 @@
 import { Injectable, Inject, OnModuleInit, Logger } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class KafkaProducerService implements OnModuleInit {
@@ -16,7 +17,13 @@ export class KafkaProducerService implements OnModuleInit {
   }
 
   async publish(topic: string, event: any): Promise<void> {
-    this.logger.log(`Emitting event to topic ${topic}`);
-    this.client.emit(topic, event);
+    const enrichedEvent = {
+      eventId: randomUUID(),
+      eventType: topic,
+      occurredAt: new Date().toISOString(),
+      ...event,
+    };
+    this.logger.log(`Emitting event to topic ${topic} with eventId ${enrichedEvent.eventId}`);
+    this.client.emit(topic, enrichedEvent);
   }
 }
