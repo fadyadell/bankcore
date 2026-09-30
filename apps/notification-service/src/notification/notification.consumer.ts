@@ -2,7 +2,6 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Kafka } from 'kafkajs';
 import { NotificationService } from './notification.service';
 import { EmailService } from '../channels/email.service';
-import { SmsService } from '../channels/sms.service';
 import { TOPICS } from '@bankcore/contracts';
 
 @Injectable()
@@ -12,7 +11,6 @@ export class NotificationConsumer implements OnModuleInit {
   constructor(
     private readonly notificationService: NotificationService,
     private readonly emailService: EmailService,
-    private readonly smsService: SmsService,
   ) {}
 
   async onModuleInit() {

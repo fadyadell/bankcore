@@ -3,7 +3,7 @@ import { Injectable, NotFoundException, BadRequestException, ForbiddenException 
 import { PrismaService } from '@bankcore/database';
 import { AuditLogService, PaginationDto, generateReferenceNumber } from '@bankcore/common';
 import { KafkaProducerService } from '@bankcore/kafka';
-import axios from 'axios';
+
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 
 import { JwtPayload } from '@bankcore/common';
