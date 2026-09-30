@@ -9,6 +9,7 @@ import { ForbiddenException, NotFoundException, BadRequestException } from '@nes
 describe('TransactionService', () => {
   let service: TransactionService;
   let prismaService: jest.Mocked<PrismaService>;
+  let module: TestingModule;
 
   beforeEach(async () => {
     prismaService = {
@@ -25,7 +26,7 @@ describe('TransactionService', () => {
       },
     } as any;
 
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       providers: [
         TransactionService,
         { provide: PrismaService, useValue: prismaService },
@@ -58,9 +59,17 @@ describe('TransactionService', () => {
       { id: 'acc-1', userId: 'user-1', balance: 1000 }
     ]);
     prismaService.account.findUnique.mockResolvedValue({ id: 'acc-2' } as any);
-    (prismaService.transaction.create as jest.Mock) = jest.fn().mockResolvedValue({ id: 'txn-1' });
+    (prismaService.transaction.create as jest.Mock) = jest.fn().mockResolvedValue({ id: 'txn-1', amount: 100, currency: 'EGP', type: 'TRANSFER' });
 
-    const result = await service.createTransaction({ fromAccountId: 'acc-1', toAccountId: 'acc-2', amount: 100 }, { sub: 'kc-1' } as any);
+    const result = await service.createTransaction({ fromAccountId: 'acc-1', toAccountId: 'acc-2', amount: 100, currency: 'EGP' }, { sub: 'kc-1' } as any);
     expect(result.id).toBe('txn-1');
+
+    const kafkaService = module.get<KafkaProducerService>(KafkaProducerService);
+    expect(kafkaService.publish).toHaveBeenCalledWith('bankcore.transaction.created', expect.objectContaining({
+        transactionId: 'txn-1',
+        userId: 'user-1',
+        amount: 100,
+        currency: 'EGP'
+    }));
   });
 });
