@@ -2,25 +2,10 @@
   "name": "@bankcore/notification-service",
   "version": "0.0.1",
   "private": true,
-  "scripts": { "start": "node dist/main.js" },
-  "nx": {
-    "name": "notification-service",
-    "targets": {
-      "build": {
-        "executor": "@nx/js:tsc",
-        "outputs": ["{options.outputPath}"],
-        "options": {
-          "outputPath": "apps/notification-service/dist",
-          "main": "apps/notification-service/src/main.ts",
-          "tsConfig": "apps/notification-service/tsconfig.app.json",
-          "assets": []
-        }
-      },
-      "serve": {
-        "executor": "@nx/js:node",
-        "options": { "buildTarget": "notification-service:build" }
-      }
-    }
+  "scripts": {
+    "start": "node dist/main.js"
   },
-  "dependencies": { "tslib": "^2.3.0" }
+  "dependencies": {
+    "tslib": "^2.3.0"
+  }
 }

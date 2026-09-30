@@ -33,13 +33,22 @@ export class TransactionService {
     private readonly ledgerService: LedgerService,
   ) {}
 
-  private async resolveCustomerUserId(keycloakSub: string) {
-    const user = await this.prisma.user.findUnique({ where: { keycloakId: keycloakSub } });
-    return user;
+  private async resolveCustomerUserId(currentUser: JwtPayload) {
+    let userDb = await this.prisma.user.findUnique({ where: { keycloakId: currentUser.sub } });
+    if (!userDb && currentUser.email) {
+      userDb = await this.prisma.user.findUnique({ where: { email: currentUser.email } });
+      if (userDb) {
+        userDb = await this.prisma.user.update({
+          where: { id: userDb.id },
+          data: { keycloakId: currentUser.sub }
+        });
+      }
+    }
+    return userDb;
   }
 
   async createTransaction(dto: CreateTransactionDto, currentUser: JwtPayload) {
-    const userDb = await this.resolveCustomerUserId(currentUser.sub);
+    const userDb = await this.resolveCustomerUserId(currentUser);
     if (!userDb) {
       throw new ForbiddenException('User is not a registered customer');
     }
@@ -107,24 +116,22 @@ export class TransactionService {
     });
 
     try {
-      const workflowServiceUrl = process.env.WORKFLOW_SERVICE_URL || 'http://localhost:3007';
-      await axios.post(`${workflowServiceUrl}/workflows/transaction/${transaction.id}/start`);
+      await this.kafkaProducer.publish(TOPICS.TRANSACTION_CREATED, {
+        transactionId: transaction.id,
+        userId: userDb.id,
+        amount: transaction.amount,
+        currency: transaction.currency,
+        type: transaction.type,
+      });
     } catch (e) {
       console.error(e);
     }
-
-    await this.kafkaProducer.publish(TOPICS.NOTIFICATIONS_EMPLOYEE, {
-      type: 'TRANSACTION_CREATED',
-      title: 'New Transaction Requires Review',
-      body: `Transaction ${transaction.referenceNumber} for ${transaction.amount} ${transaction.currency} requires employee review.`,
-      metadata: { transactionId: transaction.id },
-    });
 
     return transaction;
   }
 
   async findAll(currentUser: JwtPayload, pagination: PaginationDto) {
-    const userDb = await this.resolveCustomerUserId(currentUser.sub);
+    const userDb = await this.resolveCustomerUserId(currentUser);
     if (!userDb) throw new ForbiddenException('User not found');
 
     const skip = ((pagination.page || 1) - 1) * (pagination.limit || 20);
@@ -170,7 +177,7 @@ export class TransactionService {
     const isEmployeeOrAdmin = roles.includes('employee') || roles.includes('admin');
 
     if (!isEmployeeOrAdmin) {
-      const userDb = await this.resolveCustomerUserId(currentUser.sub);
+      const userDb = await this.resolveCustomerUserId(currentUser);
       if (!userDb || transaction.debitAccount?.userId !== userDb.id) {
         throw new ForbiddenException('You do not have access to this transaction');
       }
@@ -180,7 +187,7 @@ export class TransactionService {
   }
 
   async reviewTransaction(id: string, dto: ReviewTransactionDto, currentUser: JwtPayload) {
-    const userDb = await this.prisma.user.findUnique({ where: { keycloakId: currentUser.sub } });
+    const userDb = await this.resolveCustomerUserId(currentUser);
     if (!userDb) throw new ForbiddenException('User not found in DB');
 
     const roles = currentUser.realm_access?.roles || [];
@@ -277,24 +284,23 @@ export class TransactionService {
         }
       });
 
-      if (transaction.debitAccount && transaction.debitAccount.userId) {
-        await this.kafkaProducer.publish(TOPICS.notificationsCustomer(transaction.debitAccount.userId), {
-          type: 'TRANSACTION_STATUS_UPDATED',
-          title: 'Transaction Status Updated',
-          body: `Your transaction status is now ${nextStatus}.`,
-          metadata: { transactionId: transaction.id, status: nextStatus },
+      if (nextStatus === TransactionStatus.PROCESSING) {
+        await this.kafkaProducer.publish(TOPICS.TRANSACTION_APPROVED, {
+          transactionId: transaction.id,
+          userId: transaction.debitAccount?.userId,
+        });
+      } else if (nextStatus === TransactionStatus.COMPLETED) {
+        await this.kafkaProducer.publish(TOPICS.TRANSACTION_COMPLETED, {
+          transactionId: transaction.id,
+          userId: transaction.debitAccount?.userId,
+        });
+      } else if (nextStatus === TransactionStatus.FAILED) {
+        await this.kafkaProducer.publish(TOPICS.TRANSACTION_REJECTED, {
+          transactionId: transaction.id,
+          userId: transaction.debitAccount?.userId,
+          reason: dto.decision === 'REJECTED' ? dto.reason : 'Failed',
         });
       }
-
-      await this.kafkaProducer.publish(TOPICS.DOMAIN_EVENTS, {
-        eventType: 'transaction.updated',
-        payload: {
-          transactionId: transaction.id,
-          status: nextStatus,
-          userId: transaction.debitAccount?.userId,
-          customerId: transaction.debitAccount?.userId, // using userId for backward compat or if needed
-        },
-      });
 
       return updatedTx;
     });

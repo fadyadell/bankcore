@@ -54,7 +54,6 @@ export class NotificationService {
         type: data.type,
         subject: data.subject,
         body: data.body,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         metadata: (data.metadata as any) ?? undefined,
         status: 'PENDING',
       },

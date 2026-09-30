@@ -3,7 +3,7 @@ import { TransactionService } from './transaction.service';
 import { PrismaService } from '@bankcore/database';
 import { AuditLogService } from '@bankcore/common';
 import { KafkaProducerService } from '@bankcore/kafka';
-import { LedgerService } from './ledger.service';
+import { LedgerService } from '../ledger/ledger.service';
 import { ForbiddenException, NotFoundException, BadRequestException } from '@nestjs/common';
 
 describe('TransactionService', () => {

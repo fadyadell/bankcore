@@ -31,7 +31,7 @@ export class AppService {
 
     this.logger.log(`Loan finalized: ${updated.referenceNumber}`);
 
-    // In a full flow we might also notify via RabbitMQ or Kafka here
+    // In a full flow we might also notify via Kafka here
     return updated;
   }
 }

@@ -34,12 +34,6 @@
     },
     {
       "path": "../../libs/kafka/tsconfig.lib.json"
-    },
-    {
-      "path": "../../libs/rabbitmq/tsconfig.lib.json"
-    },
-    {
-      "path": "../../libs/rules/tsconfig.lib.json"
     }
   ],
   "exclude": [

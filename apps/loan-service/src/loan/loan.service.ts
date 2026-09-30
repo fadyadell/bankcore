@@ -18,12 +18,22 @@ export class LoanService {
     private readonly kafkaProducer: KafkaProducerService,
   ) {}
 
-  private async resolveUserId(keycloakSub: string) {
-    return this.prisma.user.findUnique({ where: { keycloakId: keycloakSub } });
+  private async resolveUserId(currentUser: JwtPayload) {
+    let userDb = await this.prisma.user.findUnique({ where: { keycloakId: currentUser.sub } });
+    if (!userDb && currentUser.email) {
+      userDb = await this.prisma.user.findUnique({ where: { email: currentUser.email } });
+      if (userDb) {
+        userDb = await this.prisma.user.update({
+          where: { id: userDb.id },
+          data: { keycloakId: currentUser.sub }
+        });
+      }
+    }
+    return userDb;
   }
 
   async createLoan(dto: CreateLoanDto, currentUser: JwtPayload) {
-    const userDb = await this.resolveUserId(currentUser.sub);
+    const userDb = await this.resolveUserId(currentUser);
     if (!userDb) {
       throw new ForbiddenException('User is not registered');
     }
@@ -61,25 +71,22 @@ export class LoanService {
       metadata: { actorId: userDb.id, after: { loan, riskTier } },
     });
 
-    await this.kafkaProducer.publish(TOPICS.NOTIFICATIONS_EMPLOYEE, {
-      type: 'LOAN_APPLIED',
-      title: 'New Loan Application Requires Review',
-      body: `Loan application for ${loan.amount} over ${loan.termMonths} months requires employee review.`,
-      metadata: { loanId: loan.id },
-    });
-
     try {
-      const workflowServiceUrl = process.env.WORKFLOW_SERVICE_URL || 'http://localhost:3007';
-      await axios.post(`${workflowServiceUrl}/workflows/loan/${loan.id}/start`);
+      await this.kafkaProducer.publish(TOPICS.LOAN_APPLIED, {
+        loanId: loan.id,
+        userId: userDb.id,
+        amount: loan.amount,
+        currency: 'EGP',
+      });
     } catch (e) {
-      console.error('Failed to start loan workflow', e);
+      console.error('Failed to publish loan applied event', e);
     }
 
     return loan;
   }
 
   async findAll(currentUser: JwtPayload, pagination: PaginationDto) {
-    const userDb = await this.resolveUserId(currentUser.sub);
+    const userDb = await this.resolveUserId(currentUser);
     if (!userDb) throw new ForbiddenException('User not found');
 
     const skip = ((pagination.page || 1) - 1) * (pagination.limit || 20);
@@ -124,7 +131,7 @@ export class LoanService {
     const isEmployeeOrAdmin = roles.includes('EMPLOYEE') || roles.includes('ADMIN');
 
     if (!isEmployeeOrAdmin) {
-      const userDb = await this.resolveUserId(currentUser.sub);
+      const userDb = await this.resolveUserId(currentUser);
       if (!userDb || loan.userId !== userDb.id) {
         throw new ForbiddenException('You do not have access to this loan');
       }
@@ -134,7 +141,7 @@ export class LoanService {
   }
 
   async reviewLoan(id: string, dto: ReviewLoanDto, currentUser: JwtPayload) {
-    const userDb = await this.prisma.user.findUnique({ where: { keycloakId: currentUser.sub } });
+    const userDb = await this.resolveUserId(currentUser);
     if (!userDb) throw new ForbiddenException('User not found in DB');
 
     const roles = (currentUser.realm_access?.roles || []).map(r => r.toUpperCase());
@@ -207,21 +214,18 @@ export class LoanService {
         metadata: { actorId: userDb.id, after: updatedLoan },
       });
 
-      await this.kafkaProducer.publish(TOPICS.notificationsCustomer(loan.userId), {
-        type: 'LOAN_STATUS_UPDATED',
-        title: 'Loan Status Updated',
-        body: `Your loan status is now ${nextStatus}.`,
-        metadata: { loanId: loan.id, status: nextStatus },
-      });
-
-      await this.kafkaProducer.publish(TOPICS.DOMAIN_EVENTS, {
-        eventType: 'loan.updated',
-        payload: {
+      if (nextStatus === 'APPROVED' as any) {
+        await this.kafkaProducer.publish(TOPICS.LOAN_APPROVED, {
           loanId: loan.id,
-          status: nextStatus,
           userId: loan.userId,
-        },
-      });
+        });
+      } else if (nextStatus === 'REJECTED' as any) {
+        await this.kafkaProducer.publish(TOPICS.LOAN_REJECTED, {
+          loanId: loan.id,
+          userId: loan.userId,
+          reason: dto.decision === 'REJECTED' ? dto.reason : 'Failed',
+        });
+      }
 
       return updatedLoan;
     });

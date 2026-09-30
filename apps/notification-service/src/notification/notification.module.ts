@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { NotificationController } from './notification.controller';
 import { NotificationService } from './notification.service';
-import { KafkaConsumerService } from './kafka-consumer.service';
 import { NotificationConsumer } from './notification.consumer';
 import { EmailService } from '../channels/email.service';
 import { SmsService } from '../channels/sms.service';
@@ -11,7 +10,7 @@ import { KafkaModule } from '@bankcore/kafka';
 @Module({
   imports: [DatabaseModule, KafkaModule],
   controllers: [NotificationController],
-  providers: [NotificationService, KafkaConsumerService, NotificationConsumer, EmailService, SmsService],
+  providers: [NotificationService, NotificationConsumer, EmailService, SmsService],
   exports: [NotificationService],
 })
 export class NotificationModule {}

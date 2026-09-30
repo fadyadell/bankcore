@@ -56,9 +56,6 @@ export class WorkflowService implements OnModuleInit {
       where: { id: transactionId },
       data: { metadata: { flowableProcessId: processInstanceId } }
     });
-
-    await this.kafkaProducer.publish(TOPICS.TRANSACTION_CREATED, { entityId: transactionId });
-
     return processInstanceId;
   }
 
@@ -68,9 +65,6 @@ export class WorkflowService implements OnModuleInit {
       decision: ''
     });
 
-
-
-    await this.kafkaProducer.publish(TOPICS.LOAN_APPLIED, { entityId: loanId });
 
     return processInstanceId;
   }
@@ -100,7 +94,16 @@ export class WorkflowService implements OnModuleInit {
   }
 
   async completeTask(taskId: string, dto: CompleteTaskDto, currentUser: CurrentUserPayload): Promise<void> {
-    const user = await this.prisma.user.findUnique({ where: { keycloakId: currentUser.sub } });
+    let user = await this.prisma.user.findUnique({ where: { keycloakId: currentUser.sub } });
+    if (!user && currentUser.email) {
+      user = await this.prisma.user.findUnique({ where: { email: currentUser.email } });
+      if (user) {
+        user = await this.prisma.user.update({
+          where: { id: user.id },
+          data: { keycloakId: currentUser.sub }
+        });
+      }
+    }
     if (!user) throw new BadRequestException('User not found');
 
     const task = await this.flowableClient.getTask(taskId) as { processInstanceId: string, taskDefinitionKey: string };
