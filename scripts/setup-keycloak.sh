@@ -70,69 +70,77 @@ else
     }'
 fi
 
-# Function to ensure user exists, has correct attributes, and assigned role
-ensure_user() {
-  local USERNAME=$1
-  local PASSWORD=$2
-  local ROLE=$3
-  local EMAIL=$4
-
-  echo "Ensuring user $USERNAME..."
-  
-  # Try to create user first (ignore error if exists)
-  curl -s -X POST "$KEYCLOAK_URL/admin/realms/bankcore/users" \
-    -H "Authorization: Bearer $TOKEN" \
-    -H "Content-Type: application/json" \
-    -d "{
-      \"username\": \"$USERNAME\",
-      \"email\": \"$EMAIL\",
-      \"enabled\": true
-    }" > /dev/null
-
-  local USER_ID=$(curl -s -H "Authorization: Bearer $TOKEN" "$KEYCLOAK_URL/admin/realms/bankcore/users?username=$USERNAME" | jq -r '.[0].id')
-  
-  if [ "$USER_ID" == "null" ] || [ -z "$USER_ID" ]; then
-    echo "Failed to find or create user $USERNAME"
-    return 1
+echo "Deleting any existing seeded users before re-import..."
+for USERNAME in "admin" "employee" "employee2" "customer" "customer2"; do
+  USER_ID=$(curl -s -H "Authorization: Bearer $TOKEN" "$KEYCLOAK_URL/admin/realms/bankcore/users?username=$USERNAME" | jq -r '.[0].id')
+  if [ "$USER_ID" != "null" ] && [ -n "$USER_ID" ]; then
+    echo "Deleting existing user $USERNAME ($USER_ID)..."
+    curl -s -X DELETE -H "Authorization: Bearer $TOKEN" "$KEYCLOAK_URL/admin/realms/bankcore/users/$USER_ID" > /dev/null
   fi
+done
 
-  # Update user attributes using PUT
-  curl -s -X PUT "$KEYCLOAK_URL/admin/realms/bankcore/users/$USER_ID" \
-    -H "Authorization: Bearer $TOKEN" \
-    -H "Content-Type: application/json" \
-    -d "{
-      \"firstName\": \"$USERNAME\",
-      \"lastName\": \"Test\",
-      \"email\": \"$EMAIL\",
-      \"emailVerified\": true,
-      \"enabled\": true,
-      \"requiredActions\": []
-    }" > /dev/null
-
-  # Update password using PUT
-  curl -s -X PUT "$KEYCLOAK_URL/admin/realms/bankcore/users/$USER_ID/reset-password" \
-    -H "Authorization: Bearer $TOKEN" \
-    -H "Content-Type: application/json" \
-    -d "{
-      \"type\": \"password\",
-      \"value\": \"$PASSWORD\",
-      \"temporary\": false
-    }" > /dev/null
-
-  local ROLE_ID=$(curl -s -H "Authorization: Bearer $TOKEN" "$KEYCLOAK_URL/admin/realms/bankcore/roles/$ROLE" | jq -r '.id')
-  
-  echo "Assigning $ROLE role to $USERNAME..."
-  curl -s -X POST "$KEYCLOAK_URL/admin/realms/bankcore/users/$USER_ID/role-mappings/realm" \
-    -H "Authorization: Bearer $TOKEN" \
-    -H "Content-Type: application/json" \
-    -d "[{
-      \"id\": \"$ROLE_ID\",
-      \"name\": \"$ROLE\"
-    }]" > /dev/null
-}
-
-ensure_user "admin" "admin" "ADMIN" "admin@bankcore.local"
-ensure_user "employee" "employee" "EMPLOYEE" "employee@bankcore.local"
-ensure_user "customer" "customer" "CUSTOMER" "customer@bankcore.local"
+echo "Importing seeded users with fixed IDs..."
+curl -s -X POST "$KEYCLOAK_URL/admin/realms/bankcore/partialImport" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "users": [
+    {
+      "id": "11111111-1111-1111-1111-111111111111",
+      "username": "admin",
+      "email": "admin@bankcore.local",
+      "firstName": "BankCore",
+      "lastName": "Admin",
+      "enabled": true,
+      "emailVerified": true,
+      "realmRoles": ["ADMIN"],
+      "credentials": [{"type": "password", "value": "admin", "temporary": false}]
+    },
+    {
+      "id": "11111111-1111-1111-1111-111111111112",
+      "username": "employee",
+      "email": "employee@bankcore.local",
+      "firstName": "BankCore",
+      "lastName": "Employee",
+      "enabled": true,
+      "emailVerified": true,
+      "realmRoles": ["EMPLOYEE"],
+      "credentials": [{"type": "password", "value": "employee", "temporary": false}]
+    },
+    {
+      "id": "11111111-1111-1111-1111-111111111113",
+      "username": "employee2",
+      "email": "employee2@bankcore.local",
+      "firstName": "BankCore",
+      "lastName": "Employee2",
+      "enabled": true,
+      "emailVerified": true,
+      "realmRoles": ["EMPLOYEE"],
+      "credentials": [{"type": "password", "value": "employee2", "temporary": false}]
+    },
+    {
+      "id": "11111111-1111-1111-1111-111111111114",
+      "username": "customer",
+      "email": "customer@bankcore.local",
+      "firstName": "BankCore",
+      "lastName": "Customer",
+      "enabled": true,
+      "emailVerified": true,
+      "realmRoles": ["CUSTOMER"],
+      "credentials": [{"type": "password", "value": "customer", "temporary": false}]
+    },
+    {
+      "id": "11111111-1111-1111-1111-111111111115",
+      "username": "customer2",
+      "email": "customer2@bankcore.local",
+      "firstName": "BankCore",
+      "lastName": "Customer2",
+      "enabled": true,
+      "emailVerified": true,
+      "realmRoles": ["CUSTOMER"],
+      "credentials": [{"type": "password", "value": "customer2", "temporary": false}]
+    }
+  ]
+}' > /dev/null
 
 echo "Setup complete!"

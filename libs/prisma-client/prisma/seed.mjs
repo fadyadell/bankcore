@@ -3,9 +3,13 @@ import { PrismaClient, Prisma } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const ids = {
+  // DEV ONLY - Fixed IDs for local testing bridging Keycloak and PostgreSQL
   users: {
     admin: '11111111-1111-1111-1111-111111111111',
-    customer: '11111111-1111-1111-1111-111111111112',
+    employee: '11111111-1111-1111-1111-111111111112',
+    employee2: '11111111-1111-1111-1111-111111111113',
+    customer: '11111111-1111-1111-1111-111111111114',
+    customer2: '11111111-1111-1111-1111-111111111115',
   },
   accounts: {
     adminOps: '22222222-2222-2222-2222-222222222221',
@@ -34,38 +38,26 @@ async function clearData() {
 }
 
 async function seedUsers() {
-  await prisma.user.create({
-    data: {
-      id: ids.users.admin,
-      keycloakId: 'kc-admin',
-      email: 'admin@bankcore.local',
-      firstName: 'BankCore',
-      lastName: 'Admin',
-      phone: '+10000000001',
-      kycStatus: 'VERIFIED',
-      status: 'ACTIVE',
-    },
-  });
-
-  const customers = [
-    { id: ids.users.customer, kc: 'kc-customer-1', email: 'ahmed@bankcore.local', first: 'Ahmed', last: 'Hassan', phone: '+201000000001' },
-    { id: '11111111-1111-1111-1111-111111111113', kc: 'kc-customer-2', email: 'fady@bankcore.local', first: 'Fady', last: 'Adel', phone: '+201000000002' },
-    { id: '11111111-1111-1111-1111-111111111114', kc: 'kc-customer-3', email: 'sara@bankcore.local', first: 'Sara', last: 'Tarek', phone: '+201000000003' },
-    { id: '11111111-1111-1111-1111-111111111115', kc: 'kc-customer-4', email: 'mona@bankcore.local', first: 'Mona', last: 'Zaki', phone: '+201000000004' },
-    { id: '11111111-1111-1111-1111-111111111116', kc: 'kc-customer-5', email: 'youssef@bankcore.local', first: 'Youssef', last: 'Ali', phone: '+201000000005' },
+  const users = [
+    { id: ids.users.admin, email: 'admin@bankcore.local', first: 'BankCore', last: 'Admin', phone: '+10000000001', role: 'ADMIN' },
+    { id: ids.users.employee, email: 'employee@bankcore.local', first: 'BankCore', last: 'Employee', phone: '+10000000002', role: 'EMPLOYEE' },
+    { id: ids.users.employee2, email: 'employee2@bankcore.local', first: 'BankCore', last: 'Employee2', phone: '+10000000003', role: 'EMPLOYEE' },
+    { id: ids.users.customer, email: 'customer@bankcore.local', first: 'BankCore', last: 'Customer', phone: '+201000000001', role: 'CUSTOMER' },
+    { id: ids.users.customer2, email: 'customer2@bankcore.local', first: 'BankCore', last: 'Customer2', phone: '+201000000002', role: 'CUSTOMER' },
   ];
 
-  for (const c of customers) {
+  for (const u of users) {
     await prisma.user.create({
       data: {
-        id: c.id,
-        keycloakId: c.kc,
-        email: c.email,
-        firstName: c.first,
-        lastName: c.last,
-        phone: c.phone,
+        id: u.id,
+        keycloakId: u.id, // DEV ONLY - Keycloak ID matches PostgreSQL UUID
+        email: u.email,
+        firstName: u.first,
+        lastName: u.last,
+        phone: u.phone,
         kycStatus: 'VERIFIED',
         status: 'ACTIVE',
+        role: u.role,
       },
     });
   }
@@ -87,10 +79,7 @@ async function seedAccounts() {
 
   const accounts = [
     { id: ids.accounts.customerSavings, accNum: '1000000002', userId: ids.users.customer, bal: '25430.00' },
-    { id: '22222222-2222-2222-2222-222222222223', accNum: '1000000003', userId: '11111111-1111-1111-1111-111111111113', bal: '8500.00' },
-    { id: '22222222-2222-2222-2222-222222222224', accNum: '1000000004', userId: '11111111-1111-1111-1111-111111111114', bal: '42000.00' },
-    { id: '22222222-2222-2222-2222-222222222225', accNum: '1000000005', userId: '11111111-1111-1111-1111-111111111115', bal: '1500.00' },
-    { id: '22222222-2222-2222-2222-222222222226', accNum: '1000000006', userId: '11111111-1111-1111-1111-111111111116', bal: '112000.00' },
+    { id: '22222222-2222-2222-2222-222222222223', accNum: '1000000003', userId: ids.users.customer2, bal: '8500.00' },
   ];
 
   for (const a of accounts) {
@@ -113,9 +102,6 @@ async function seedTransactionsAndLedger() {
   const transactions = [
     { id: ids.transactions.initialDeposit, ref: 'TXN-INIT-000001', accId: ids.accounts.customerSavings, amt: '25430.00' },
     { id: '33333333-3333-3333-3333-333333333332', ref: 'TXN-INIT-000002', accId: '22222222-2222-2222-2222-222222222223', amt: '8500.00' },
-    { id: '33333333-3333-3333-3333-333333333333', ref: 'TXN-INIT-000003', accId: '22222222-2222-2222-2222-222222222224', amt: '42000.00' },
-    { id: '33333333-3333-3333-3333-333333333334', ref: 'TXN-INIT-000004', accId: '22222222-2222-2222-2222-222222222225', amt: '1500.00' },
-    { id: '33333333-3333-3333-3333-333333333335', ref: 'TXN-INIT-000005', accId: '22222222-2222-2222-2222-222222222226', amt: '112000.00' },
   ];
 
   for (const t of transactions) {
