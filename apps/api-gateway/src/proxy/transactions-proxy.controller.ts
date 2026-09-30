@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Param,
-  Body,
   Query,
   Req,
 } from '@nestjs/common';
@@ -54,13 +53,12 @@ export class TransactionsProxyController {
   @Post()
   @ApiOperation({ summary: 'Create a transaction' })
   async createTransaction(
-    @Body() body: unknown,
     @Req() req: Request,
   ): Promise<unknown> {
     return this.proxy.forward('transaction', {
       method: 'POST',
       path: '/transactions',
-      body,
+      body: req.body,
       headers: {
         [CORRELATION_ID_HEADER]: req.headers[CORRELATION_ID_HEADER] as string,
         'idempotency-key': req.headers['idempotency-key'] as string,

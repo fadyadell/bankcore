@@ -28,9 +28,7 @@ export class CacheModule {
   }
 
   static forRootAsync(optionsFactory: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     useFactory: (...args: any[]) => CacheModuleOptions | Promise<CacheModuleOptions>;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     inject?: any[];
   }): DynamicModule {
     return {

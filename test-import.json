@@ -1,0 +1,18 @@
+{
+  "users": [
+    {
+      "id": "44444444-4444-4444-4444-444444444444",
+      "username": "throwaway4",
+      "email": "throwaway4@bankcore.local",
+      "enabled": true,
+      "realmRoles": ["CUSTOMER"],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "customer",
+          "temporary": false
+        }
+      ]
+    }
+  ]
+}

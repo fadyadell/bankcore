@@ -17,9 +17,6 @@
     "dist",
     "!**/*.tsbuildinfo"
   ],
-  "nx": {
-    "name": "prisma-client"
-  },
   "dependencies": {
     "tslib": "^2.3.0"
   }

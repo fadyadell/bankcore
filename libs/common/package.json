@@ -17,9 +17,6 @@
     "dist",
     "!**/*.tsbuildinfo"
   ],
-  "nx": {
-    "name": "common"
-  },
   "dependencies": {
     "@nestjs/common": "^11.0.0",
     "class-transformer": "^0.5.1",

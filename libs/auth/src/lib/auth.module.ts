@@ -31,9 +31,7 @@ export class AuthModule {
   }
 
   static forRootAsync(optionsFactory: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     useFactory: (...args: any[]) => AuthModuleOptions | Promise<AuthModuleOptions>;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     inject?: any[];
   }): DynamicModule {
     return {

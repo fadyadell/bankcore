@@ -1,7 +1,6 @@
 import {
   Controller,
   Post,
-  Body,
   Req,
   HttpCode,
   HttpStatus,
@@ -21,13 +20,13 @@ export class AuthProxyController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'User login via Keycloak' })
   async login(
-    @Body() body: { username: string; password: string },
+    
     @Req() req: Request,
   ): Promise<unknown> {
     return this.proxy.forward('iam', {
       method: 'POST',
       path: '/auth/login',
-      body,
+      body: req.body,
       headers: {
         [CORRELATION_ID_HEADER]: req.headers[CORRELATION_ID_HEADER] as string,
       },
@@ -39,13 +38,13 @@ export class AuthProxyController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Refresh access token' })
   async refresh(
-    @Body() body: { refreshToken: string },
+    
     @Req() req: Request,
   ): Promise<unknown> {
     return this.proxy.forward('iam', {
       method: 'POST',
       path: '/auth/refresh',
-      body,
+      body: req.body,
       headers: {
         [CORRELATION_ID_HEADER]: req.headers[CORRELATION_ID_HEADER] as string,
       },
@@ -56,13 +55,13 @@ export class AuthProxyController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Logout and invalidate token' })
   async logout(
-    @Body() body: { refreshToken: string },
+    
     @Req() req: Request,
   ): Promise<unknown> {
     return this.proxy.forward('iam', {
       method: 'POST',
       path: '/auth/logout',
-      body,
+      body: req.body,
       headers: {
         [CORRELATION_ID_HEADER]: req.headers[CORRELATION_ID_HEADER] as string,
         authorization: req.headers['authorization'] as string,

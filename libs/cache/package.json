@@ -17,9 +17,6 @@
     "dist",
     "!**/*.tsbuildinfo"
   ],
-  "nx": {
-    "name": "cache"
-  },
   "dependencies": {
     "tslib": "^2.3.0"
   }

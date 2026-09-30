@@ -6,12 +6,22 @@ import { PaginationDto, JwtPayload } from '@bankcore/common';
 export class AccountService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private async resolveCustomerUserId(keycloakSub: string) {
-    return this.prisma.user.findUnique({ where: { keycloakId: keycloakSub } });
+  private async resolveCustomerUserId(currentUser: JwtPayload) {
+    let userDb = await this.prisma.user.findUnique({ where: { keycloakId: currentUser.sub } });
+    if (!userDb && currentUser.email) {
+      userDb = await this.prisma.user.findUnique({ where: { email: currentUser.email } });
+      if (userDb) {
+        userDb = await this.prisma.user.update({
+          where: { id: userDb.id },
+          data: { keycloakId: currentUser.sub }
+        });
+      }
+    }
+    return userDb;
   }
 
   async getMyAccounts(currentUser: JwtPayload) {
-    const userDb = await this.resolveCustomerUserId(currentUser.sub);
+    const userDb = await this.resolveCustomerUserId(currentUser);
     if (!userDb) {
       throw new ForbiddenException('User is not a registered customer');
     }
@@ -26,7 +36,7 @@ export class AccountService {
   }
 
   async createAccount(currentUser: JwtPayload, dto: { type?: string; currency?: string }) {
-    const userDb = await this.resolveCustomerUserId(currentUser.sub);
+    const userDb = await this.resolveCustomerUserId(currentUser);
     if (!userDb) {
       throw new ForbiddenException('User is not a registered customer');
     }
@@ -60,7 +70,7 @@ export class AccountService {
     const isEmployeeOrAdmin = roles.includes('employee') || roles.includes('admin');
 
     if (!isEmployeeOrAdmin) {
-      const userDb = await this.resolveCustomerUserId(currentUser.sub);
+      const userDb = await this.resolveCustomerUserId(currentUser);
       if (!userDb || account.userId !== userDb.id) {
         throw new ForbiddenException('You do not have access to this account');
       }

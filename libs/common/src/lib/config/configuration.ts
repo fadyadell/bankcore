@@ -21,11 +21,7 @@ export interface InfrastructureConfig {
     broker: string;
     groupId: string;
   };
-  rabbitmq: {
-    host: string;
-    port: number;
-    user: string;
-  };
+
   keycloak: {
     baseUrl: string;
     realm: string;
@@ -68,11 +64,7 @@ export const bankcoreConfiguration = (): BankcoreConfiguration => ({
       broker: process.env['KAFKA_BROKER'] ?? 'localhost:9092',
       groupId: process.env['KAFKA_GROUP_ID'] ?? 'bankcore-consumers',
     },
-    rabbitmq: {
-      host: process.env['RABBITMQ_HOST'] ?? 'localhost',
-      port: toNumber(process.env['RABBITMQ_PORT'], 5672),
-      user: process.env['RABBITMQ_USER'] ?? 'bankcore',
-    },
+
     keycloak: {
       baseUrl: process.env['KEYCLOAK_BASE_URL'] ?? 'http://localhost:8080',
       realm: process.env['KEYCLOAK_REALM'] ?? 'bankcore',

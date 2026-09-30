@@ -1,5 +1,5 @@
 {
-  "name": "@bankcore/common",
+  "name": "@bankcore/kafka",
   "version": "0.0.1",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -17,9 +17,6 @@
     "dist",
     "!**/*.tsbuildinfo"
   ],
-  "nx": {
-    "name": "kafka"
-  },
   "dependencies": {
     "@nestjs/common": "^11.0.0",
     "class-transformer": "^0.5.1",

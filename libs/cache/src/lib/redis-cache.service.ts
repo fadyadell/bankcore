@@ -37,6 +37,8 @@ export class RedisCacheService implements OnModuleInit, OnModuleDestroy {
         return Math.min(times * 500, 3000);
       },
       lazyConnect: false,
+      enableOfflineQueue: false,
+      commandTimeout: 2000,
     });
 
     this.client.on('connect', () => this.logger.log('Redis connected'));
@@ -49,21 +51,30 @@ export class RedisCacheService implements OnModuleInit, OnModuleDestroy {
   }
 
   async get<T>(key: string): Promise<T | null> {
-    const value = await this.client.get(key);
-    if (!value) return null;
-
     try {
-      return JSON.parse(value) as T;
-    } catch {
-      return value as unknown as T;
+      const value = await this.client.get(key);
+      if (!value) return null;
+
+      try {
+        return JSON.parse(value) as T;
+      } catch {
+        return value as unknown as T;
+      }
+    } catch (e) {
+      this.logger.warn(`Redis GET failed for ${key}: ${(e as Error).message}`);
+      return null;
     }
   }
 
   async set(key: string, value: unknown, ttl?: number): Promise<void> {
-    const serialized = typeof value === 'string' ? value : JSON.stringify(value);
-    const expiry = ttl || this.defaultTtl;
+    try {
+      const serialized = typeof value === 'string' ? value : JSON.stringify(value);
+      const expiry = ttl || this.defaultTtl;
 
-    await this.client.setex(key, expiry, serialized);
+      await this.client.setex(key, expiry, serialized);
+    } catch (e) {
+      this.logger.warn(`Redis SET failed for ${key}: ${(e as Error).message}`);
+    }
   }
 
   async del(key: string): Promise<void> {

@@ -38,7 +38,7 @@
       ],
       "@bankcore/kafka": ["./libs/kafka/src/index.ts"],
       "@bankcore/contracts": [
-        "libs/contracts/src"
+        "./libs/contracts/src/index.ts"
       ],
       "@bankcore/contracts/*": [
         "libs/contracts/src/*"

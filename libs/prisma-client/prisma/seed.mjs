@@ -5,22 +5,22 @@ const prisma = new PrismaClient();
 const ids = {
   // DEV ONLY - Fixed IDs for local testing bridging Keycloak and PostgreSQL
   users: {
-    admin: '11111111-1111-1111-1111-111111111111',
-    employee: '11111111-1111-1111-1111-111111111112',
-    employee2: '11111111-1111-1111-1111-111111111113',
-    customer: '11111111-1111-1111-1111-111111111114',
-    customer2: '11111111-1111-1111-1111-111111111115',
+    admin: '11111111-1111-4111-a111-111111111111',
+    employee: '11111111-1111-4111-a111-111111111112',
+    employee2: '11111111-1111-4111-a111-111111111113',
+    customer: '11111111-1111-4111-a111-111111111114',
+    customer2: '11111111-1111-4111-a111-111111111115',
   },
   accounts: {
-    adminOps: '22222222-2222-2222-2222-222222222221',
-    customerSavings: '22222222-2222-2222-2222-222222222222',
+    adminOps: '22222222-2222-4222-a222-222222222221',
+    customerSavings: '22222222-2222-4222-a222-222222222222',
   },
   transactions: {
-    initialDeposit: '33333333-3333-3333-3333-333333333331',
+    initialDeposit: '33333333-3333-4333-a333-333333333331',
   },
   sagas: {
-    onboarding: '44444444-4444-4444-4444-444444444441',
-    onboardingStep1: '55555555-5555-5555-5555-555555555551',
+    onboarding: '44444444-4444-4444-a444-444444444441',
+    onboardingStep1: '55555555-5555-4555-a555-555555555551',
   },
 };
 
@@ -79,7 +79,7 @@ async function seedAccounts() {
 
   const accounts = [
     { id: ids.accounts.customerSavings, accNum: '1000000002', userId: ids.users.customer, bal: '25430.00' },
-    { id: '22222222-2222-2222-2222-222222222223', accNum: '1000000003', userId: ids.users.customer2, bal: '8500.00' },
+    { id: '22222222-2222-4222-a222-222222222223', accNum: '1000000003', userId: ids.users.customer2, bal: '8500.00' },
   ];
 
   for (const a of accounts) {
@@ -101,7 +101,7 @@ async function seedAccounts() {
 async function seedTransactionsAndLedger() {
   const transactions = [
     { id: ids.transactions.initialDeposit, ref: 'TXN-INIT-000001', accId: ids.accounts.customerSavings, amt: '25430.00' },
-    { id: '33333333-3333-3333-3333-333333333332', ref: 'TXN-INIT-000002', accId: '22222222-2222-2222-2222-222222222223', amt: '8500.00' },
+    { id: '33333333-3333-4333-a333-333333333332', ref: 'TXN-INIT-000002', accId: '22222222-2222-4222-a222-222222222223', amt: '8500.00' },
   ];
 
   for (const t of transactions) {
@@ -168,7 +168,7 @@ async function seedAuditAndNotifications() {
 async function seedIntegrationPatterns() {
   await prisma.outboxEvent.create({
     data: {
-      eventId: '66666666-6666-6666-6666-666666666661',
+      eventId: '66666666-6666-4666-a666-666666666661',
       aggregateType: 'Transaction',
       aggregateId: ids.transactions.initialDeposit,
       eventType: 'transaction.completed',

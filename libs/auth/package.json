@@ -20,9 +20,6 @@
     "dist",
     "!**/*.tsbuildinfo"
   ],
-  "nx": {
-    "name": "auth"
-  },
   "dependencies": {
     "tslib": "^2.3.0"
   }

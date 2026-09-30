@@ -26,9 +26,7 @@ export class AuditService {
           action: entry.action,
           resource: entry.resource,
           resourceId: entry.resourceId,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           oldValue: entry.oldValue ? (entry.oldValue as any) : undefined,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           newValue: entry.newValue ? (entry.newValue as any) : undefined,
           ipAddress: entry.ipAddress,
           userAgent: entry.userAgent,

@@ -4,7 +4,6 @@ import {
   Post,
   Put,
   Param,
-  Body,
   Query,
   Req,
 } from '@nestjs/common';
@@ -57,13 +56,13 @@ export class UsersProxyController {
   @Roles('admin')
   @ApiOperation({ summary: 'Create a new user' })
   async create(
-    @Body() body: unknown,
+    
     @Req() req: Request,
   ): Promise<unknown> {
     return this.proxy.forward('iam', {
       method: 'POST',
       path: '/users',
-      body,
+      body: req.body,
       headers: {
         [CORRELATION_ID_HEADER]: req.headers[CORRELATION_ID_HEADER] as string,
         authorization: req.headers['authorization'] as string,
@@ -75,13 +74,13 @@ export class UsersProxyController {
   @ApiOperation({ summary: 'Update user' })
   async update(
     @Param('id') id: string,
-    @Body() body: unknown,
+    
     @Req() req: Request,
   ): Promise<unknown> {
     return this.proxy.forward('iam', {
       method: 'PUT',
       path: `/users/${id}`,
-      body,
+      body: req.body,
       headers: {
         [CORRELATION_ID_HEADER]: req.headers[CORRELATION_ID_HEADER] as string,
         authorization: req.headers['authorization'] as string,

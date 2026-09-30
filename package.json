@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "build": "npm run build:all",
+    "lint": "npm run lint:all",
+    "test": "npm run test:all",
     "dev": "npm-run-all --parallel dev:gateway dev:iam dev:accounts dev:transactions dev:loan dev:notifications dev:workflow dev:web",
     "dev:gateway": "nest start api-gateway --watch",
     "dev:iam": "nest start iam-service --watch",
@@ -79,6 +82,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "form-data": "^4.0.6",
+    "glob": "^13.0.6",
     "http-proxy-middleware": "^4.2.0",
     "ioredis": "^5.6.0",
     "jwks-rsa": "^4.1.0",
