@@ -9,7 +9,7 @@
   "scripts": {
     "dev:api": "npm run start:dev -w @bankcore/api",
     "dev:web": "npm run dev -w @bankcore/web",
-    "build": "npm run build --workspaces --if-present",
+    "build": "npm run build -w @bankcore/contracts && npm run build -w @bankcore/database && npm run build -w @bankcore/api && npm run build -w @bankcore/web",
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present"

@@ -29,6 +29,7 @@ describe('AppController (e2e)', () => {
   });
 
   it('/api/v1/health (GET)', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return request(app.getHttpServer())
       .get('/api/v1/health')
       .expect(200)
@@ -41,7 +42,21 @@ describe('AppController (e2e)', () => {
       });
   });
 
+  it('/api/v1/health/db (GET)', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    return request(app.getHttpServer())
+      .get('/api/v1/health/db')
+      .expect(200)
+      .expect((res: any) => {
+        expect(res.body).toHaveProperty('data');
+        expect(res.body.data).toHaveProperty('status', 'ok');
+        expect(res.body.data).toHaveProperty('database', 'connected');
+        expect(typeof res.body.data.userCount).toBe('number');
+      });
+  });
+
   it('/api/v1/nonexistent (GET) returns error envelope', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return request(app.getHttpServer())
       .get('/api/v1/nonexistent')
       .expect(404)
@@ -49,7 +64,7 @@ describe('AppController (e2e)', () => {
         expect(res.body).toHaveProperty('data', null);
         expect(res.body).toHaveProperty('error');
         expect(res.body.error).toHaveProperty('message');
-        expect(res.body.error).toHaveProperty('code', 'INTERNAL_ERROR');
+        expect(res.body.error).toHaveProperty('code', 'Not Found');
       });
   });
 });

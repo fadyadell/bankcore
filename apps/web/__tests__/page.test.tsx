@@ -1,27 +1,24 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import Home from '@/app/page';
 
-// Mock the apiClient module
-jest.mock('@/lib/apiClient', () => ({
-  fetchApi: jest.fn().mockResolvedValue({
-    data: {
-      status: 'ok',
-      uptime: 100,
-      timestamp: '2026-09-30T10:00:00.000Z'
-    },
-    error: null
-  })
+// Mock the auth context
+jest.mock('@/lib/auth', () => ({
+  useAuth: jest.fn().mockReturnValue({
+    user: null,
+    loading: true,
+  }),
+}));
+
+// Mock next/navigation
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn().mockReturnValue({
+    replace: jest.fn(),
+  }),
 }));
 
 describe('Home Page', () => {
-  it('renders the API Health Status title', async () => {
-    const resolvedHome = await Home();
-    render(resolvedHome);
-    expect(screen.getByText('API Health Status')).toBeInTheDocument();
-    
-    // Wait for the mock to resolve and state to update
-    await waitFor(() => {
-      expect(screen.getByText('Healthy')).toBeInTheDocument();
-    });
+  it('renders loading state', () => {
+    render(<Home />);
+    expect(screen.getByText('Loading BankCore...')).toBeInTheDocument();
   });
 });

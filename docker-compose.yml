@@ -1,0 +1,101 @@
+services:
+
+  # ============================================================
+  # BankCore PostgreSQL
+  # ============================================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: bankcore-postgres
+
+    environment:
+      POSTGRES_USER: bankcore
+      POSTGRES_PASSWORD: bankcore_password
+      POSTGRES_DB: bankcore_db
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bankcore -d bankcore_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+
+  # ============================================================
+  # GoRules
+  # ============================================================
+  gorules:
+    image: gorules/brms
+    container_name: bankcore-gorules
+
+    ports:
+      - "4000:80"
+
+    environment:
+      PORT: 4000
+
+      DB_HOST: postgres
+      DB_NAME: bankcore_db
+      DB_USER: bankcore
+      DB_PASSWORD: bankcore_password
+      DB_SSL_DISABLED: "true"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+
+  # ============================================================
+  # Flowable PostgreSQL
+  # ============================================================
+  flowable-postgres:
+    image: postgres:15-alpine
+    container_name: bankcore-flowable-postgres
+
+    environment:
+      POSTGRES_USER: flowable
+      POSTGRES_PASSWORD: flowable_password
+      POSTGRES_DB: flowable_db
+
+    volumes:
+      - flowable-postgres-data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flowable -d flowable_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+
+  # ============================================================
+  # Flowable REST
+  # ============================================================
+  flowable:
+    image: flowable/flowable-rest:6.8.0
+    container_name: bankcore-flowable
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      SERVER_PORT: 8080
+
+      SPRING_DATASOURCE_DRIVER-CLASS-NAME: org.postgresql.Driver
+      SPRING_DATASOURCE_URL: jdbc:postgresql://flowable-postgres:5432/flowable_db
+      SPRING_DATASOURCE_USERNAME: flowable
+      SPRING_DATASOURCE_PASSWORD: flowable_password
+
+    depends_on:
+      flowable-postgres:
+        condition: service_healthy
+
+
+volumes:
+
+  postgres-data:
+
+  flowable-postgres-data:

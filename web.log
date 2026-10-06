@@ -1,0 +1,16 @@
+
+> bankcore@1.0.0 dev:web
+> npm run dev -w @bankcore/web
+
+
+> @bankcore/web@0.1.0 dev
+> next dev
+
+▲ Next.js 16.3.7 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://10.30.13.24:3000
+✓ Ready in 557ms
+✓ Running next.config.ts took 35ms
+
+ GET / 200 in 499ms (next.js: 221ms, application-code: 277ms)
+ GET / 200 in 82ms (next.js: 6ms, application-code: 75ms)

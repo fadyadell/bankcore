@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  firstName    String
+  lastName     String
+  role         String   // CUSTOMER, EMPLOYEE, ADMIN
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  accounts      Account[]
+  loans         Loan[]
+  notifications Notification[]
+}
+
+model Account {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  type      String   // CHECKING, SAVINGS
+  balance   Float    @default(0.0)
+  currency  String   @default("USD")
+  status    String   @default("ACTIVE") // ACTIVE, SUSPENDED, CLOSED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  fromTransactions Transaction[] @relation("FromAccount")
+  toTransactions   Transaction[] @relation("ToAccount")
+}
+
+model Transaction {
+  id            String   @id @default(uuid())
+  fromAccountId String?
+  fromAccount   Account? @relation("FromAccount", fields: [fromAccountId], references: [id])
+  toAccountId   String?
+  toAccount     Account? @relation("ToAccount", fields: [toAccountId], references: [id])
+  amount        Float
+  currency      String   @default("USD")
+  type          String   // DEPOSIT, WITHDRAWAL, TRANSFER
+  status        String   @default("PENDING") // PENDING, COMPLETED, FAILED
+  reference     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Loan {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  amount       Float
+  interestRate Float    @default(0)
+  termMonths   Int
+  status       String   @default("PENDING") // PENDING, RISK_ASSESSED, EMPLOYEE_REVIEW, ADMIN_REVIEW, APPROVED, REJECTED, ACTIVE, PAID
+
+  // Risk & Decision
+  riskScore    Float?
+  riskLevel    String?  // LOW, MEDIUM, HIGH
+  riskDecision String?  // AUTO_APPROVE, REVIEW, REJECT
+
+  // Workflow
+  processId    String?
+
+  // Audit
+  employeeId   String?  // The user who performed employee review
+  adminId      String?  // The user who performed admin review
+  rejectionReason String?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  type      String   // EMAIL, SMS, PUSH
+  title     String
+  message   String
+  status    String   @default("UNREAD") // UNREAD, READ
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
