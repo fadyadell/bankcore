@@ -29,11 +29,15 @@ services:
   # GoRules
   # ============================================================
   gorules:
-    image: gorules/brms
+    image: node:20-alpine
     container_name: bankcore-gorules
+    volumes:
+      - ./apps/gorules:/app
+    working_dir: /app
+    command: sh -c "npm install && node server.js"
 
     ports:
-      - "4000:80"
+      - "4000:4000"
 
     environment:
       PORT: 4000
@@ -43,7 +47,7 @@ services:
       DB_USER: bankcore
       DB_PASSWORD: bankcore_password
       DB_SSL_DISABLED: "true"
-
+ 
     depends_on:
       postgres:
         condition: service_healthy
@@ -92,6 +96,7 @@ services:
     depends_on:
       flowable-postgres:
         condition: service_healthy
+
 
 
 volumes:

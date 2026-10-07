@@ -7,7 +7,7 @@ export class FlowableService {
   private readonly baseUrl =
     process.env.FLOWABLE_URL || 'http://localhost:8080/flowable-rest/service';
   private readonly auth = {
-    username: process.env.FLOWABLE_USER || 'admin',
+    username: process.env.FLOWABLE_USER || 'rest-admin',
     password: process.env.FLOWABLE_PASSWORD || 'test',
   };
 
@@ -16,9 +16,8 @@ export class FlowableService {
     variables: Record<string, unknown>,
   ): Promise<string> {
     try {
-      if (process.env.NODE_ENV === 'test') {
-        return `mock-process-${loanId}`;
-      }
+      // No longer mock in test environment
+
 
       const response = await axios.post<{ id: string }>(
         `${this.baseUrl}/runtime/process-instances`,
@@ -47,7 +46,7 @@ export class FlowableService {
     variables: Record<string, unknown>,
   ): Promise<void> {
     try {
-      if (process.env.NODE_ENV === 'test') return;
+      // No longer mock in test environment
 
       await axios.post<void>(
         `${this.baseUrl}/runtime/tasks/${taskId}`,
@@ -64,6 +63,18 @@ export class FlowableService {
       this.logger.error(
         `Flowable complete task failed: ${(error as Error).message}`,
       );
+      throw new Error('Workflow Engine Unavailable');
+    }
+  }
+  async getTasksByProcessId(processId: string): Promise<any[]> {
+    try {
+      const response = await axios.get<{ data: any[] }>(
+        `${this.baseUrl}/runtime/tasks?processInstanceId=${processId}`,
+        { auth: this.auth, timeout: 5000 },
+      );
+      return response.data.data;
+    } catch (error) {
+      this.logger.error(`Flowable get tasks failed: ${(error as Error).message}`);
       throw new Error('Workflow Engine Unavailable');
     }
   }

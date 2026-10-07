@@ -1,5 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
-import axios from 'axios';
+import { Injectable, Logger, OnModuleInit, ServiceUnavailableException } from '@nestjs/common';
+import { ZenEngine } from '@gorules/zen-engine';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export interface GoRulesInput {
   loanAmount: number;
@@ -18,70 +20,57 @@ export interface GoRulesOutput {
 }
 
 @Injectable()
-export class GoRulesService {
+export class GoRulesService implements OnModuleInit {
   private readonly logger = new Logger(GoRulesService.name);
-  private readonly goRulesUrl =
-    process.env.GORULES_URL || 'http://localhost:4000/api/evaluate';
+  private decision: any;
 
-  async evaluateLoanRisk(input: GoRulesInput): Promise<GoRulesOutput> {
+  onModuleInit() {
     try {
-      if (process.env.NODE_ENV === 'test') {
-        return this.mockEvaluation(input);
-      }
-
-      // We wrap the input in a standard GoRules execution format, but since we may not
-      // have an actual GoRules decision table loaded, we will implement a soft fallback.
-      const response = await axios.post<{ result?: Partial<GoRulesOutput> }>(
-        this.goRulesUrl,
-        { context: input },
-        { timeout: 5000 },
-      );
-
-      // Map the response appropriately
-      const data = response.data;
-      if (data && data.result) {
-        return {
-          riskScore: data.result.riskScore ?? 50,
-          riskLevel: data.result.riskLevel ?? 'MEDIUM',
-          decision: data.result.decision ?? 'REVIEW',
-          reasons: data.result.reasons ?? ['Standard review required'],
-        };
-      }
-
-      throw new Error('Malformed decision from GoRules');
+      const engine = new ZenEngine();
+      const rulePath = path.join(__dirname, 'loan-risk.json');
+      const ruleContent = fs.readFileSync(rulePath);
+      this.decision = engine.createDecision(ruleContent);
+      this.logger.log(`GoRules decision engine initialized from ${rulePath}`);
     } catch (error) {
-      this.logger.error(
-        `GoRules evaluation failed: ${(error as Error).message}`,
-      );
-      throw new Error('Risk Engine Unavailable');
+      this.logger.error(`Failed to initialize GoRules engine: ${(error as Error).message}`);
+      throw new ServiceUnavailableException('Risk engine unavailable');
     }
   }
 
-  private mockEvaluation(input: GoRulesInput): GoRulesOutput {
-    // Basic mock logic for testing
-    if (input.loanAmount > 100000) {
-      return {
-        riskScore: 90,
-        riskLevel: 'HIGH',
-        decision: 'REJECT',
-        reasons: ['Amount exceeds maximum limit'],
-      };
-    }
+  async evaluateLoanRisk(input: GoRulesInput): Promise<GoRulesOutput> {
+    try {
+      const result = await this.decision.evaluate(input);
+      const data = result.result;
 
-    if (input.accountBalance >= input.loanAmount) {
-      return {
-        riskScore: 20,
-        riskLevel: 'LOW',
-        decision: 'AUTO_APPROVE',
-        reasons: ['High liquidity'],
-      };
-    }
+      if (!data) {
+        throw new Error('No result returned from engine');
+      }
 
-    return {
-      riskScore: 50,
-      riskLevel: 'MEDIUM',
-      decision: 'REVIEW',
-      reasons: ['Requires manual review'],
-    };
+      if (typeof data.riskScore !== 'number') {
+        throw new Error('Invalid or missing riskScore');
+      }
+
+      if (!['LOW', 'MEDIUM', 'HIGH'].includes(data.riskLevel)) {
+        throw new Error(`Invalid riskLevel: ${data.riskLevel}`);
+      }
+
+      if (!['AUTO_APPROVE', 'REVIEW', 'REJECT'].includes(data.decision)) {
+        throw new Error(`Invalid decision: ${data.decision}`);
+      }
+
+      if (!Array.isArray(data.reasons)) {
+        throw new Error('Invalid or missing reasons');
+      }
+
+      return {
+        riskScore: data.riskScore,
+        riskLevel: data.riskLevel as 'LOW' | 'MEDIUM' | 'HIGH',
+        decision: data.decision as 'AUTO_APPROVE' | 'REVIEW' | 'REJECT',
+        reasons: data.reasons,
+      };
+    } catch (error) {
+      this.logger.error(`GoRules evaluation failed: ${(error as Error).message}`);
+      throw new ServiceUnavailableException('Risk engine unavailable');
+    }
   }
 }

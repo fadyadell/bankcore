@@ -1,0 +1,63 @@
+{
+  "contentType": "application/vnd.gorules.decision",
+  "nodes": [
+    { "id": "input1", "name": "Input", "type": "inputNode", "position": { "x": 0, "y": 0 } },
+    { "id": "output1", "name": "Output", "type": "outputNode", "position": { "x": 400, "y": 0 } },
+    {
+      "id": "decision1",
+      "name": "Decision",
+      "type": "decisionTableNode",
+      "position": { "x": 200, "y": 0 },
+      "content": {
+        "hitPolicy": "first",
+        "inputs": [
+          { "id": "i1", "name": "loanAmount", "field": "loanAmount" },
+          { "id": "i2", "name": "existingLoanCount", "field": "existingLoanCount" }
+        ],
+        "outputs": [
+          { "id": "o1", "name": "riskLevel", "field": "riskLevel" },
+          { "id": "o2", "name": "decision", "field": "decision" },
+          { "id": "o3", "name": "riskScore", "field": "riskScore" }
+        ],
+        "rules": [
+          {
+            "_id": "rule1",
+            "i1": "> 50000",
+            "i2": "",
+            "o1": "\"HIGH\"",
+            "o2": "\"REJECT\"",
+            "o3": "80"
+          },
+          {
+            "_id": "rule2",
+            "i1": "",
+            "i2": "> 2",
+            "o1": "\"HIGH\"",
+            "o2": "\"REJECT\"",
+            "o3": "70"
+          },
+          {
+            "_id": "rule3",
+            "i1": "> 10000",
+            "i2": "",
+            "o1": "\"MEDIUM\"",
+            "o2": "\"REVIEW\"",
+            "o3": "50"
+          },
+          {
+            "_id": "rule4",
+            "i1": "",
+            "i2": "",
+            "o1": "\"LOW\"",
+            "o2": "\"AUTO_APPROVE\"",
+            "o3": "20"
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "type": "edge", "sourceId": "input1", "targetId": "decision1" },
+    { "id": "e2", "type": "edge", "sourceId": "decision1", "targetId": "output1" }
+  ]
+}

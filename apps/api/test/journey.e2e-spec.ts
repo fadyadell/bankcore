@@ -165,25 +165,30 @@ describe('User Journey (e2e)', () => {
       .send({ amount: 1000, termMonths: 12 })
       .expect(201);
     loanId = res.body.data.id;
+    
+    // Verify GoRules and Flowable executed successfully
+    expect(res.body.data.status).toBe('EMPLOYEE_REVIEW');
+    expect(res.body.data.processId).toBeDefined();
+    expect(res.body.data.riskScore).toBe(20);
   });
 
   it('14. Employee reviews loan', async () => {
     await request(app.getHttpServer())
       .put(`/api/v1/loans/${loanId}/review`)
       .set('Authorization', `Bearer ${employeeToken}`)
-      .send({ status: 'REJECTED' })
+      .send({ status: 'APPROVED' })
       .expect(200);
   });
 
-  it('15. Notification appears for customer', async () => {
+  it('16. Notification appears for customer', async () => {
     const res = await request(app.getHttpServer())
       .get('/api/v1/notifications/my')
       .set('Authorization', `Bearer ${customerToken}`)
       .expect(200);
 
-    const rejectedNotif = res.body.data.find(
-      (n: any) => n.title === 'Loan Rejected',
+    const approvedNotif = res.body.data.find(
+      (n: any) => n.title === 'Loan Approved!',
     );
-    expect(rejectedNotif).toBeDefined();
+    expect(approvedNotif).toBeDefined();
   });
 });

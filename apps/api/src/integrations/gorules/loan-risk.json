@@ -1,0 +1,68 @@
+{
+  "contentType": "application/vnd.gorules.decision",
+  "nodes": [
+    { "id": "input1", "name": "Input", "type": "inputNode", "position": { "x": 0, "y": 0 } },
+    { "id": "output1", "name": "Output", "type": "outputNode", "position": { "x": 400, "y": 0 } },
+    {
+      "id": "decision1",
+      "name": "Decision",
+      "type": "decisionTableNode",
+      "position": { "x": 200, "y": 0 },
+      "content": {
+        "hitPolicy": "first",
+        "inputs": [
+          { "id": "i1", "name": "loanAmount", "field": "loanAmount" },
+          { "id": "i2", "name": "existingLoanCount", "field": "existingLoanCount" }
+        ],
+        "outputs": [
+          { "id": "o1", "name": "riskLevel", "field": "riskLevel" },
+          { "id": "o2", "name": "decision", "field": "decision" },
+          { "id": "o3", "name": "riskScore", "field": "riskScore" },
+          { "id": "o4", "name": "reasons", "field": "reasons" }
+        ],
+        "rules": [
+          {
+            "_id": "rule1",
+            "i1": "> 50000",
+            "i2": "",
+            "o1": "\"HIGH\"",
+            "o2": "\"REJECT\"",
+            "o3": "80",
+            "o4": "[\"Loan amount exceeds maximum threshold\"]"
+          },
+          {
+            "_id": "rule2",
+            "i1": "",
+            "i2": "> 2",
+            "o1": "\"HIGH\"",
+            "o2": "\"REJECT\"",
+            "o3": "70",
+            "o4": "[\"Too many existing loans\"]"
+          },
+          {
+            "_id": "rule3",
+            "i1": "> 10000",
+            "i2": "",
+            "o1": "\"MEDIUM\"",
+            "o2": "\"REVIEW\"",
+            "o3": "50",
+            "o4": "[\"Standard review required\"]"
+          },
+          {
+            "_id": "rule4",
+            "i1": "",
+            "i2": "",
+            "o1": "\"LOW\"",
+            "o2": "\"AUTO_APPROVE\"",
+            "o3": "20",
+            "o4": "[\"Low risk parameters\"]"
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "type": "edge", "sourceId": "input1", "targetId": "decision1" },
+    { "id": "e2", "type": "edge", "sourceId": "decision1", "targetId": "output1" }
+  ]
+}

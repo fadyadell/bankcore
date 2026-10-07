@@ -168,6 +168,19 @@ export class LoansService {
       include: { user: true },
     });
 
+    if (loan.processId) {
+      try {
+        const tasks = await this.flowable.getTasksByProcessId(loan.processId);
+        if (tasks && tasks.length > 0) {
+          const taskId = tasks[0].id;
+          await this.flowable.completeTask(taskId, { reviewStatus: status });
+        }
+      } catch (err) {
+        // Log the error but don't fail the review if workflow engine fails here
+        console.error('Failed to complete Flowable task', err);
+      }
+    }
+
     // Notify the customer
     await this.prisma.notification.create({
       data: {
